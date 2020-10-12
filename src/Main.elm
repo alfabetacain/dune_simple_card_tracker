@@ -8,6 +8,7 @@ import Faction
 import Html exposing (Html, button, div, input, label, li, p, section, text, ul)
 import Html.Attributes exposing (checked, class, type_)
 import Html.Events exposing (onClick)
+import Html5.DragDrop as DragDrop
 
 
 main =
@@ -20,7 +21,9 @@ subscriptions _ =
 
 
 type alias Game =
-    { players : List Player }
+    { players : List Player
+    , dragDrop : DragDrop.Model Card.Type Faction.Type
+    }
 
 
 type alias Setup =
@@ -75,6 +78,7 @@ type GameMsg
     | DiscardCard Card.Type Faction.Type
     | IdentifyCard Card.Type Faction.Type
     | DeIdentifyCard Card.Type Faction.Type
+    | DragDropCardToFaction (DragDrop.Msg Card.Type Faction.Type)
 
 
 type Msg
@@ -123,7 +127,9 @@ createGame factions =
         players =
             atreides :: List.map createPlayer factions
     in
-    { players = players }
+    { players = players
+    , dragDrop = DragDrop.init
+    }
 
 
 withNoCommand : Model -> ( Model, Cmd msg )
@@ -159,16 +165,18 @@ deIdentifyCard card hand =
                 head :: identifyCard card tail
 
 
+addCardToPlayer : Card.Type -> Faction.Type -> List Player -> List Player
+addCardToPlayer card faction players =
+    updateFaction (\player -> { player | hand = card :: player.hand }) faction players
+
+
 updateGame : GameMsg -> Game -> ( Model, Cmd Msg )
 updateGame msg game =
     case msg of
         AddCard card faction ->
             let
-                updatedPlayers =
-                    updateFaction (\player -> { player | hand = card :: player.hand }) faction game.players
-
                 updatedGame =
-                    { game | players = updatedPlayers }
+                    { game | players = addCardToPlayer card faction game.players }
             in
             withNoCommand <| ViewGame updatedGame
 
@@ -195,6 +203,22 @@ updateGame msg game =
                     updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
             in
             withNoCommand <| ViewGame { game | players = updatedPlayers }
+
+        DragDropCardToFaction msg_ ->
+            let
+                ( model_, result ) =
+                    DragDrop.update msg_ game.dragDrop
+            in
+            case result of
+                Nothing ->
+                    withNoCommand <| ViewGame { game | dragDrop = model_ }
+
+                Just ( card, faction, _ ) ->
+                    let
+                        updatedPlayers =
+                            addCardToPlayer card faction game.players
+                    in
+                    withNoCommand <| ViewGame { game | players = updatedPlayers, dragDrop = model_ }
 
 
 updateSetup : SetupMsg -> Setup -> ( Model, Cmd Msg )
@@ -263,7 +287,7 @@ viewPlayerTiles players =
     let
         playerTile player =
             div [ class Bulma.tile, class Bulma.isParent ]
-                [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.box ]
+                [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
                     [ div [ class Bulma.container ]
                         [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
                         , ul [] <| List.map (\card -> li [] [ text (Card.toString card) ]) player.hand
@@ -281,7 +305,7 @@ viewDeck : Html Msg
 viewDeck =
     let
         viewCard card =
-            li [] [ text <| Card.toString card ]
+            li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| Card.toString card ]
 
         viewCards cards =
             ul [] (List.map viewCard cards)
