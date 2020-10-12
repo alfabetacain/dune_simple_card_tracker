@@ -1,6 +1,9 @@
 name: CI
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -9,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false
       - name: Setup Elm
         uses: jorelali/setup-elm@v1
         with:
@@ -17,9 +22,9 @@ jobs:
         run: elm make src/Main.elm --output=dist/main.js
       - name: Deploy
         if: success()
-        uses: crazy-max/ghaction-github-pages@v1
+        uses: JamesIves/github-pages-deploy-action@3.6.2
         with:
-          target_branch: gh-pages
-          build_dir: dist
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+          BRANCH: gh-pages
+          FOLDER: dist
+          CLEAN: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
