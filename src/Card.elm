@@ -1,4 +1,6 @@
-module Card exposing (Type, cheapHero, deck, defensePoison, defenseProjectile, defenses, eq, familyAtomics, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, cardLimit, cheapHero, deck, defensePoison, defenseProjectile, defenses, eq, familyAtomics, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+
+import Dict
 
 
 type Type
@@ -21,6 +23,32 @@ toString card =
     case card of
         Card s ->
             s
+
+
+cardLimitDict : Dict.Dict String Int
+cardLimitDict =
+    Dict.fromList
+        [ ( toString weaponPoison, 4 )
+        , ( toString weaponProjectile, 4 )
+        , ( toString weaponLasgun, 1 )
+        , ( toString defensePoison, 4 )
+        , ( toString defenseProjectile, 4 )
+        , ( toString cheapHero, 3 )
+        , ( toString familyAtomics, 1 )
+        , ( toString hajr, 1 )
+        , ( toString karama, 2 )
+        , ( toString ghola, 1 )
+        , ( toString truthTrance, 2 )
+        , ( toString weatherControl, 1 )
+        , ( toString useless, 5 )
+        ]
+
+
+cardLimit : Type -> Int
+cardLimit typ =
+    case typ of
+        Card s ->
+            Maybe.withDefault 0 <| Dict.get s cardLimitDict
 
 
 

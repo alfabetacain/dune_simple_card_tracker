@@ -1,9 +1,10 @@
 module Main exposing (main)
 
-import AssocList as Dict exposing (Dict)
+import AssocList as ADict
 import Browser
 import Bulma.Classes as Bulma
 import Card
+import Dict
 import Faction
 import Html exposing (Html, button, div, input, label, li, p, section, text, ul)
 import Html.Attributes exposing (checked, class, type_)
@@ -27,7 +28,7 @@ type alias Game =
 
 
 type alias Setup =
-    { factions : Dict Faction.Type Bool }
+    { factions : ADict.Dict Faction.Type Bool }
 
 
 type Model
@@ -48,7 +49,7 @@ initSetup _ =
             [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
 
         factionDict =
-            Dict.fromList <| List.map (\faction -> ( faction, False )) factions
+            ADict.fromList <| List.map (\faction -> ( faction, False )) factions
 
         model =
             ViewSetup { factions = factionDict }
@@ -230,7 +231,7 @@ updateSetup msg model =
         ToggleFaction faction ->
             let
                 updatedDict =
-                    Dict.update faction (\v -> Maybe.map not v) model.factions
+                    ADict.update faction (\v -> Maybe.map not v) model.factions
             in
             withNoCommand <| ViewSetup { factions = updatedDict }
 
@@ -259,18 +260,18 @@ viewSetup model =
             div [ class Bulma.field ]
                 [ div [ class Bulma.control ]
                     [ label [ class Bulma.checkbox ]
-                        [ input [ type_ "checkbox", checked <| Maybe.withDefault False <| Dict.get faction model.factions, onClick (ViewSetupMsg <| ToggleFaction faction) ] []
+                        [ input [ type_ "checkbox", checked <| Maybe.withDefault False <| ADict.get faction model.factions, onClick (ViewSetupMsg <| ToggleFaction faction) ] []
                         , text (Faction.toString faction)
                         ]
                     ]
                 ]
 
         fields =
-            List.map factionField (Dict.keys model.factions)
+            List.map factionField (ADict.keys model.factions)
 
         currentSelectedFactions =
-            Dict.keys <|
-                Dict.filter (\_ selected -> selected) model.factions
+            ADict.keys <|
+                ADict.filter (\_ selected -> selected) model.factions
 
         startGameField =
             div [ class Bulma.field ]
@@ -301,14 +302,46 @@ viewPlayerTiles players =
     playerTiles
 
 
-viewDeck : Html Msg
-viewDeck =
+countCards : List Card.Type -> Dict.Dict String Int
+countCards cards =
     let
-        viewCard card =
-            li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| Card.toString card ]
+        updater res =
+            case res of
+                Nothing ->
+                    Just 1
+
+                Just x ->
+                    Just <| x + 1
+
+        folder current acc =
+            Dict.update (Card.toString current) updater acc
+    in
+    List.foldl folder Dict.empty cards
+
+
+viewDeckCard : Dict.Dict String Int -> Card.Type -> Html Msg
+viewDeckCard counts card =
+    let
+        cardCount =
+            String.fromInt <| Maybe.withDefault 0 <| Dict.get (Card.toString card) counts
+
+        limit =
+            String.fromInt <| Card.cardLimit card
+
+        countString =
+            "(" ++ cardCount ++ "/" ++ limit ++ ")"
+    in
+    li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| Card.toString card ++ " " ++ countString ]
+
+
+viewDeck : List Card.Type -> Html Msg
+viewDeck cardsInPlay =
+    let
+        cardCounts =
+            countCards cardsInPlay
 
         viewCards cards =
-            ul [] (List.map viewCard cards)
+            ul [] (List.map (viewDeckCard cardCounts) cards)
 
         tileEmUp cards colorClass =
             div [ class Bulma.tile, class Bulma.isParent ]
@@ -339,7 +372,7 @@ viewDeck =
 viewGame : Game -> Html Msg
 viewGame game =
     div [ class Bulma.container ]
-        [ viewDeck
+        [ viewDeck <| List.concatMap (\player -> player.hand) game.players
         , viewPlayerTiles game.players
         ]
 
