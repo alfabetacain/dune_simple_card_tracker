@@ -5164,13 +5164,15 @@ var $author$project$Main$createPlayer = function (faction) {
 			[$author$project$Card$useless, $author$project$Card$weaponPoison])
 	};
 };
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Main$createGame = function (factions) {
 	var atreides = $author$project$Main$createPlayer($author$project$Faction$atreides);
 	var players = A2(
 		$elm$core$List$cons,
 		atreides,
 		A2($elm$core$List$map, $author$project$Main$createPlayer, factions));
-	return {players: players};
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, players: players};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -5192,6 +5194,27 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
 var $elm$core$Debug$log = _Debug_log;
+var $author$project$Main$updateFaction = F3(
+	function (map, faction, players) {
+		var maybeUpdate = function (player) {
+			return _Utils_eq(player.faction, faction) ? map(player) : player;
+		};
+		return A2($elm$core$List$map, maybeUpdate, players);
+	});
+var $author$project$Main$addCardToPlayer = F3(
+	function (card, faction, players) {
+		return A3(
+			$author$project$Main$updateFaction,
+			function (player) {
+				return _Utils_update(
+					player,
+					{
+						hand: A2($elm$core$List$cons, card, player.hand)
+					});
+			},
+			faction,
+			players);
+	});
 var $author$project$Card$eq = F2(
 	function (card1, card2) {
 		var _v0 = _Utils_Tuple2(card1, card2);
@@ -5226,13 +5249,125 @@ var $author$project$Main$removeFirst = F2(
 			return _List_Nil;
 		}
 	});
-var $author$project$Main$updateFaction = F3(
-	function (map, faction, players) {
-		var maybeUpdate = function (player) {
-			return _Utils_eq(player.faction, faction) ? map(player) : player;
-		};
-		return A2($elm$core$List$map, maybeUpdate, players);
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
+	function (a, b, c, d) {
+		return {$: 'DraggedOver', a: a, b: b, c: c, d: d};
 	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$Dragging = function (a) {
+	return {$: 'Dragging', a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
+	function (sticky, msg, model) {
+		var _v0 = _Utils_Tuple3(msg, model, sticky);
+		_v0$9:
+		while (true) {
+			switch (_v0.a.$) {
+				case 'DragStart':
+					var _v1 = _v0.a;
+					var dragId = _v1.a;
+					return _Utils_Tuple2(
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$Dragging(dragId),
+						$elm$core$Maybe$Nothing);
+				case 'DragEnd':
+					var _v2 = _v0.a;
+					return _Utils_Tuple2($norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging, $elm$core$Maybe$Nothing);
+				case 'DragEnter':
+					switch (_v0.b.$) {
+						case 'Dragging':
+							var dropId = _v0.a.a;
+							var dragId = _v0.b.a;
+							return _Utils_Tuple2(
+								A4($norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver, dragId, dropId, 0, $elm$core$Maybe$Nothing),
+								$elm$core$Maybe$Nothing);
+						case 'DraggedOver':
+							var dropId = _v0.a.a;
+							var _v3 = _v0.b;
+							var dragId = _v3.a;
+							var pos = _v3.d;
+							return _Utils_Tuple2(
+								A4($norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver, dragId, dropId, 0, pos),
+								$elm$core$Maybe$Nothing);
+						default:
+							break _v0$9;
+					}
+				case 'DragLeave':
+					if ((_v0.b.$ === 'DraggedOver') && (!_v0.c)) {
+						var dropId_ = _v0.a.a;
+						var _v4 = _v0.b;
+						var dragId = _v4.a;
+						var dropId = _v4.b;
+						return _Utils_eq(dropId_, dropId) ? _Utils_Tuple2(
+							$norpan$elm_html5_drag_drop$Html5$DragDrop$Dragging(dragId),
+							$elm$core$Maybe$Nothing) : _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
+					} else {
+						break _v0$9;
+					}
+				case 'DragOver':
+					switch (_v0.b.$) {
+						case 'Dragging':
+							var _v5 = _v0.a;
+							var dropId = _v5.a;
+							var timeStamp = _v5.b;
+							var pos = _v5.c;
+							var dragId = _v0.b.a;
+							return _Utils_Tuple2(
+								A4(
+									$norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver,
+									dragId,
+									dropId,
+									timeStamp,
+									$elm$core$Maybe$Just(pos)),
+								$elm$core$Maybe$Nothing);
+						case 'DraggedOver':
+							var _v6 = _v0.a;
+							var dropId = _v6.a;
+							var timeStamp = _v6.b;
+							var pos = _v6.c;
+							var _v7 = _v0.b;
+							var dragId = _v7.a;
+							var currentDropId = _v7.b;
+							var currentTimeStamp = _v7.c;
+							var currentPos = _v7.d;
+							return _Utils_eq(timeStamp, currentTimeStamp) ? _Utils_Tuple2(model, $elm$core$Maybe$Nothing) : _Utils_Tuple2(
+								A4(
+									$norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver,
+									dragId,
+									dropId,
+									timeStamp,
+									$elm$core$Maybe$Just(pos)),
+								$elm$core$Maybe$Nothing);
+						default:
+							break _v0$9;
+					}
+				default:
+					switch (_v0.b.$) {
+						case 'Dragging':
+							var _v8 = _v0.a;
+							var dropId = _v8.a;
+							var pos = _v8.b;
+							var dragId = _v0.b.a;
+							return _Utils_Tuple2(
+								$norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging,
+								$elm$core$Maybe$Just(
+									_Utils_Tuple3(dragId, dropId, pos)));
+						case 'DraggedOver':
+							var _v9 = _v0.a;
+							var dropId = _v9.a;
+							var pos = _v9.b;
+							var _v10 = _v0.b;
+							var dragId = _v10.a;
+							return _Utils_Tuple2(
+								$norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging,
+								$elm$core$Maybe$Just(
+									_Utils_Tuple3(dragId, dropId, pos)));
+						default:
+							break _v0$9;
+					}
+			}
+		}
+		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
 var $author$project$Main$withNoCommand = function (model) {
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
@@ -5242,20 +5377,11 @@ var $author$project$Main$updateGame = F2(
 			case 'AddCard':
 				var card = msg.a;
 				var faction = msg.b;
-				var updatedPlayers = A3(
-					$author$project$Main$updateFaction,
-					function (player) {
-						return _Utils_update(
-							player,
-							{
-								hand: A2($elm$core$List$cons, card, player.hand)
-							});
-					},
-					faction,
-					game.players);
 				var updatedGame = _Utils_update(
 					game,
-					{players: updatedPlayers});
+					{
+						players: A3($author$project$Main$addCardToPlayer, card, faction, game.players)
+					});
 				return $author$project$Main$withNoCommand(
 					$author$project$Main$ViewGame(updatedGame));
 			case 'DiscardCard':
@@ -5296,7 +5422,7 @@ var $author$project$Main$updateGame = F2(
 						_Utils_update(
 							game,
 							{players: updatedPlayers})));
-			default:
+			case 'DeIdentifyCard':
 				var card = msg.a;
 				var faction = msg.b;
 				var updatedPlayers = A3(
@@ -5315,6 +5441,28 @@ var $author$project$Main$updateGame = F2(
 						_Utils_update(
 							game,
 							{players: updatedPlayers})));
+			default:
+				var msg_ = msg.a;
+				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
+				var model_ = _v1.a;
+				var result = _v1.b;
+				if (result.$ === 'Nothing') {
+					return $author$project$Main$withNoCommand(
+						$author$project$Main$ViewGame(
+							_Utils_update(
+								game,
+								{dragDrop: model_})));
+				} else {
+					var _v3 = result.a;
+					var card = _v3.a;
+					var faction = _v3.b;
+					var updatedPlayers = A3($author$project$Main$addCardToPlayer, card, faction, game.players);
+					return $author$project$Main$withNoCommand(
+						$author$project$Main$ViewGame(
+							_Utils_update(
+								game,
+								{dragDrop: model_, players: updatedPlayers})));
+				}
 		}
 	});
 var $author$project$Main$ViewSetup = function (a) {
@@ -5478,10 +5626,84 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $elm$html$Html$section = _VirtualDom_node('section');
 var $ahstro$elm_bulma_classes$Bulma$Classes$container = 'container';
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Main$DragDropCardToFaction = function (a) {
+	return {$: 'DragDropCardToFaction', a: a};
+};
+var $author$project$Main$ViewGameMsg = function (a) {
+	return {$: 'ViewGameMsg', a: a};
+};
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
 var $author$project$Card$defensePoison = $author$project$Card$Card('Defense - Poison');
 var $author$project$Card$defenseProjectile = $author$project$Card$Card('Defense - Projectile');
 var $author$project$Card$defenses = _List_fromArray(
 	[$author$project$Card$defensePoison, $author$project$Card$defenseProjectile]);
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd = {$: 'DragEnd'};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragStart = F2(
+	function (a, b) {
+		return {$: 'DragStart', a: a, b: b};
+	});
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
+	function (name, _v0, decoder) {
+		var stopPropagation = _v0.stopPropagation;
+		var preventDefault = _v0.preventDefault;
+		return A2(
+			$elm$html$Html$Events$custom,
+			name,
+			A2(
+				$elm$json$Json$Decode$map,
+				function (msg) {
+					return {message: msg, preventDefault: preventDefault, stopPropagation: stopPropagation};
+				},
+				decoder));
+	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
+	function (wrap, drag) {
+		return _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$attribute, 'draggable', 'true'),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragstart',
+				{preventDefault: false, stopPropagation: true},
+				A2(
+					$elm$json$Json$Decode$map,
+					A2(
+						$elm$core$Basics$composeL,
+						wrap,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragStart(drag)),
+					$elm$json$Json$Decode$value)),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragend',
+				{preventDefault: false, stopPropagation: true},
+				$elm$json$Json$Decode$succeed(
+					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
+			]);
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$isAncestor = 'is-ancestor';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isChild = 'is-child';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isDanger = 'is-danger';
@@ -5515,7 +5737,10 @@ var $author$project$Main$viewDeck = function () {
 	var viewCard = function (card) {
 		return A2(
 			$elm$html$Html$li,
-			_List_Nil,
+			A2(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$draggable,
+				A2($elm$core$Basics$composeL, $author$project$Main$ViewGameMsg, $author$project$Main$DragDropCardToFaction),
+				card),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(
@@ -5572,7 +5797,122 @@ var $author$project$Main$viewDeck = function () {
 		_List_fromArray(
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 }();
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
+	return {$: 'DragEnter', a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave = function (a) {
+	return {$: 'DragLeave', a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver = F3(
+	function (a, b, c) {
+		return {$: 'DragOver', a: a, b: b, c: c};
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
+	function (a, b) {
+		return {$: 'Drop', a: a, b: b};
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
+	function (width, height, x, y) {
+		return {height: height, width: width, x: x, y: y};
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $elm$core$Basics$round = _Basics_round;
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder = A5(
+	$elm$json$Json$Decode$map4,
+	$norpan$elm_html5_drag_drop$Html5$DragDrop$Position,
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['currentTarget', 'clientWidth']),
+		$elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['currentTarget', 'clientHeight']),
+		$elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$round,
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetX']),
+			$elm$json$Json$Decode$float)),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$round,
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetY']),
+			$elm$json$Json$Decode$float)));
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$elm$core$Basics$round,
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['timeStamp']),
+		$elm$json$Json$Decode$float));
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
+	function (wrap, dropId) {
+		return _List_fromArray(
+			[
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragenter',
+				{preventDefault: true, stopPropagation: true},
+				$elm$json$Json$Decode$succeed(
+					wrap(
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter(dropId)))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragleave',
+				{preventDefault: true, stopPropagation: true},
+				$elm$json$Json$Decode$succeed(
+					wrap(
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave(dropId)))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragover',
+				{preventDefault: true, stopPropagation: false},
+				A2(
+					$elm$json$Json$Decode$map,
+					wrap,
+					A3(
+						$elm$json$Json$Decode$map2,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver(dropId),
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'drop',
+				{preventDefault: true, stopPropagation: true},
+				A2(
+					$elm$json$Json$Decode$map,
+					A2(
+						$elm$core$Basics$composeL,
+						wrap,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$Drop(dropId)),
+					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
+			]);
+	});
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
 var $author$project$Faction$toString = function (faction) {
@@ -5592,12 +5932,18 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 				[
 					A2(
 					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isChild),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$box)
-						]),
+					A2(
+						$elm$core$List$append,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isChild),
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$box)
+							]),
+						A2(
+							$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
+							A2($elm$core$Basics$composeL, $author$project$Main$ViewGameMsg, $author$project$Main$DragDropCardToFaction),
+							player.faction)),
 					_List_fromArray(
 						[
 							A2(
@@ -5683,14 +6029,6 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
@@ -5719,7 +6057,6 @@ var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$on = F2(
 	function (event, decoder) {
 		return A2(
