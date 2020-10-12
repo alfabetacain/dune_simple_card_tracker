@@ -1,12 +1,13 @@
 module Main exposing (main)
 
-import Browser
 import AssocList as Dict exposing (Dict)
+import Browser
+import Bulma.Classes as Bulma
+import Card
+import Faction
 import Html exposing (Html, button, div, input, label, li, p, section, text, ul)
 import Html.Attributes exposing (checked, class, type_)
 import Html.Events exposing (onClick)
-import Faction
-import Card
 
 
 main =
@@ -31,15 +32,14 @@ type Model
     | ViewGame Game
 
 
-
 type alias Player =
     { faction : Faction.Type
     , hand : List Card.Type
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+initSetup : () -> ( Model, Cmd Msg )
+initSetup _ =
     let
         factions =
             [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
@@ -51,6 +51,18 @@ init _ =
             ViewSetup { factions = factionDict }
     in
     ( model, Cmd.none )
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    let
+        factions =
+            [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
+
+        game =
+            createGame factions
+    in
+    ( ViewGame game, Cmd.none )
 
 
 type SetupMsg
@@ -220,9 +232,9 @@ viewSetup : Setup -> Html Msg
 viewSetup model =
     let
         factionField faction =
-            div [ class "field" ]
-                [ div [ class "control" ]
-                    [ label [ class "checkbox" ]
+            div [ class Bulma.field ]
+                [ div [ class Bulma.control ]
+                    [ label [ class Bulma.checkbox ]
                         [ input [ type_ "checkbox", checked <| Maybe.withDefault False <| Dict.get faction model.factions, onClick (ViewSetupMsg <| ToggleFaction faction) ] []
                         , text (Faction.toString faction)
                         ]
@@ -237,32 +249,75 @@ viewSetup model =
                 Dict.filter (\_ selected -> selected) model.factions
 
         startGameField =
-            div [ class "field" ]
-                [ div [ class "control" ]
-                    [ button [ class "button", class "is-link", onClick (ViewSetupMsg <| CreateGame currentSelectedFactions) ] [ text "Create game" ]
+            div [ class Bulma.field ]
+                [ div [ class Bulma.control ]
+                    [ button [ class Bulma.button, class Bulma.isLink, onClick (ViewSetupMsg <| CreateGame currentSelectedFactions) ] [ text "Create game" ]
                     ]
                 ]
     in
     div [] <| List.concat [ fields, [ startGameField ] ]
 
 
-viewGame : Game -> Html Msg
-viewGame game =
+viewPlayerTiles : List Player -> Html Msg
+viewPlayerTiles players =
     let
         playerTile player =
-            div [ class "tile", class "is-parent" ]
-                [ div [ class "tile", class "is-child" ]
-                    [ div [ class "container" ]
-                        [ p [ class "title" ] [ text <| Faction.toString player.faction ]
+            div [ class Bulma.tile, class Bulma.isParent ]
+                [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.box ]
+                    [ div [ class Bulma.container ]
+                        [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
                         , ul [] <| List.map (\card -> li [] [ text (Card.toString card) ]) player.hand
                         ]
                     ]
                 ]
 
-        tiles =
-            List.map playerTile game.players
+        playerTiles =
+            div [ class Bulma.tile, class Bulma.isAncestor ] <| List.map playerTile players
     in
-    div [ class "tile", class "is-ancestor" ] tiles
+    playerTiles
+
+
+viewDeck : Html Msg
+viewDeck =
+    let
+        viewCard card =
+            li [] [ text <| Card.toString card ]
+
+        viewCards cards =
+            ul [] (List.map viewCard cards)
+
+        tileEmUp cards colorClass =
+            div [ class Bulma.tile, class Bulma.isParent ]
+                [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.notification, class colorClass ]
+                    [ viewCards cards ]
+                ]
+
+        weaponTile =
+            tileEmUp Card.weapons Bulma.isDanger
+
+        defenseTile =
+            tileEmUp Card.defenses Bulma.isInfo
+
+        specialTile =
+            tileEmUp Card.special ""
+
+        uselessTile =
+            tileEmUp [ Card.useless ] Bulma.isWarning
+    in
+    div [ class Bulma.tile, class Bulma.isAncestor ]
+        [ weaponTile
+        , defenseTile
+        , specialTile
+        , uselessTile
+        ]
+
+
+viewGame : Game -> Html Msg
+viewGame game =
+    div [ class Bulma.container ]
+        [ viewDeck
+        , viewPlayerTiles game.players
+        ]
 
 
 view : Model -> Html Msg
@@ -276,4 +331,4 @@ view model =
                 ViewGame game ->
                     viewGame game
     in
-    section [ class "section" ] [ body ]
+    section [ class Bulma.section ] [ body ]
