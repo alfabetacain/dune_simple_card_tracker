@@ -6,8 +6,8 @@ import Bulma.Classes as Bulma
 import Card
 import Dict
 import Faction
-import Html exposing (Html, button, div, input, label, li, p, section, text, ul)
-import Html.Attributes exposing (checked, class, type_)
+import Html exposing (Html, a, button, div, i, img, input, label, li, nav, p, section, span, text, ul)
+import Html.Attributes exposing (checked, class, height, src, type_, width)
 import Html.Events exposing (onClick)
 import Html5.DragDrop as DragDrop
 
@@ -24,6 +24,7 @@ subscriptions _ =
 type alias Game =
     { players : List Player
     , dragDrop : DragDrop.Model Card.Type Faction.Type
+    , history : List GameMsg
     }
 
 
@@ -80,6 +81,7 @@ type GameMsg
     | IdentifyCard Card.Type Faction.Type
     | DeIdentifyCard Card.Type Faction.Type
     | DragDropCardToFaction (DragDrop.Msg Card.Type Faction.Type)
+    | Undo
 
 
 type Msg
@@ -122,18 +124,16 @@ createPlayer faction =
 createGame : List Faction.Type -> Game
 createGame factions =
     let
-        atreides =
-            createPlayer Faction.atreides
-
         players =
-            atreides :: List.map createPlayer factions
+            List.map createPlayer factions
     in
     { players = players
     , dragDrop = DragDrop.init
+    , history = []
     }
 
 
-withNoCommand : Model -> ( Model, Cmd msg )
+withNoCommand : a -> ( a, Cmd msg )
 withNoCommand model =
     ( model, Cmd.none )
 
@@ -171,62 +171,124 @@ addCardToPlayer card faction players =
     updateFaction (\player -> { player | hand = card :: player.hand }) faction players
 
 
+isSignificant : GameMsg -> Bool
+isSignificant msg =
+    case msg of
+        AddCard _ _ ->
+            True
+
+        DiscardCard _ _ ->
+            True
+
+        IdentifyCard _ _ ->
+            True
+
+        DeIdentifyCard _ _ ->
+            True
+
+        _ ->
+            False
+
+
+withHistory : GameMsg -> Game -> Game
+withHistory msg model =
+    if isSignificant msg then
+        { model | history = msg :: model.history }
+
+    else
+        model
+
+
+popHistory : Game -> Game
+popHistory game =
+    let
+        tailHistory =
+            Maybe.withDefault [] <| List.tail game.history
+
+        folder msg model =
+            let
+                ( updatedModel, _ ) =
+                    updateGame msg model
+            in
+            case updatedModel of
+                ViewGame g ->
+                    g
+
+                _ ->
+                    model
+
+        updatedGame =
+            List.foldl folder (createGame <| List.map (\player -> player.faction) game.players) (List.reverse tailHistory)
+    in
+    { updatedGame | history = tailHistory }
+
+
 updateGame : GameMsg -> Game -> ( Model, Cmd Msg )
 updateGame msg game =
-    case msg of
-        AddCard card faction ->
-            let
-                updatedGame =
-                    { game | players = addCardToPlayer card faction game.players }
-            in
-            withNoCommand <| ViewGame updatedGame
+    let
+        ( updatedModel, cmd ) =
+            case msg of
+                Undo ->
+                    withNoCommand <| popHistory game
 
-        DiscardCard card faction ->
-            let
-                updatedPlayers =
-                    updateFaction (\player -> { player | hand = removeFirst card player.hand }) faction game.players
+                AddCard card faction ->
+                    let
+                        updatedGame =
+                            { game | players = addCardToPlayer card faction game.players }
+                    in
+                    withNoCommand updatedGame
 
-                updatedGame =
-                    { game | players = updatedPlayers }
-            in
-            withNoCommand <| ViewGame updatedGame
-
-        IdentifyCard card faction ->
-            let
-                updatedPlayers =
-                    updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
-            in
-            withNoCommand <| ViewGame { game | players = updatedPlayers }
-
-        DeIdentifyCard card faction ->
-            let
-                updatedPlayers =
-                    updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
-            in
-            withNoCommand <| ViewGame { game | players = updatedPlayers }
-
-        DragDropCardToFaction msg_ ->
-            let
-                ( model_, result ) =
-                    DragDrop.update msg_ game.dragDrop
-            in
-            case result of
-                Nothing ->
-                    withNoCommand <| ViewGame { game | dragDrop = model_ }
-
-                Just ( card, faction, _ ) ->
+                DiscardCard card faction ->
                     let
                         updatedPlayers =
-                            addCardToPlayer card faction game.players
+                            updateFaction (\player -> { player | hand = removeFirst card player.hand }) faction game.players
+
+                        updatedGame =
+                            { game | players = updatedPlayers }
                     in
-                    withNoCommand <| ViewGame { game | players = updatedPlayers, dragDrop = model_ }
+                    withNoCommand updatedGame
+
+                IdentifyCard card faction ->
+                    let
+                        updatedPlayers =
+                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
+                    in
+                    withNoCommand { game | players = updatedPlayers }
+
+                DeIdentifyCard card faction ->
+                    let
+                        updatedPlayers =
+                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
+                    in
+                    withNoCommand { game | players = updatedPlayers }
+
+                DragDropCardToFaction msg_ ->
+                    let
+                        ( model_, result ) =
+                            DragDrop.update msg_ game.dragDrop
+                    in
+                    case result of
+                        Nothing ->
+                            withNoCommand { game | dragDrop = model_ }
+
+                        Just ( card, faction, _ ) ->
+                            let
+                                updatedPlayers =
+                                    addCardToPlayer card faction game.players
+                            in
+                            withNoCommand <| withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }
+
+        historized =
+            withHistory msg updatedModel
+    in
+    ( ViewGame historized, cmd )
 
 
 updateSetup : SetupMsg -> Setup -> ( Model, Cmd Msg )
 updateSetup msg model =
     case msg of
         CreateGame factions ->
-            withNoCommand <| ViewGame <| createGame factions
+            withNoCommand <| ViewGame <| createGame (Faction.atreides :: factions)
 
         ToggleFaction faction ->
             let
@@ -287,11 +349,19 @@ viewPlayerTiles : List Player -> Html Msg
 viewPlayerTiles players =
     let
         playerTile player =
+            let
+                discardIcon card faction =
+                    span [ class Bulma.icon, onClick <| ViewGameMsg <| DiscardCard card faction ]
+                        [ i [ class "fas", class "fa-times-circle" ] [] ]
+
+                cardBody card faction =
+                    [ text <| Card.toString card, discardIcon card faction ]
+            in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
                     [ div [ class Bulma.container ]
                         [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
-                        , ul [] <| List.map (\card -> li [] [ text (Card.toString card) ]) player.hand
+                        , ul [] <| List.map (\card -> li [] (cardBody card player.faction)) player.hand
                         ]
                     ]
                 ]
@@ -369,10 +439,28 @@ viewDeck cardsInPlay =
         ]
 
 
+viewNavbar : Html Msg
+viewNavbar =
+    nav [ class Bulma.navbar ]
+        [ div [ class Bulma.navbarBrand ]
+            [ a [ class Bulma.navbarItem ]
+                [ img [ src "", width 112, height 28 ] []
+                ]
+            ]
+        , div [ class Bulma.navbarMenu ]
+            [ div [ class Bulma.navbarEnd ]
+                [ button [ class Bulma.navbarItem, class Bulma.button, onClick (ViewGameMsg Undo) ] [ text "Undo" ]
+                , button [ class Bulma.navbarItem, class Bulma.button ] [ text "New game" ]
+                ]
+            ]
+        ]
+
+
 viewGame : Game -> Html Msg
 viewGame game =
     div [ class Bulma.container ]
-        [ viewDeck <| List.concatMap (\player -> player.hand) game.players
+        [ viewNavbar
+        , viewDeck <| List.concatMap (\player -> player.hand) game.players
         , viewPlayerTiles game.players
         ]
 
