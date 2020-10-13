@@ -5151,7 +5151,6 @@ var $author$project$Faction$Faction = function (a) {
 	return {$: 'Faction', a: a};
 };
 var $author$project$Faction$beneGesserit = $author$project$Faction$Faction('Bene Gesserit');
-var $author$project$Faction$atreides = $author$project$Faction$Faction('Atreides');
 var $author$project$Card$Card = function (a) {
 	return {$: 'Card', a: a};
 };
@@ -5167,12 +5166,8 @@ var $author$project$Main$createPlayer = function (faction) {
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Main$createGame = function (factions) {
-	var atreides = $author$project$Main$createPlayer($author$project$Faction$atreides);
-	var players = A2(
-		$elm$core$List$cons,
-		atreides,
-		A2($elm$core$List$map, $author$project$Main$createPlayer, factions));
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, players: players};
+	var players = A2($elm$core$List$map, $author$project$Main$createPlayer, factions);
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, players: players};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -5194,6 +5189,10 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
 var $elm$core$Debug$log = _Debug_log;
+var $author$project$Main$AddCard = F2(
+	function (a, b) {
+		return {$: 'AddCard', a: a, b: b};
+	});
 var $author$project$Main$updateFaction = F3(
 	function (map, faction, players) {
 		var maybeUpdate = function (player) {
@@ -5249,6 +5248,15 @@ var $author$project$Main$removeFirst = F2(
 			return _List_Nil;
 		}
 	});
+var $elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(xs);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
 	function (a, b, c, d) {
 		return {$: 'DraggedOver', a: a, b: b, c: c, d: d};
@@ -5368,106 +5376,177 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
 		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Main$isSignificant = function (msg) {
+	switch (msg.$) {
+		case 'AddCard':
+			return true;
+		case 'DiscardCard':
+			return true;
+		case 'IdentifyCard':
+			return true;
+		case 'DeIdentifyCard':
+			return true;
+		default:
+			return false;
+	}
+};
+var $author$project$Main$withHistory = F2(
+	function (msg, model) {
+		return $author$project$Main$isSignificant(msg) ? _Utils_update(
+			model,
+			{
+				history: A2($elm$core$List$cons, msg, model.history)
+			}) : model;
+	});
 var $author$project$Main$withNoCommand = function (model) {
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
+var $author$project$Main$popHistory = function (game) {
+	var tailHistory = A2(
+		$elm$core$Maybe$withDefault,
+		_List_Nil,
+		$elm$core$List$tail(game.history));
+	var folder = F2(
+		function (msg, model) {
+			var _v5 = A2($author$project$Main$updateGame, msg, model);
+			var updatedModel = _v5.a;
+			if (updatedModel.$ === 'ViewGame') {
+				var g = updatedModel.a;
+				return g;
+			} else {
+				return model;
+			}
+		});
+	var updatedGame = A3(
+		$elm$core$List$foldl,
+		folder,
+		$author$project$Main$createGame(
+			A2(
+				$elm$core$List$map,
+				function (player) {
+					return player.faction;
+				},
+				game.players)),
+		$elm$core$List$reverse(tailHistory));
+	return _Utils_update(
+		updatedGame,
+		{history: tailHistory});
+};
 var $author$project$Main$updateGame = F2(
 	function (msg, game) {
-		switch (msg.$) {
-			case 'AddCard':
-				var card = msg.a;
-				var faction = msg.b;
-				var updatedGame = _Utils_update(
-					game,
-					{
-						players: A3($author$project$Main$addCardToPlayer, card, faction, game.players)
-					});
-				return $author$project$Main$withNoCommand(
-					$author$project$Main$ViewGame(updatedGame));
-			case 'DiscardCard':
-				var card = msg.a;
-				var faction = msg.b;
-				var updatedPlayers = A3(
-					$author$project$Main$updateFaction,
-					function (player) {
-						return _Utils_update(
-							player,
-							{
-								hand: A2($author$project$Main$removeFirst, card, player.hand)
-							});
-					},
-					faction,
-					game.players);
-				var updatedGame = _Utils_update(
-					game,
-					{players: updatedPlayers});
-				return $author$project$Main$withNoCommand(
-					$author$project$Main$ViewGame(updatedGame));
-			case 'IdentifyCard':
-				var card = msg.a;
-				var faction = msg.b;
-				var updatedPlayers = A3(
-					$author$project$Main$updateFaction,
-					function (player) {
-						return _Utils_update(
-							player,
-							{
-								hand: A2($author$project$Main$identifyCard, card, player.hand)
-							});
-					},
-					faction,
-					game.players);
-				return $author$project$Main$withNoCommand(
-					$author$project$Main$ViewGame(
+		var _v0 = function () {
+			switch (msg.$) {
+				case 'Undo':
+					return $author$project$Main$withNoCommand(
+						$author$project$Main$popHistory(game));
+				case 'AddCard':
+					var card = msg.a;
+					var faction = msg.b;
+					var updatedGame = _Utils_update(
+						game,
+						{
+							players: A3($author$project$Main$addCardToPlayer, card, faction, game.players)
+						});
+					return $author$project$Main$withNoCommand(updatedGame);
+				case 'DiscardCard':
+					var card = msg.a;
+					var faction = msg.b;
+					var updatedPlayers = A3(
+						$author$project$Main$updateFaction,
+						function (player) {
+							return _Utils_update(
+								player,
+								{
+									hand: A2($author$project$Main$removeFirst, card, player.hand)
+								});
+						},
+						faction,
+						game.players);
+					var updatedGame = _Utils_update(
+						game,
+						{players: updatedPlayers});
+					return $author$project$Main$withNoCommand(updatedGame);
+				case 'IdentifyCard':
+					var card = msg.a;
+					var faction = msg.b;
+					var updatedPlayers = A3(
+						$author$project$Main$updateFaction,
+						function (player) {
+							return _Utils_update(
+								player,
+								{
+									hand: A2($author$project$Main$identifyCard, card, player.hand)
+								});
+						},
+						faction,
+						game.players);
+					return $author$project$Main$withNoCommand(
 						_Utils_update(
 							game,
-							{players: updatedPlayers})));
-			case 'DeIdentifyCard':
-				var card = msg.a;
-				var faction = msg.b;
-				var updatedPlayers = A3(
-					$author$project$Main$updateFaction,
-					function (player) {
-						return _Utils_update(
-							player,
-							{
-								hand: A2($author$project$Main$identifyCard, card, player.hand)
-							});
-					},
-					faction,
-					game.players);
-				return $author$project$Main$withNoCommand(
-					$author$project$Main$ViewGame(
+							{players: updatedPlayers}));
+				case 'DeIdentifyCard':
+					var card = msg.a;
+					var faction = msg.b;
+					var updatedPlayers = A3(
+						$author$project$Main$updateFaction,
+						function (player) {
+							return _Utils_update(
+								player,
+								{
+									hand: A2($author$project$Main$identifyCard, card, player.hand)
+								});
+						},
+						faction,
+						game.players);
+					return $author$project$Main$withNoCommand(
 						_Utils_update(
 							game,
-							{players: updatedPlayers})));
-			default:
-				var msg_ = msg.a;
-				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
-				var model_ = _v1.a;
-				var result = _v1.b;
-				if (result.$ === 'Nothing') {
-					return $author$project$Main$withNoCommand(
-						$author$project$Main$ViewGame(
+							{players: updatedPlayers}));
+				default:
+					var msg_ = msg.a;
+					var _v2 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
+					var model_ = _v2.a;
+					var result = _v2.b;
+					if (result.$ === 'Nothing') {
+						return $author$project$Main$withNoCommand(
 							_Utils_update(
 								game,
-								{dragDrop: model_})));
-				} else {
-					var _v3 = result.a;
-					var card = _v3.a;
-					var faction = _v3.b;
-					var updatedPlayers = A3($author$project$Main$addCardToPlayer, card, faction, game.players);
-					return $author$project$Main$withNoCommand(
-						$author$project$Main$ViewGame(
-							_Utils_update(
-								game,
-								{dragDrop: model_, players: updatedPlayers})));
-				}
-		}
+								{dragDrop: model_}));
+					} else {
+						var _v4 = result.a;
+						var card = _v4.a;
+						var faction = _v4.b;
+						var updatedPlayers = A3($author$project$Main$addCardToPlayer, card, faction, game.players);
+						return $author$project$Main$withNoCommand(
+							A2(
+								$author$project$Main$withHistory,
+								A2($author$project$Main$AddCard, card, faction),
+								_Utils_update(
+									game,
+									{dragDrop: model_, players: updatedPlayers})));
+					}
+			}
+		}();
+		var updatedModel = _v0.a;
+		var cmd = _v0.b;
+		var historized = A2($author$project$Main$withHistory, msg, updatedModel);
+		return _Utils_Tuple2(
+			$author$project$Main$ViewGame(historized),
+			cmd);
 	});
 var $author$project$Main$ViewSetup = function (a) {
 	return {$: 'ViewSetup', a: a};
 };
+var $author$project$Faction$atreides = $author$project$Faction$Faction('Atreides');
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5569,7 +5648,8 @@ var $author$project$Main$updateSetup = F2(
 			var factions = msg.a;
 			return $author$project$Main$withNoCommand(
 				$author$project$Main$ViewGame(
-					$author$project$Main$createGame(factions)));
+					$author$project$Main$createGame(
+						A2($elm$core$List$cons, $author$project$Faction$atreides, factions))));
 		} else {
 			var faction = msg.a;
 			var updatedDict = A3(
@@ -6265,15 +6345,6 @@ var $author$project$Card$cardLimitDict = $elm$core$Dict$fromList(
 			$author$project$Card$toString($author$project$Card$useless),
 			5)
 		]));
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Card$cardLimit = function (typ) {
 	var s = typ.a;
 	return A2(
@@ -6434,6 +6505,133 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 		_List_fromArray(
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 };
+var $author$project$Main$Undo = {$: 'Undo'};
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$Attributes$height = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'height',
+		$elm$core$String$fromInt(n));
+};
+var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd = 'navbar-end';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var $elm$html$Html$Attributes$width = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'width',
+		$elm$core$String$fromInt(n));
+};
+var $author$project$Main$viewNavbar = A2(
+	$elm$html$Html$nav,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbar)
+		]),
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$a,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$img,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$src(''),
+									$elm$html$Html$Attributes$width(112),
+									$elm$html$Html$Attributes$height(28)
+								]),
+							_List_Nil)
+						]))
+				])),
+			A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$ViewGameMsg($author$project$Main$Undo))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Undo')
+								])),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('New game')
+								]))
+						]))
+				]))
+		]));
+var $author$project$Main$DiscardCard = F2(
+	function (a, b) {
+		return {$: 'DiscardCard', a: a, b: b};
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
@@ -6542,7 +6740,10 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
 			]);
 	});
+var $elm$html$Html$i = _VirtualDom_node('i');
+var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
 var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$html$Html$span = _VirtualDom_node('span');
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
 var $author$project$Faction$toString = function (faction) {
 	var s = faction.a;
@@ -6550,6 +6751,38 @@ var $author$project$Faction$toString = function (faction) {
 };
 var $author$project$Main$viewPlayerTiles = function (players) {
 	var playerTile = function (player) {
+		var discardIcon = F2(
+			function (card, faction) {
+				return A2(
+					$elm$html$Html$span,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$icon),
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$ViewGameMsg(
+								A2($author$project$Main$DiscardCard, card, faction)))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$i,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('fas'),
+									$elm$html$Html$Attributes$class('fa-times-circle')
+								]),
+							_List_Nil)
+						]));
+			});
+		var cardBody = F2(
+			function (card, faction) {
+				return _List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Card$toString(card)),
+						A2(discardIcon, card, faction)
+					]);
+			});
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -6603,11 +6836,7 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 											return A2(
 												$elm$html$Html$li,
 												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text(
-														$author$project$Card$toString(card))
-													]));
+												A2(cardBody, card, player.faction));
 										},
 										player.hand))
 								]))
@@ -6633,6 +6862,7 @@ var $author$project$Main$viewGame = function (game) {
 			]),
 		_List_fromArray(
 			[
+				$author$project$Main$viewNavbar,
 				$author$project$Main$viewDeck(
 				A2(
 					$elm$core$List$concatMap,
@@ -6652,8 +6882,6 @@ var $author$project$Main$ToggleFaction = function (a) {
 var $author$project$Main$ViewSetupMsg = function (a) {
 	return {$: 'ViewSetupMsg', a: a};
 };
-var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $ahstro$elm_bulma_classes$Bulma$Classes$checkbox = 'checkbox';
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -6686,22 +6914,6 @@ var $pzp1997$assoc_list$AssocList$keys = function (_v0) {
 	return A2($elm$core$List$map, $elm$core$Tuple$first, alist);
 };
 var $elm$html$Html$label = _VirtualDom_node('label');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$viewSetup = function (model) {
 	var factionField = function (faction) {
