@@ -1,4 +1,4 @@
-module Card exposing (Type, cardLimit, cheapHero, deck, defensePoison, defenseProjectile, defenses, eq, familyAtomics, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, cardLimit, cheapHero, deck, defensePoison, defenseProjectile, defenses, eq, familyAtomics, fromString, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Dict
 
@@ -23,6 +23,11 @@ toString card =
     case card of
         Card s ->
             s
+
+
+fromString : String -> Maybe Type
+fromString s =
+    Dict.get s cardsDict
 
 
 cardLimitDict : Dict.Dict String Int
@@ -115,6 +120,7 @@ unknown =
 -- collections
 
 
+uniqueCards : List Type
 uniqueCards =
     [ weaponPoison
     , weaponProjectile
@@ -130,6 +136,16 @@ uniqueCards =
     , weatherControl
     , useless
     ]
+
+
+uniqueCardsWithUnknown : List Type
+uniqueCardsWithUnknown =
+    unknown :: uniqueCards
+
+
+cardsDict : Dict.Dict String Type
+cardsDict =
+    Dict.fromList <| List.map (\c -> ( toString c, c )) (unknown :: uniqueCards)
 
 
 weapons =

@@ -6,9 +6,9 @@ import Bulma.Classes as Bulma
 import Card
 import Dict
 import Faction
-import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, p, section, span, text, ul)
+import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, option, p, section, select, span, text, ul)
 import Html.Attributes exposing (checked, class, height, src, type_, width)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
 
 
@@ -23,11 +23,17 @@ subscriptions _ =
 
 type alias ModalIdentifyModel =
     { faction : Faction.Type
+    , selectedCard : Card.Type
+    , clickedCard : Card.Type
     }
 
 
 type Modal
     = ModalIdentify ModalIdentifyModel
+
+
+type ModalMsg
+    = SelectIdentifyCard String
 
 
 type alias Game =
@@ -85,15 +91,21 @@ type SetupMsg
     | ToggleFaction Faction.Type
 
 
+type alias ChangeCard =
+    { faction : Faction.Type
+    , current : Card.Type
+    , new : Card.Type
+    }
+
+
 type GameMsg
     = AddCard Card.Type Faction.Type
     | DiscardCard Card.Type Faction.Type
-    | IdentifyCard Card.Type Faction.Type
-    | DeIdentifyCard Card.Type Faction.Type
     | DragDropCardToFaction (DragDrop.Msg Card.Type Faction.Type)
     | Undo
-    | OpenIdentifyCardModal Faction.Type
-    | IdentifyCardViaModal Card.Type Faction.Type
+    | OpenIdentifyCardModal Faction.Type Card.Type
+    | ChangeCardViaModal ChangeCard
+    | ModalMsg ModalMsg
     | CloseModal
 
 
@@ -152,32 +164,18 @@ withNoCommand model =
     ( model, Cmd.none )
 
 
-identifyCard : Card.Type -> List Card.Type -> List Card.Type
-identifyCard card hand =
-    case hand of
+changeCard : Card.Type -> Card.Type -> List Card.Type -> List Card.Type
+changeCard current new cards =
+    case cards of
         [] ->
             []
 
         head :: tail ->
-            if Card.eq head Card.unknown then
-                card :: tail
+            if Card.eq head current then
+                new :: tail
 
             else
-                head :: identifyCard card tail
-
-
-deIdentifyCard : Card.Type -> List Card.Type -> List Card.Type
-deIdentifyCard card hand =
-    case hand of
-        [] ->
-            []
-
-        head :: tail ->
-            if head == card then
-                Card.unknown :: tail
-
-            else
-                head :: identifyCard card tail
+                head :: changeCard current new tail
 
 
 addCardToPlayer : Card.Type -> Faction.Type -> List Player -> List Player
@@ -192,12 +190,6 @@ isSignificant msg =
             True
 
         DiscardCard _ _ ->
-            True
-
-        IdentifyCard _ _ ->
-            True
-
-        DeIdentifyCard _ _ ->
             True
 
         _ ->
@@ -262,20 +254,6 @@ updateGame msg game =
                     in
                     withNoCommand updatedGame
 
-                IdentifyCard card faction ->
-                    let
-                        updatedPlayers =
-                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
-                    in
-                    withNoCommand { game | players = updatedPlayers }
-
-                DeIdentifyCard card faction ->
-                    let
-                        updatedPlayers =
-                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
-                    in
-                    withNoCommand { game | players = updatedPlayers }
-
                 DragDropCardToFaction msg_ ->
                     let
                         ( model_, result ) =
@@ -292,18 +270,37 @@ updateGame msg game =
                             in
                             withNoCommand <| withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }
 
-                OpenIdentifyCardModal faction ->
-                    withNoCommand <| withHistory (OpenIdentifyCardModal faction) { game | modal = Just <| ModalIdentify <| { faction = faction } }
+                OpenIdentifyCardModal faction card ->
+                    withNoCommand <| withHistory (OpenIdentifyCardModal faction card) { game | modal = Just <| ModalIdentify <| { faction = faction, selectedCard = card, clickedCard = card } }
 
-                IdentifyCardViaModal card faction ->
+                ChangeCardViaModal changeRequest ->
                     let
                         updatedPlayers =
-                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
+                            updateFaction (\player -> { player | hand = changeCard changeRequest.current changeRequest.new player.hand }) changeRequest.faction game.players
                     in
                     withNoCommand { game | players = updatedPlayers, modal = Nothing }
 
                 CloseModal ->
                     withNoCommand <| withHistory CloseModal { game | modal = Nothing }
+
+                ModalMsg modalMsg ->
+                    let
+                        newModalModel =
+                            case game.modal of
+                                Nothing ->
+                                    Nothing
+
+                                Just modalModel ->
+                                    case ( modalMsg, modalModel ) of
+                                        ( SelectIdentifyCard cardString, ModalIdentify modalModel_ ) ->
+                                            case Card.fromString cardString of
+                                                Nothing ->
+                                                    Nothing
+
+                                                Just card ->
+                                                    Just <| ModalIdentify { modalModel_ | selectedCard = card }
+                    in
+                    withNoCommand <| withHistory (ModalMsg modalMsg) { game | modal = newModalModel }
 
         historized =
             withHistory msg updatedModel
@@ -384,13 +381,9 @@ viewPlayerTiles players =
                 viewCard card faction =
                     let
                         attr =
-                            if Card.eq card Card.unknown then
-                                [ onClick <| ViewGameMsg <| OpenIdentifyCardModal faction ]
-
-                            else
-                                []
+                            [ onClick <| ViewGameMsg <| OpenIdentifyCardModal faction card ]
                     in
-                    li attr [ text <| Card.toString card, discardIcon card faction ]
+                    li [] [ span attr [ text <| Card.toString card ], discardIcon card faction ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
@@ -516,6 +509,17 @@ viewModal : List Card.Type -> Modal -> Html Msg
 viewModal _ modal =
     case modal of
         ModalIdentify model ->
+            let
+                cardSelect =
+                    div [ class Bulma.field ]
+                        [ label [ class Bulma.label ] [ text "Card" ]
+                        , div [ class Bulma.control ]
+                            [ div [ class Bulma.select ]
+                                [ select [ onInput (\s -> ViewGameMsg <| ModalMsg <| SelectIdentifyCard s) ] <| List.map (\card -> option [ Html.Attributes.selected (Card.eq card model.selectedCard) ] [ text <| Card.toString card ]) Card.uniqueCardsWithUnknown
+                                ]
+                            ]
+                        ]
+            in
             div [ class Bulma.modal, class Bulma.isActive ]
                 [ div [ class Bulma.modalBackground ] []
                 , div [ class Bulma.modalCard ]
@@ -524,12 +528,12 @@ viewModal _ modal =
                         , button [ class Bulma.delete, onClick <| ViewGameMsg CloseModal ] []
                         ]
                     , section [ class Bulma.modalCardBody ]
-                        [ text "some cards" ]
+                        [ cardSelect ]
                     , footer [ class Bulma.modalCardFoot ]
                         [ button
                             [ class Bulma.button
                             , class Bulma.isSuccess
-                            , onClick <| ViewGameMsg <| IdentifyCardViaModal Card.weaponLasgun model.faction
+                            , onClick <| ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }
                             ]
                             [ text "Identify Card" ]
                         ]
