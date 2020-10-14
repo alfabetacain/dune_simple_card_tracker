@@ -5167,7 +5167,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Main$createGame = function (factions) {
 	var players = A2($elm$core$List$map, $author$project$Main$createPlayer, factions);
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, players: players};
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -5193,6 +5193,13 @@ var $author$project$Main$AddCard = F2(
 	function (a, b) {
 		return {$: 'AddCard', a: a, b: b};
 	});
+var $author$project$Main$CloseModal = {$: 'CloseModal'};
+var $author$project$Main$ModalIdentify = function (a) {
+	return {$: 'ModalIdentify', a: a};
+};
+var $author$project$Main$OpenIdentifyCardModal = function (a) {
+	return {$: 'OpenIdentifyCardModal', a: a};
+};
 var $author$project$Main$updateFaction = F3(
 	function (map, faction, players) {
 		var maybeUpdate = function (player) {
@@ -5511,7 +5518,7 @@ var $author$project$Main$updateGame = F2(
 						_Utils_update(
 							game,
 							{players: updatedPlayers}));
-				default:
+				case 'DragDropCardToFaction':
 					var msg_ = msg.a;
 					var _v2 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
 					var model_ = _v2.a;
@@ -5534,6 +5541,45 @@ var $author$project$Main$updateGame = F2(
 									game,
 									{dragDrop: model_, players: updatedPlayers})));
 					}
+				case 'OpenIdentifyCardModal':
+					var faction = msg.a;
+					return $author$project$Main$withNoCommand(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Main$OpenIdentifyCardModal(faction),
+							_Utils_update(
+								game,
+								{
+									modal: $elm$core$Maybe$Just(
+										$author$project$Main$ModalIdentify(
+											{faction: faction}))
+								})));
+				case 'IdentifyCardViaModal':
+					var card = msg.a;
+					var faction = msg.b;
+					var updatedPlayers = A3(
+						$author$project$Main$updateFaction,
+						function (player) {
+							return _Utils_update(
+								player,
+								{
+									hand: A2($author$project$Main$identifyCard, card, player.hand)
+								});
+						},
+						faction,
+						game.players);
+					return $author$project$Main$withNoCommand(
+						_Utils_update(
+							game,
+							{modal: $elm$core$Maybe$Nothing, players: updatedPlayers}));
+				default:
+					return $author$project$Main$withNoCommand(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Main$CloseModal,
+							_Utils_update(
+								game,
+								{modal: $elm$core$Maybe$Nothing})));
 			}
 		}();
 		var updatedModel = _v0.a;
@@ -6425,8 +6471,8 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$viewDeckCard = F2(
 	function (counts, card) {
-		var limit = $elm$core$String$fromInt(
-			$author$project$Card$cardLimit(card));
+		var limit = $author$project$Card$cardLimit(card);
+		var stringLimit = (!limit) ? '∞' : $elm$core$String$fromInt(limit);
 		var cardCount = $elm$core$String$fromInt(
 			A2(
 				$elm$core$Maybe$withDefault,
@@ -6435,7 +6481,7 @@ var $author$project$Main$viewDeckCard = F2(
 					$elm$core$Dict$get,
 					$author$project$Card$toString(card),
 					counts)));
-		var countString = '(' + (cardCount + ('/' + (limit + ')')));
+		var countString = '(' + (cardCount + ('/' + (stringLimit + ')')));
 		return A2(
 			$elm$html$Html$li,
 			A2(
@@ -6492,7 +6538,7 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 	var uselessTile = A2(
 		tileEmUp,
 		_List_fromArray(
-			[$author$project$Card$useless]),
+			[$author$project$Card$useless, $author$project$Card$unknown]),
 		$ahstro$elm_bulma_classes$Bulma$Classes$isWarning);
 	var weaponTile = A2(tileEmUp, $author$project$Card$weapons, $ahstro$elm_bulma_classes$Bulma$Classes$isDanger);
 	return A2(
@@ -6505,23 +6551,24 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 		_List_fromArray(
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 };
-var $author$project$Main$Undo = {$: 'Undo'};
-var $elm$html$Html$a = _VirtualDom_node('a');
+var $author$project$Main$IdentifyCardViaModal = F2(
+	function (a, b) {
+		return {$: 'IdentifyCardViaModal', a: a, b: b};
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
 var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$html$Html$Attributes$height = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'height',
-		$elm$core$String$fromInt(n));
-};
-var $elm$html$Html$img = _VirtualDom_node('img');
-var $elm$html$Html$nav = _VirtualDom_node('nav');
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd = 'navbar-end';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
+var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
+var $elm$html$Html$footer = _VirtualDom_node('footer');
+var $elm$html$Html$header = _VirtualDom_node('header');
+var $ahstro$elm_bulma_classes$Bulma$Classes$isActive = 'is-active';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modal = 'modal';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalBackground = 'modal-background';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCard = 'modal-card';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6538,6 +6585,118 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $author$project$Faction$toString = function (faction) {
+	var s = faction.a;
+	return s;
+};
+var $author$project$Main$viewModal = F2(
+	function (_v0, modal) {
+		var model = modal.a;
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modal),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isActive)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalBackground)
+						]),
+					_List_Nil),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCard)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$header,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$p,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle)
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(
+											'Identifying card for ' + $author$project$Faction$toString(model.faction))
+										])),
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$delete),
+											$elm$html$Html$Events$onClick(
+											$author$project$Main$ViewGameMsg($author$project$Main$CloseModal))
+										]),
+									_List_Nil)
+								])),
+							A2(
+							$elm$html$Html$section,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('some cards')
+								])),
+							A2(
+							$elm$html$Html$footer,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+											$elm$html$Html$Events$onClick(
+											$author$project$Main$ViewGameMsg(
+												A2($author$project$Main$IdentifyCardViaModal, $author$project$Card$weaponLasgun, model.faction)))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Identify Card')
+										]))
+								]))
+						]))
+				]));
+	});
+var $author$project$Main$Undo = {$: 'Undo'};
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$Attributes$height = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'height',
+		$elm$core$String$fromInt(n));
+};
+var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd = 'navbar-end';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
 var $elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -6742,13 +6901,8 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 	});
 var $elm$html$Html$i = _VirtualDom_node('i');
 var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
-var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
-var $author$project$Faction$toString = function (faction) {
-	var s = faction.a;
-	return s;
-};
 var $author$project$Main$viewPlayerTiles = function (players) {
 	var playerTile = function (player) {
 		var discardIcon = F2(
@@ -6774,14 +6928,23 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 							_List_Nil)
 						]));
 			});
-		var cardBody = F2(
+		var viewCard = F2(
 			function (card, faction) {
-				return _List_fromArray(
+				var attr = A2($author$project$Card$eq, card, $author$project$Card$unknown) ? _List_fromArray(
 					[
-						$elm$html$Html$text(
-						$author$project$Card$toString(card)),
-						A2(discardIcon, card, faction)
-					]);
+						$elm$html$Html$Events$onClick(
+						$author$project$Main$ViewGameMsg(
+							$author$project$Main$OpenIdentifyCardModal(faction)))
+					]) : _List_Nil;
+				return A2(
+					$elm$html$Html$li,
+					attr,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							$author$project$Card$toString(card)),
+							A2(discardIcon, card, faction)
+						]));
 			});
 		return A2(
 			$elm$html$Html$div,
@@ -6833,10 +6996,7 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 									A2(
 										$elm$core$List$map,
 										function (card) {
-											return A2(
-												$elm$html$Html$li,
-												_List_Nil,
-												A2(cardBody, card, player.faction));
+											return A2(viewCard, card, player.faction);
 										},
 										player.hand))
 								]))
@@ -6854,6 +7014,15 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 	return playerTiles;
 };
 var $author$project$Main$viewGame = function (game) {
+	var modal = A2(
+		$elm$core$Maybe$withDefault,
+		A2($elm$html$Html$div, _List_Nil, _List_Nil),
+		A2(
+			$elm$core$Maybe$map,
+			function (m) {
+				return A2($author$project$Main$viewModal, _List_Nil, m);
+			},
+			game.modal));
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6870,7 +7039,8 @@ var $author$project$Main$viewGame = function (game) {
 						return player.hand;
 					},
 					game.players)),
-				$author$project$Main$viewPlayerTiles(game.players)
+				$author$project$Main$viewPlayerTiles(game.players),
+				modal
 			]));
 };
 var $author$project$Main$CreateGame = function (a) {
