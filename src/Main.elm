@@ -6,7 +6,7 @@ import Bulma.Classes as Bulma
 import Card
 import Dict
 import Faction
-import Html exposing (Html, a, button, div, i, img, input, label, li, nav, p, section, span, text, ul)
+import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, p, section, span, text, ul)
 import Html.Attributes exposing (checked, class, height, src, type_, width)
 import Html.Events exposing (onClick)
 import Html5.DragDrop as DragDrop
@@ -21,10 +21,20 @@ subscriptions _ =
     Sub.none
 
 
+type alias ModalIdentifyModel =
+    { faction : Faction.Type
+    }
+
+
+type Modal
+    = ModalIdentify ModalIdentifyModel
+
+
 type alias Game =
     { players : List Player
     , dragDrop : DragDrop.Model Card.Type Faction.Type
     , history : List GameMsg
+    , modal : Maybe Modal
     }
 
 
@@ -82,6 +92,9 @@ type GameMsg
     | DeIdentifyCard Card.Type Faction.Type
     | DragDropCardToFaction (DragDrop.Msg Card.Type Faction.Type)
     | Undo
+    | OpenIdentifyCardModal Faction.Type
+    | IdentifyCardViaModal Card.Type Faction.Type
+    | CloseModal
 
 
 type Msg
@@ -130,6 +143,7 @@ createGame factions =
     { players = players
     , dragDrop = DragDrop.init
     , history = []
+    , modal = Nothing
     }
 
 
@@ -278,6 +292,19 @@ updateGame msg game =
                             in
                             withNoCommand <| withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }
 
+                OpenIdentifyCardModal faction ->
+                    withNoCommand <| withHistory (OpenIdentifyCardModal faction) { game | modal = Just <| ModalIdentify <| { faction = faction } }
+
+                IdentifyCardViaModal card faction ->
+                    let
+                        updatedPlayers =
+                            updateFaction (\player -> { player | hand = identifyCard card player.hand }) faction game.players
+                    in
+                    withNoCommand { game | players = updatedPlayers, modal = Nothing }
+
+                CloseModal ->
+                    withNoCommand <| withHistory CloseModal { game | modal = Nothing }
+
         historized =
             withHistory msg updatedModel
     in
@@ -354,14 +381,22 @@ viewPlayerTiles players =
                     span [ class Bulma.icon, onClick <| ViewGameMsg <| DiscardCard card faction ]
                         [ i [ class "fas", class "fa-times-circle" ] [] ]
 
-                cardBody card faction =
-                    [ text <| Card.toString card, discardIcon card faction ]
+                viewCard card faction =
+                    let
+                        attr =
+                            if Card.eq card Card.unknown then
+                                [ onClick <| ViewGameMsg <| OpenIdentifyCardModal faction ]
+
+                            else
+                                []
+                    in
+                    li attr [ text <| Card.toString card, discardIcon card faction ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
                     [ div [ class Bulma.container ]
                         [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
-                        , ul [] <| List.map (\card -> li [] (cardBody card player.faction)) player.hand
+                        , ul [] <| List.map (\card -> viewCard card player.faction) player.hand
                         ]
                     ]
                 ]
@@ -396,10 +431,17 @@ viewDeckCard counts card =
             String.fromInt <| Maybe.withDefault 0 <| Dict.get (Card.toString card) counts
 
         limit =
-            String.fromInt <| Card.cardLimit card
+            Card.cardLimit card
+
+        stringLimit =
+            if limit == 0 then
+                "∞"
+
+            else
+                String.fromInt limit
 
         countString =
-            "(" ++ cardCount ++ "/" ++ limit ++ ")"
+            "(" ++ cardCount ++ "/" ++ stringLimit ++ ")"
     in
     li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| Card.toString card ++ " " ++ countString ]
 
@@ -429,7 +471,7 @@ viewDeck cardsInPlay =
             tileEmUp Card.special ""
 
         uselessTile =
-            tileEmUp [ Card.useless ] Bulma.isWarning
+            tileEmUp [ Card.useless, Card.unknown ] Bulma.isWarning
     in
     div [ class Bulma.tile, class Bulma.isAncestor ]
         [ weaponTile
@@ -458,11 +500,41 @@ viewNavbar =
 
 viewGame : Game -> Html Msg
 viewGame game =
+    let
+        modal =
+            Maybe.withDefault (div [] []) <| Maybe.map (\m -> viewModal [] m) game.modal
+    in
     div [ class Bulma.container ]
         [ viewNavbar
         , viewDeck <| List.concatMap (\player -> player.hand) game.players
         , viewPlayerTiles game.players
+        , modal
         ]
+
+
+viewModal : List Card.Type -> Modal -> Html Msg
+viewModal _ modal =
+    case modal of
+        ModalIdentify model ->
+            div [ class Bulma.modal, class Bulma.isActive ]
+                [ div [ class Bulma.modalBackground ] []
+                , div [ class Bulma.modalCard ]
+                    [ header [ class Bulma.modalCardHead ]
+                        [ p [ class Bulma.modalCardTitle ] [ text <| "Identifying card for " ++ Faction.toString model.faction ]
+                        , button [ class Bulma.delete, onClick <| ViewGameMsg CloseModal ] []
+                        ]
+                    , section [ class Bulma.modalCardBody ]
+                        [ text "some cards" ]
+                    , footer [ class Bulma.modalCardFoot ]
+                        [ button
+                            [ class Bulma.button
+                            , class Bulma.isSuccess
+                            , onClick <| ViewGameMsg <| IdentifyCardViaModal Card.weaponLasgun model.faction
+                            ]
+                            [ text "Identify Card" ]
+                        ]
+                    ]
+                ]
 
 
 view : Model -> Html Msg
