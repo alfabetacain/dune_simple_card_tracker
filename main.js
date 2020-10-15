@@ -5208,7 +5208,7 @@ var $author$project$Main$createGame = function (factions) {
 		$elm$core$List$map,
 		$author$project$Main$createPlayer,
 		A2($elm$core$List$cons, $author$project$Faction$atreides, factions));
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players};
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -5904,7 +5904,7 @@ var $elm$core$Maybe$withDefault = F2(
 var $author$project$Main$updateModal = F2(
 	function (msg, modalModel) {
 		var _v0 = _Utils_Tuple2(msg, modalModel);
-		_v0$4:
+		_v0$5:
 		while (true) {
 			if (_v0.b.$ === 'ModalChangeCard') {
 				if (_v0.a.$ === 'SelectIdentifyCard') {
@@ -5921,7 +5921,7 @@ var $author$project$Main$updateModal = F2(
 								{selectedCard: card}));
 					}
 				} else {
-					break _v0$4;
+					break _v0$5;
 				}
 			} else {
 				switch (_v0.a.$) {
@@ -5937,18 +5937,30 @@ var $author$project$Main$updateModal = F2(
 										_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
 										model.bids)
 								}));
-					case 'SelectBiddingCard':
+					case 'ResetBids':
 						var _v3 = _v0.a;
-						var index = _v3.a;
-						var cardString = _v3.b;
+						var model = _v0.b.a;
+						return $author$project$Main$ModalBidding(
+							_Utils_update(
+								model,
+								{
+									bids: A2(
+										$elm$core$Array$push,
+										_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
+										$elm$core$Array$empty)
+								}));
+					case 'SelectBiddingCard':
+						var _v4 = _v0.a;
+						var index = _v4.a;
+						var cardString = _v4.b;
 						var model = _v0.b.a;
 						var updateBid = function (card) {
-							var _v4 = A2($elm$core$Array$get, index, model.bids);
-							if (_v4.$ === 'Nothing') {
+							var _v5 = A2($elm$core$Array$get, index, model.bids);
+							if (_v5.$ === 'Nothing') {
 								return modalModel;
 							} else {
-								var _v5 = _v4.a;
-								var faction = _v5.b;
+								var _v6 = _v5.a;
+								var faction = _v6.b;
 								return $author$project$Main$ModalBidding(
 									_Utils_update(
 										model,
@@ -5967,17 +5979,17 @@ var $author$project$Main$updateModal = F2(
 							$author$project$Card$fromString(cardString));
 						return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
 					case 'SelectBiddingFaction':
-						var _v6 = _v0.a;
-						var index = _v6.a;
-						var factionString = _v6.b;
+						var _v7 = _v0.a;
+						var index = _v7.a;
+						var factionString = _v7.b;
 						var model = _v0.b.a;
 						var updateBid = function (faction) {
-							var _v7 = A2($elm$core$Array$get, index, model.bids);
-							if (_v7.$ === 'Nothing') {
+							var _v8 = A2($elm$core$Array$get, index, model.bids);
+							if (_v8.$ === 'Nothing') {
 								return modalModel;
 							} else {
-								var _v8 = _v7.a;
-								var card = _v8.a;
+								var _v9 = _v8.a;
+								var card = _v9.a;
 								return $author$project$Main$ModalBidding(
 									_Utils_update(
 										model,
@@ -5996,7 +6008,7 @@ var $author$project$Main$updateModal = F2(
 							$author$project$Faction$fromString(factionString));
 						return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
 					default:
-						break _v0$4;
+						break _v0$5;
 				}
 			}
 		}
@@ -6030,8 +6042,8 @@ var $author$project$Main$popHistory = function (game) {
 		$elm$core$List$tail(game.history));
 	var folder = F2(
 		function (msg, model) {
-			var _v7 = A2($author$project$Main$updateGame, msg, model);
-			var updatedModel = _v7.a;
+			var _v9 = A2($author$project$Main$updateGame, msg, model);
+			var updatedModel = _v9.a;
 			if (updatedModel.$ === 'ViewGame') {
 				var g = updatedModel.a;
 				return g;
@@ -6112,19 +6124,27 @@ var $author$project$Main$updateGame = F2(
 									{dragDrop: model_, players: updatedPlayers})));
 					}
 				case 'OpenBiddingPhaseModal':
-					var biddingModal = $author$project$Main$ModalBidding(
-						{
-							bids: A2(
-								$elm$core$Array$push,
-								_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
-								$elm$core$Array$empty),
-							factions: A2(
-								$elm$core$List$map,
-								function (player) {
-									return player.faction;
-								},
-								game.players)
-						});
+					var initialState = function () {
+						var _v5 = game.savedBiddingPhaseModalModel;
+						if (_v5.$ === 'Nothing') {
+							return {
+								bids: A2(
+									$elm$core$Array$push,
+									_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
+									$elm$core$Array$empty),
+								factions: A2(
+									$elm$core$List$map,
+									function (player) {
+										return player.faction;
+									},
+									game.players)
+							};
+						} else {
+							var saved = _v5.a;
+							return saved;
+						}
+					}();
+					var biddingModal = $author$project$Main$ModalBidding(initialState);
 					return $author$project$Main$withNoCommand(
 						A2(
 							$author$project$Main$withHistory,
@@ -6183,23 +6203,38 @@ var $author$project$Main$updateGame = F2(
 							$author$project$Main$AssignBiddingPhaseCards(cards),
 							_Utils_update(
 								game,
-								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers})));
+								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing})));
 				case 'CloseModal':
-					return $author$project$Main$withNoCommand(
-						A2(
-							$author$project$Main$withHistory,
-							$author$project$Main$CloseModal,
-							_Utils_update(
-								game,
-								{modal: $elm$core$Maybe$Nothing})));
+					var _v7 = game.modal;
+					if ((_v7.$ === 'Just') && (_v7.a.$ === 'ModalBidding')) {
+						var biddingModel = _v7.a.a;
+						return $author$project$Main$withNoCommand(
+							A2(
+								$author$project$Main$withHistory,
+								$author$project$Main$CloseModal,
+								_Utils_update(
+									game,
+									{
+										modal: $elm$core$Maybe$Nothing,
+										savedBiddingPhaseModalModel: $elm$core$Maybe$Just(biddingModel)
+									})));
+					} else {
+						return $author$project$Main$withNoCommand(
+							A2(
+								$author$project$Main$withHistory,
+								$author$project$Main$CloseModal,
+								_Utils_update(
+									game,
+									{modal: $elm$core$Maybe$Nothing})));
+					}
 				default:
 					var modalMsg = msg.a;
 					var newModalModel = function () {
-						var _v6 = game.modal;
-						if (_v6.$ === 'Nothing') {
+						var _v8 = game.modal;
+						if (_v8.$ === 'Nothing') {
 							return $elm$core$Maybe$Nothing;
 						} else {
-							var modalModel = _v6.a;
+							var modalModel = _v8.a;
 							return $elm$core$Maybe$Just(
 								A2($author$project$Main$updateModal, modalMsg, modalModel));
 						}
@@ -7049,6 +7084,7 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 };
 var $author$project$Main$AddBid = {$: 'AddBid'};
+var $author$project$Main$ResetBids = {$: 'ResetBids'};
 var $author$project$Main$SelectBiddingCard = F2(
 	function (a, b) {
 		return {$: 'SelectBiddingCard', a: a, b: b};
@@ -7420,20 +7456,21 @@ var $author$project$Main$viewBiddingModal = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Add bid')
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+						$elm$html$Html$Events$onClick(
+						$author$project$Main$ViewGameMsg(
+							$author$project$Main$ModalMsg($author$project$Main$ResetBids)))
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Reset')
 					]))
 			]));
-	var assignButtonAttrs = validFactionsSelected ? _List_fromArray(
-		[
-			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-			$elm$html$Html$Events$onClick(
-			$author$project$Main$ViewGameMsg(
-				$author$project$Main$AssignBiddingPhaseCards(bidsList)))
-		]) : _List_fromArray(
-		[
-			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess)
-		]);
 	return A3($author$project$Main$viewBulmaModal, modalTitle, body, footerChild);
 };
 var $author$project$Main$SelectIdentifyCard = function (a) {
