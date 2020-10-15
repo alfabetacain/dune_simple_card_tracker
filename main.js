@@ -7141,6 +7141,90 @@ var $author$project$Faction$eq = F2(
 var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
+var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
+var $elm$html$Html$footer = _VirtualDom_node('footer');
+var $elm$html$Html$header = _VirtualDom_node('header');
+var $ahstro$elm_bulma_classes$Bulma$Classes$isActive = 'is-active';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modal = 'modal';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalBackground = 'modal-background';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCard = 'modal-card';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
+var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $author$project$View$modal = F4(
+	function (title, onClose, bodyChild, footerChild) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modal),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isActive)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalBackground)
+						]),
+					_List_Nil),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCard)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$header,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$p,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle)
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(title)
+										])),
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$delete),
+											$elm$html$Html$Events$onClick(onClose)
+										]),
+									_List_Nil)
+								])),
+							A2(
+							$elm$html$Html$section,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody)
+								]),
+							_List_fromArray(
+								[bodyChild])),
+							A2(
+							$elm$html$Html$footer,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot)
+								]),
+							_List_fromArray(
+								[footerChild]))
+						]))
+				]));
+	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -7265,91 +7349,6 @@ var $author$project$View$select = function (config) {
 			]));
 };
 var $author$project$Card$uniqueCardsWithUnknown = A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards);
-var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
-var $elm$html$Html$footer = _VirtualDom_node('footer');
-var $elm$html$Html$header = _VirtualDom_node('header');
-var $ahstro$elm_bulma_classes$Bulma$Classes$isActive = 'is-active';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modal = 'modal';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalBackground = 'modal-background';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalCard = 'modal-card';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
-var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $author$project$Main$viewBulmaModal = F3(
-	function (title, bodyChild, footerChild) {
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modal),
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isActive)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalBackground)
-						]),
-					_List_Nil),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCard)
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$header,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead)
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$p,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle)
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text(title)
-										])),
-									A2(
-									$elm$html$Html$button,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$delete),
-											$elm$html$Html$Events$onClick(
-											$author$project$Main$ViewGameMsg($author$project$Main$CloseModal))
-										]),
-									_List_Nil)
-								])),
-							A2(
-							$elm$html$Html$section,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody)
-								]),
-							_List_fromArray(
-								[bodyChild])),
-							A2(
-							$elm$html$Html$footer,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot)
-								]),
-							_List_fromArray(
-								[footerChild]))
-						]))
-				]));
-	});
 var $author$project$Main$viewBiddingModal = function (model) {
 	var viewFactionSelectControl = F2(
 		function (index, faction) {
@@ -7471,11 +7470,34 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						$elm$html$Html$text('Reset')
 					]))
 			]));
-	return A3($author$project$Main$viewBulmaModal, modalTitle, body, footerChild);
+	return A4(
+		$author$project$View$modal,
+		modalTitle,
+		$author$project$Main$ViewGameMsg($author$project$Main$CloseModal),
+		body,
+		footerChild);
 };
 var $author$project$Main$SelectIdentifyCard = function (a) {
 	return {$: 'SelectIdentifyCard', a: a};
 };
+var $author$project$View$button = F3(
+	function (attributes, clickMsg, name) {
+		var allAttributes = A2(
+			$elm$core$List$append,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Events$onClick(clickMsg)
+				]),
+			attributes);
+		return A2(
+			$elm$html$Html$button,
+			allAttributes,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(name)
+				]));
+	});
 var $author$project$View$cardTypeSelect = F3(
 	function (cards, onSelect, selectedCard) {
 		return $author$project$View$select(
@@ -7494,21 +7516,16 @@ var $author$project$View$cardTypeSelect = F3(
 	});
 var $author$project$Main$viewChangeCardModal = function (model) {
 	var modalTitle = 'Identifying card for ' + $author$project$Faction$toString(model.faction);
-	var footerChild = A2(
-		$elm$html$Html$button,
+	var footerChild = A3(
+		$author$project$View$button,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-				$elm$html$Html$Events$onClick(
-				$author$project$Main$ViewGameMsg(
-					$author$project$Main$ChangeCardViaModal(
-						{current: model.clickedCard, faction: model.faction, _new: model.selectedCard})))
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess)
 			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text('Identify Card')
-			]));
+		$author$project$Main$ViewGameMsg(
+			$author$project$Main$ChangeCardViaModal(
+				{current: model.clickedCard, faction: model.faction, _new: model.selectedCard})),
+		'Identify Card');
 	var body = A3(
 		$author$project$View$cardTypeSelect,
 		$author$project$Card$uniqueCardsWithUnknown,
@@ -7518,7 +7535,12 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 					$author$project$Main$SelectIdentifyCard(s)));
 		},
 		model.selectedCard);
-	return A3($author$project$Main$viewBulmaModal, modalTitle, body, footerChild);
+	return A4(
+		$author$project$View$modal,
+		modalTitle,
+		$author$project$Main$ViewGameMsg($author$project$Main$CloseModal),
+		body,
+		footerChild);
 };
 var $author$project$Main$viewModal = F2(
 	function (_v0, modal) {
