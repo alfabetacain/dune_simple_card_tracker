@@ -5316,9 +5316,7 @@ var $author$project$Main$ModalChangeCard = function (a) {
 var $author$project$Main$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
 };
-var $author$project$Main$OpenBiddingPhaseModal = function (a) {
-	return {$: 'OpenBiddingPhaseModal', a: a};
-};
+var $author$project$Main$OpenBiddingPhaseModal = {$: 'OpenBiddingPhaseModal'};
 var $author$project$Main$OpenChangeCardModal = F2(
 	function (a, b) {
 		return {$: 'OpenChangeCardModal', a: a, b: b};
@@ -5364,6 +5362,91 @@ var $author$project$Main$changeCard = F3(
 				A3($author$project$Main$changeCard, current, _new, tail));
 		}
 	});
+var $elm$core$Elm$JsArray$push = _JsArray_push;
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$singleton = _JsArray_singleton;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$insertTailInTree = F4(
+	function (shift, index, tail, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		if (_Utils_cmp(
+			pos,
+			$elm$core$Elm$JsArray$length(tree)) > -1) {
+			if (shift === 5) {
+				return A2(
+					$elm$core$Elm$JsArray$push,
+					$elm$core$Array$Leaf(tail),
+					tree);
+			} else {
+				var newSub = $elm$core$Array$SubTree(
+					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, $elm$core$Elm$JsArray$empty));
+				return A2($elm$core$Elm$JsArray$push, newSub, tree);
+			}
+		} else {
+			var value = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (value.$ === 'SubTree') {
+				var subTree = value.a;
+				var newSub = $elm$core$Array$SubTree(
+					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, subTree));
+				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			} else {
+				var newSub = $elm$core$Array$SubTree(
+					A4(
+						$elm$core$Array$insertTailInTree,
+						shift - $elm$core$Array$shiftStep,
+						index,
+						tail,
+						$elm$core$Elm$JsArray$singleton(value)));
+				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$unsafeReplaceTail = F2(
+	function (newTail, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var originalTailLen = $elm$core$Elm$JsArray$length(tail);
+		var newTailLen = $elm$core$Elm$JsArray$length(newTail);
+		var newArrayLen = len + (newTailLen - originalTailLen);
+		if (_Utils_eq(newTailLen, $elm$core$Array$branchFactor)) {
+			var overflow = _Utils_cmp(newArrayLen >>> $elm$core$Array$shiftStep, 1 << startShift) > 0;
+			if (overflow) {
+				var newShift = startShift + $elm$core$Array$shiftStep;
+				var newTree = A4(
+					$elm$core$Array$insertTailInTree,
+					newShift,
+					len,
+					newTail,
+					$elm$core$Elm$JsArray$singleton(
+						$elm$core$Array$SubTree(tree)));
+				return A4($elm$core$Array$Array_elm_builtin, newArrayLen, newShift, newTree, $elm$core$Elm$JsArray$empty);
+			} else {
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					newArrayLen,
+					startShift,
+					A4($elm$core$Array$insertTailInTree, startShift, len, newTail, tree),
+					$elm$core$Elm$JsArray$empty);
+			}
+		} else {
+			return A4($elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
+		}
+	});
+var $elm$core$Array$push = F2(
+	function (a, array) {
+		var tail = array.d;
+		return A2(
+			$elm$core$Array$unsafeReplaceTail,
+			A2($elm$core$Elm$JsArray$push, a, tail),
+			array);
+	});
 var $author$project$Main$removeFirst = F2(
 	function (card, cards) {
 		if (cards.b) {
@@ -5386,6 +5469,8 @@ var $elm$core$List$tail = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
+var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
 	function (a, b, c, d) {
 		return {$: 'DraggedOver', a: a, b: b, c: c, d: d};
@@ -5645,7 +5730,6 @@ var $author$project$Card$weaponProjectile = $author$project$Card$Card('Weapon - 
 var $author$project$Card$weatherControl = $author$project$Card$Card('Weather Control');
 var $author$project$Card$uniqueCards = _List_fromArray(
 	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
-var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
 var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
 	A2(
 		$elm$core$List$map,
@@ -5699,7 +5783,6 @@ var $elm$core$List$append = F2(
 	});
 var $author$project$Faction$factions = _List_fromArray(
 	[$author$project$Faction$atreides, $author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
 var $author$project$Faction$factionsWithUnknown = A2(
 	$elm$core$List$append,
 	$author$project$Faction$factions,
@@ -5721,11 +5804,6 @@ var $author$project$Faction$factionsDict = $elm$core$Dict$fromList(
 var $author$project$Faction$fromString = function (s) {
 	return A2($elm$core$Dict$get, s, $author$project$Faction$factionsDict);
 };
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
 var $elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
 		getHelp:
@@ -5747,7 +5825,6 @@ var $elm$core$Array$getHelp = F3(
 			}
 		}
 	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var $elm$core$Array$tailIndex = function (len) {
 	return (len >>> 5) << 5;
 };
@@ -5772,85 +5849,6 @@ var $elm$core$Maybe$map = F2(
 		} else {
 			return $elm$core$Maybe$Nothing;
 		}
-	});
-var $elm$core$Elm$JsArray$push = _JsArray_push;
-var $elm$core$Elm$JsArray$singleton = _JsArray_singleton;
-var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
-var $elm$core$Array$insertTailInTree = F4(
-	function (shift, index, tail, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		if (_Utils_cmp(
-			pos,
-			$elm$core$Elm$JsArray$length(tree)) > -1) {
-			if (shift === 5) {
-				return A2(
-					$elm$core$Elm$JsArray$push,
-					$elm$core$Array$Leaf(tail),
-					tree);
-			} else {
-				var newSub = $elm$core$Array$SubTree(
-					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, $elm$core$Elm$JsArray$empty));
-				return A2($elm$core$Elm$JsArray$push, newSub, tree);
-			}
-		} else {
-			var value = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (value.$ === 'SubTree') {
-				var subTree = value.a;
-				var newSub = $elm$core$Array$SubTree(
-					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, subTree));
-				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
-			} else {
-				var newSub = $elm$core$Array$SubTree(
-					A4(
-						$elm$core$Array$insertTailInTree,
-						shift - $elm$core$Array$shiftStep,
-						index,
-						tail,
-						$elm$core$Elm$JsArray$singleton(value)));
-				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
-			}
-		}
-	});
-var $elm$core$Array$unsafeReplaceTail = F2(
-	function (newTail, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var originalTailLen = $elm$core$Elm$JsArray$length(tail);
-		var newTailLen = $elm$core$Elm$JsArray$length(newTail);
-		var newArrayLen = len + (newTailLen - originalTailLen);
-		if (_Utils_eq(newTailLen, $elm$core$Array$branchFactor)) {
-			var overflow = _Utils_cmp(newArrayLen >>> $elm$core$Array$shiftStep, 1 << startShift) > 0;
-			if (overflow) {
-				var newShift = startShift + $elm$core$Array$shiftStep;
-				var newTree = A4(
-					$elm$core$Array$insertTailInTree,
-					newShift,
-					len,
-					newTail,
-					$elm$core$Elm$JsArray$singleton(
-						$elm$core$Array$SubTree(tree)));
-				return A4($elm$core$Array$Array_elm_builtin, newArrayLen, newShift, newTree, $elm$core$Elm$JsArray$empty);
-			} else {
-				return A4(
-					$elm$core$Array$Array_elm_builtin,
-					newArrayLen,
-					startShift,
-					A4($elm$core$Array$insertTailInTree, startShift, len, newTail, tree),
-					$elm$core$Elm$JsArray$empty);
-			}
-		} else {
-			return A4($elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
-		}
-	});
-var $elm$core$Array$push = F2(
-	function (a, array) {
-		var tail = array.d;
-		return A2(
-			$elm$core$Array$unsafeReplaceTail,
-			A2($elm$core$Elm$JsArray$push, a, tail),
-			array);
 	});
 var $elm$core$Array$setHelp = F4(
 	function (shift, index, value, tree) {
@@ -6114,13 +6112,23 @@ var $author$project$Main$updateGame = F2(
 									{dragDrop: model_, players: updatedPlayers})));
 					}
 				case 'OpenBiddingPhaseModal':
-					var factions = msg.a;
 					var biddingModal = $author$project$Main$ModalBidding(
-						{bids: $elm$core$Array$empty, factions: factions});
+						{
+							bids: A2(
+								$elm$core$Array$push,
+								_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
+								$elm$core$Array$empty),
+							factions: A2(
+								$elm$core$List$map,
+								function (player) {
+									return player.faction;
+								},
+								game.players)
+						});
 					return $author$project$Main$withNoCommand(
 						A2(
 							$author$project$Main$withHistory,
-							$author$project$Main$OpenBiddingPhaseModal(factions),
+							$author$project$Main$OpenBiddingPhaseModal,
 							_Utils_update(
 								game,
 								{
@@ -6351,6 +6359,87 @@ var $elm$virtual_dom$VirtualDom$node = function (tag) {
 var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
 var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $elm$html$Html$section = _VirtualDom_node('section');
+var $author$project$Main$Undo = {$: 'Undo'};
+var $author$project$Main$ViewGameMsg = function (a) {
+	return {$: 'ViewGameMsg', a: a};
+};
+var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $ahstro$elm_bulma_classes$Bulma$Classes$level = 'level';
+var $ahstro$elm_bulma_classes$Bulma$Classes$levelItem = 'level-item';
+var $ahstro$elm_bulma_classes$Bulma$Classes$levelLeft = 'level-left';
+var $ahstro$elm_bulma_classes$Bulma$Classes$levelRight = 'level-right';
+var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$viewButtons = A2(
+	$elm$html$Html$nav,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$level)
+		]),
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelLeft)
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelRight)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$ViewGameMsg($author$project$Main$OpenBiddingPhaseModal))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Bidding phase')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$ViewGameMsg($author$project$Main$Undo))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Undo')
+						]))
+				]))
+		]));
 var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
@@ -6759,9 +6848,6 @@ var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Main$DragDropCardToFaction = function (a) {
 	return {$: 'DragDropCardToFaction', a: a};
 };
-var $author$project$Main$ViewGameMsg = function (a) {
-	return {$: 'ViewGameMsg', a: a};
-};
 var $author$project$Card$cardLimitDict = $elm$core$Dict$fromList(
 	_List_fromArray(
 		[
@@ -6833,7 +6919,6 @@ var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $elm$virtual_dom$VirtualDom$Custom = function (a) {
 	return {$: 'Custom', a: a};
 };
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$custom = F2(
 	function (event, decoder) {
 		return A2(
@@ -6881,8 +6966,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 			]);
 	});
 var $elm$html$Html$li = _VirtualDom_node('li');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$viewDeckCard = F2(
 	function (counts, card) {
 		var limit = $author$project$Card$cardLimit(card);
@@ -6974,9 +7057,44 @@ var $author$project$Main$SelectBiddingFaction = F2(
 	function (a, b) {
 		return {$: 'SelectBiddingFaction', a: a, b: b};
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
-var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$container = 'container';
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $author$project$Faction$eq = F2(
 	function (fac1, fac2) {
 		var _v0 = _Utils_Tuple2(fac1, fac2);
@@ -6987,21 +7105,128 @@ var $author$project$Faction$eq = F2(
 var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
 };
-var $elm$html$Html$Events$on = F2(
+var $ahstro$elm_bulma_classes$Bulma$Classes$label = 'label';
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $ahstro$elm_bulma_classes$Bulma$Classes$control = 'control';
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
 			$elm$virtual_dom$VirtualDom$on,
 			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var $elm$html$Html$Events$onClick = function (msg) {
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
 	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $ahstro$elm_bulma_classes$Bulma$Classes$select = 'select';
+var $elm$html$Html$select = _VirtualDom_node('select');
+var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
+var $author$project$View$selectControl = function (config) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$select),
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isDanger, !config.isValid)
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$select,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onInput(config.onSelect)
+							]),
+						A2(
+							$elm$core$List$map,
+							function (x) {
+								return A2(
+									$elm$html$Html$option,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$selected(
+											A2(config.eq, x, config.current))
+										]),
+									_List_fromArray(
+										[
+											config.toHtml(x)
+										]));
+							},
+							config.options))
+					]))
+			]));
+};
+var $author$project$View$select = function (config) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(config.name)
+					])),
+				$author$project$View$selectControl(config)
+			]));
 };
 var $author$project$Card$uniqueCardsWithUnknown = A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards);
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
@@ -7089,125 +7314,14 @@ var $author$project$Main$viewBulmaModal = F3(
 						]))
 				]));
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$label = 'label';
-var $elm$html$Html$label = _VirtualDom_node('label');
-var $ahstro$elm_bulma_classes$Bulma$Classes$control = 'control';
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
-};
-var $elm$html$Html$option = _VirtualDom_node('option');
-var $ahstro$elm_bulma_classes$Bulma$Classes$select = 'select';
-var $elm$html$Html$select = _VirtualDom_node('select');
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
-var $author$project$Main$viewSelectControl = function (config) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$select)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$select,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onInput(config.onSelect)
-							]),
-						A2(
-							$elm$core$List$map,
-							function (x) {
-								return A2(
-									$elm$html$Html$option,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$selected(
-											A2(config.eq, x, config.current))
-										]),
-									_List_fromArray(
-										[
-											config.toHtml(x)
-										]));
-							},
-							config.options))
-					]))
-			]));
-};
-var $author$project$Main$viewSelect = function (config) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$label,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(config.name)
-					])),
-				$author$project$Main$viewSelectControl(config)
-			]));
-};
 var $author$project$Main$viewBiddingModal = function (model) {
 	var viewFactionSelectControl = F2(
 		function (index, faction) {
-			return $author$project$Main$viewSelect(
+			return $author$project$View$select(
 				{
 					current: faction,
 					eq: $author$project$Faction$eq,
+					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
 					name: 'Faction',
 					onSelect: function (s) {
 						return $author$project$Main$ViewGameMsg(
@@ -7223,10 +7337,11 @@ var $author$project$Main$viewBiddingModal = function (model) {
 		});
 	var viewCardTypeSelectControl = F2(
 		function (index, card) {
-			return $author$project$Main$viewSelect(
+			return $author$project$View$select(
 				{
 					current: card,
 					eq: $author$project$Card$eq,
+					isValid: true,
 					name: 'Card',
 					onSelect: function (s) {
 						return $author$project$Main$ViewGameMsg(
@@ -7257,6 +7372,12 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						A2(viewFactionSelectControl, index, faction)
 					]));
 		});
+	var validFactionsSelected = A2(
+		$elm$core$List$all,
+		function (bid) {
+			return !A2($author$project$Faction$eq, $author$project$Faction$unknown, bid.b);
+		},
+		$elm$core$Array$toList(model.bids));
 	var modalTitle = 'Bidding';
 	var bidsList = $elm$core$Array$toList(model.bids);
 	var body = A2(
@@ -7279,7 +7400,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
 						$elm$html$Html$Events$onClick(
 						$author$project$Main$ViewGameMsg(
-							$author$project$Main$AssignBiddingPhaseCards(bidsList)))
+							$author$project$Main$AssignBiddingPhaseCards(bidsList))),
+						$elm$html$Html$Attributes$disabled(!validFactionsSelected)
 					]),
 				_List_fromArray(
 					[
@@ -7300,17 +7422,30 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						$elm$html$Html$text('Add bid')
 					]))
 			]));
+	var assignButtonAttrs = validFactionsSelected ? _List_fromArray(
+		[
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+			$elm$html$Html$Events$onClick(
+			$author$project$Main$ViewGameMsg(
+				$author$project$Main$AssignBiddingPhaseCards(bidsList)))
+		]) : _List_fromArray(
+		[
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+			$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess)
+		]);
 	return A3($author$project$Main$viewBulmaModal, modalTitle, body, footerChild);
 };
 var $author$project$Main$SelectIdentifyCard = function (a) {
 	return {$: 'SelectIdentifyCard', a: a};
 };
-var $author$project$Main$viewCardTypeSelect = F3(
+var $author$project$View$cardTypeSelect = F3(
 	function (cards, onSelect, selectedCard) {
-		return $author$project$Main$viewSelect(
+		return $author$project$View$select(
 			{
 				current: selectedCard,
 				eq: $author$project$Card$eq,
+				isValid: true,
 				name: 'Card',
 				onSelect: onSelect,
 				options: cards,
@@ -7338,7 +7473,7 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 				$elm$html$Html$text('Identify Card')
 			]));
 	var body = A3(
-		$author$project$Main$viewCardTypeSelect,
+		$author$project$View$cardTypeSelect,
 		$author$project$Card$uniqueCardsWithUnknown,
 		function (s) {
 			return $author$project$Main$ViewGameMsg(
@@ -7359,7 +7494,6 @@ var $author$project$Main$viewModal = F2(
 		}
 	});
 var $author$project$Main$ResetGame = {$: 'ResetGame'};
-var $author$project$Main$Undo = {$: 'Undo'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$height = function (n) {
 	return A2(
@@ -7444,8 +7578,7 @@ var $author$project$Main$viewNavbar = function (factions) {
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ViewGameMsg(
-											$author$project$Main$OpenBiddingPhaseModal(factions)))
+										$author$project$Main$ViewGameMsg($author$project$Main$OpenBiddingPhaseModal))
 									]),
 								_List_fromArray(
 									[
@@ -7738,6 +7871,7 @@ var $author$project$Main$viewGame = function (game) {
 					]),
 				_List_fromArray(
 					[
+						$author$project$Main$viewButtons,
 						$author$project$Main$viewDeck(
 						A2(
 							$elm$core$List$concatMap,
