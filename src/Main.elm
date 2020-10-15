@@ -628,23 +628,6 @@ viewGame game =
 
 
 
-viewBulmaModal : String -> Html Msg -> Html Msg -> Html Msg
-viewBulmaModal title bodyChild footerChild =
-    div [ class Bulma.modal, class Bulma.isActive ]
-        [ div [ class Bulma.modalBackground ] []
-        , div [ class Bulma.modalCard ]
-            [ header [ class Bulma.modalCardHead ]
-                [ p [ class Bulma.modalCardTitle ] [ text title ]
-                , button [ class Bulma.delete, onClick <| ViewGameMsg CloseModal ] []
-                ]
-            , section [ class Bulma.modalCardBody ]
-                [ bodyChild ]
-            , footer [ class Bulma.modalCardFoot ]
-                [ footerChild ]
-            ]
-        ]
-
-
 viewChangeCardModal : ModalChangeCardModel -> Html Msg
 viewChangeCardModal model =
     let
@@ -655,14 +638,9 @@ viewChangeCardModal model =
             View.cardTypeSelect Card.uniqueCardsWithUnknown (\s -> ViewGameMsg <| ModalMsg <| SelectIdentifyCard s) model.selectedCard
 
         footerChild =
-            button
-                [ class Bulma.button
-                , class Bulma.isSuccess
-                , onClick <| ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }
-                ]
-                [ text "Identify Card" ]
+          View.button [ class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
     in
-    viewBulmaModal modalTitle body footerChild
+    View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
 
 viewBiddingModal : ModalBiddingModel -> Html Msg
@@ -730,7 +708,7 @@ viewBiddingModal model =
                   [ text "Reset" ]
                 ]
     in
-    viewBulmaModal modalTitle body footerChild
+    View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
 
 viewModal : List Card.Type -> Modal -> Html Msg

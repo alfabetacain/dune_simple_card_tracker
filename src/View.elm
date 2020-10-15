@@ -1,6 +1,6 @@
-module View exposing (SelectConfig, selectControl, select, cardTypeSelect, button)
+module View exposing (SelectConfig, selectControl, select, cardTypeSelect, button, modal)
 
-import Html exposing (div, Html, label, text, option)
+import Html exposing (div, Html, label, text, option, header, p, section, footer)
 import Html.Attributes exposing (class, classList)
 import Bulma.Classes as Bulma
 import Html.Events exposing (onInput, onClick)
@@ -44,7 +44,27 @@ cardTypeSelect cards onSelect selectedCard =
         , isValid = True
         }
 
-button : msg -> String -> Html msg
-button clickMsg name =
-  Html.button [ class Bulma.button, onClick (clickMsg) ] [ text name]
+button : List (Html.Attribute msg) -> msg -> String -> Html msg
+button attributes clickMsg name =
+  let 
+      allAttributes = 
+        List.append [ class Bulma.button, onClick clickMsg ] attributes
+  in
+  Html.button allAttributes [ text name]
+
+modal : String -> msg -> Html msg -> Html msg -> Html msg
+modal title onClose bodyChild footerChild =
+    div [ class Bulma.modal, class Bulma.isActive ]
+        [ div [ class Bulma.modalBackground ] []
+        , div [ class Bulma.modalCard ]
+            [ header [ class Bulma.modalCardHead ]
+                [ p [ class Bulma.modalCardTitle ] [ text title ]
+                , Html.button [ class Bulma.delete, onClick onClose] []
+                ]
+            , section [ class Bulma.modalCardBody ]
+                [ bodyChild ]
+            , footer [ class Bulma.modalCardFoot ]
+                [ footerChild ]
+            ]
+        ]
 
