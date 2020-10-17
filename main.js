@@ -4392,6 +4392,10 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -4495,10 +4499,6 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 };
 var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -5181,7 +5181,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$ViewGame = function (a) {
+var $author$project$Types$ViewGame = function (a) {
 	return {$: 'ViewGame', a: a};
 };
 var $author$project$Faction$Faction = function (a) {
@@ -5201,40 +5201,13 @@ var $author$project$Main$createPlayer = function (faction) {
 			[$author$project$Card$useless, $author$project$Card$weaponPoison])
 	};
 };
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
-var $author$project$Main$createGame = function (factions) {
-	var players = A2(
-		$elm$core$List$map,
-		$author$project$Main$createPlayer,
-		A2($elm$core$List$cons, $author$project$Faction$atreides, factions));
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
-};
-var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
-var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
-var $author$project$Faction$harkonnen = $author$project$Faction$Faction('Harkonnen');
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
-var $author$project$Main$init = function (_v0) {
-	var factions = _List_fromArray(
-		[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-	var game = $author$project$Main$createGame(factions);
-	return _Utils_Tuple2(
-		$author$project$Main$ViewGame(game),
-		$elm$core$Platform$Cmd$none);
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Main$subscriptions = function (_v0) {
-	return $elm$core$Platform$Sub$none;
-};
-var $author$project$Main$ViewSetup = function (a) {
-	return {$: 'ViewSetup', a: a};
-};
-var $pzp1997$assoc_list$AssocList$D = function (a) {
-	return {$: 'D', a: a};
-};
+var $author$project$Faction$eq = F2(
+	function (fac1, fac2) {
+		var _v0 = _Utils_Tuple2(fac1, fac2);
+		var s1 = _v0.a.a;
+		var s2 = _v0.b.a;
+		return _Utils_eq(s1, s2);
+	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5246,6 +5219,492 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Main$createGame = function (factions) {
+	var withoutAtreides = A2(
+		$elm$core$List$filter,
+		function (f) {
+			return !A2($author$project$Faction$eq, $author$project$Faction$atreides, f);
+		},
+		factions);
+	var players = A2(
+		$elm$core$List$map,
+		$author$project$Main$createPlayer,
+		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
+};
+var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
+var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
+var $author$project$Faction$harkonnen = $author$project$Faction$Faction('Harkonnen');
+var $elm$core$Debug$log = _Debug_log;
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Types$ModalBidding = function (a) {
+	return {$: 'ModalBidding', a: a};
+};
+var $author$project$Types$ModalChangeCard = function (a) {
+	return {$: 'ModalChangeCard', a: a};
+};
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Types$ModalBiddingModel = F2(
+	function (bids, factions) {
+		return {bids: bids, factions: factions};
+	});
+var $elm$json$Json$Decode$array = _Json_decodeArray;
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
+var $author$project$Faction$factions = _List_fromArray(
+	[$author$project$Faction$atreides, $author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
+var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
+var $author$project$Faction$factionsWithUnknown = A2(
+	$elm$core$List$append,
+	$author$project$Faction$factions,
+	_List_fromArray(
+		[$author$project$Faction$unknown]));
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Dict$Black = {$: 'Black'};
+var $elm$core$Dict$RBNode_elm_builtin = F5(
+	function (a, b, c, d, e) {
+		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
+	});
+var $elm$core$Dict$Red = {$: 'Red'};
+var $elm$core$Dict$balance = F5(
+	function (color, key, value, left, right) {
+		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
+			var _v1 = right.a;
+			var rK = right.b;
+			var rV = right.c;
+			var rLeft = right.d;
+			var rRight = right.e;
+			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+				var _v3 = left.a;
+				var lK = left.b;
+				var lV = left.c;
+				var lLeft = left.d;
+				var lRight = left.e;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Red,
+					key,
+					value,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					color,
+					rK,
+					rV,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, left, rLeft),
+					rRight);
+			}
+		} else {
+			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
+				var _v5 = left.a;
+				var lK = left.b;
+				var lV = left.c;
+				var _v6 = left.d;
+				var _v7 = _v6.a;
+				var llK = _v6.b;
+				var llV = _v6.c;
+				var llLeft = _v6.d;
+				var llRight = _v6.e;
+				var lRight = left.e;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Red,
+					lK,
+					lV,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, lRight, right));
+			} else {
+				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
+			}
+		}
+	});
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$insertHelp = F3(
+	function (key, value, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
+		} else {
+			var nColor = dict.a;
+			var nKey = dict.b;
+			var nValue = dict.c;
+			var nLeft = dict.d;
+			var nRight = dict.e;
+			var _v1 = A2($elm$core$Basics$compare, key, nKey);
+			switch (_v1.$) {
+				case 'LT':
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						A3($elm$core$Dict$insertHelp, key, value, nLeft),
+						nRight);
+				case 'EQ':
+					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
+				default:
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						nLeft,
+						A3($elm$core$Dict$insertHelp, key, value, nRight));
+			}
+		}
+	});
+var $elm$core$Dict$insert = F3(
+	function (key, value, dict) {
+		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
+		} else {
+			var x = _v0;
+			return x;
+		}
+	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $author$project$Faction$toString = function (faction) {
+	var s = faction.a;
+	return s;
+};
+var $author$project$Faction$factionsDict = $elm$core$Dict$fromList(
+	A2(
+		$elm$core$List$map,
+		function (f) {
+			return _Utils_Tuple2(
+				$author$project$Faction$toString(f),
+				f);
+		},
+		$author$project$Faction$factionsWithUnknown));
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var $author$project$Faction$fromString = function (s) {
+	return A2($elm$core$Dict$get, s, $author$project$Faction$factionsDict);
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Faction$decode = function () {
+	var parse = function (s) {
+		var _v0 = $author$project$Faction$fromString(s);
+		if (_v0.$ === 'Nothing') {
+			return $elm$json$Json$Decode$fail('No faction named \"' + (s + '\" exists'));
+		} else {
+			var f = _v0.a;
+			return $elm$json$Json$Decode$succeed(f);
+		}
+	};
+	return A2($elm$json$Json$Decode$andThen, parse, $elm$json$Json$Decode$string);
+}();
+var $author$project$Card$toString = function (card) {
+	var s = card.a;
+	return s;
+};
+var $author$project$Card$cheapHero = $author$project$Card$Card('Cheap Hero');
+var $author$project$Card$defensePoison = $author$project$Card$Card('Defense - Poison');
+var $author$project$Card$defenseProjectile = $author$project$Card$Card('Defense - Projectile');
+var $author$project$Card$familyAtomics = $author$project$Card$Card('Family Atomics');
+var $author$project$Card$ghola = $author$project$Card$Card('Tleilaxu Ghola');
+var $author$project$Card$hajr = $author$project$Card$Card('Hajr');
+var $author$project$Card$karama = $author$project$Card$Card('Karama');
+var $author$project$Card$truthTrance = $author$project$Card$Card('Truthtrance');
+var $author$project$Card$weaponLasgun = $author$project$Card$Card('Weapon - Lasgun');
+var $author$project$Card$weaponProjectile = $author$project$Card$Card('Weapon - Projectile');
+var $author$project$Card$weatherControl = $author$project$Card$Card('Weather Control');
+var $author$project$Card$uniqueCards = _List_fromArray(
+	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
+var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
+var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
+	A2(
+		$elm$core$List$map,
+		function (c) {
+			return _Utils_Tuple2(
+				$author$project$Card$toString(c),
+				c);
+		},
+		A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards)));
+var $author$project$Card$fromString = function (s) {
+	return A2($elm$core$Dict$get, s, $author$project$Card$cardsDict);
+};
+var $author$project$Card$decode = function () {
+	var parse = function (s) {
+		var _v0 = $author$project$Card$fromString(s);
+		if (_v0.$ === 'Nothing') {
+			return $elm$json$Json$Decode$fail('No card named \"' + (s + '\" exists'));
+		} else {
+			var c = _v0.a;
+			return $elm$json$Json$Decode$succeed(c);
+		}
+	};
+	return A2($elm$json$Json$Decode$andThen, parse, $elm$json$Json$Decode$string);
+}();
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2($elm$json$Json$Decode$field, key, valDecoder),
+			decoder);
+	});
+var $author$project$Ports$decodeBid = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'second',
+	$author$project$Faction$decode,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'first',
+		$author$project$Card$decode,
+		$elm$json$Json$Decode$succeed(
+			F2(
+				function (card, faction) {
+					return _Utils_Tuple2(card, faction);
+				}))));
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Ports$decodeModalBidding = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'factions',
+	$elm$json$Json$Decode$list($author$project$Faction$decode),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'bids',
+		$elm$json$Json$Decode$array($author$project$Ports$decodeBid),
+		$elm$json$Json$Decode$succeed($author$project$Types$ModalBiddingModel)));
+var $author$project$Types$ModalChangeCardModel = F3(
+	function (faction, selectedCard, clickedCard) {
+		return {clickedCard: clickedCard, faction: faction, selectedCard: selectedCard};
+	});
+var $author$project$Ports$decodeModalChangeCard = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'clickedCard',
+	$author$project$Card$decode,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'selectedCard',
+		$author$project$Card$decode,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'faction',
+			$author$project$Faction$decode,
+			$elm$json$Json$Decode$succeed($author$project$Types$ModalChangeCardModel))));
+var $author$project$Ports$decodeModal = function () {
+	var decide = function (s) {
+		switch (s) {
+			case 'ModalChangeCard':
+				return A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Types$ModalChangeCard,
+					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeModalChangeCard));
+			case 'ModalBidding':
+				return A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Types$ModalBidding,
+					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeModalBidding));
+			default:
+				return $elm$json$Json$Decode$fail('Unknown modal type ' + s);
+		}
+	};
+	var decoder = A2(
+		$elm$json$Json$Decode$andThen,
+		decide,
+		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
+	return decoder;
+}();
+var $author$project$Types$Player = F2(
+	function (faction, hand) {
+		return {faction: faction, hand: hand};
+	});
+var $author$project$Ports$decodePlayer = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'hand',
+	$elm$json$Json$Decode$list($author$project$Card$decode),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'faction',
+		$author$project$Faction$decode,
+		$elm$json$Json$Decode$succeed($author$project$Types$Player)));
+var $author$project$Ports$decodeSavedBiddingPhaseModalModel = $author$project$Ports$decodeModalBidding;
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $elm$json$Json$Decode$nullable = function (decoder) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder)
+			]));
+};
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return $elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						decoder,
+						$elm$json$Json$Decode$null(fallback)
+					]));
+		};
+		var handleResult = function (input) {
+			var _v0 = A2($elm$json$Json$Decode$decodeValue, pathDecoder, input);
+			if (_v0.$ === 'Ok') {
+				var rawValue = _v0.a;
+				var _v1 = A2(
+					$elm$json$Json$Decode$decodeValue,
+					nullOr(valDecoder),
+					rawValue);
+				if (_v1.$ === 'Ok') {
+					var finalResult = _v1.a;
+					return $elm$json$Json$Decode$succeed(finalResult);
+				} else {
+					var finalErr = _v1.a;
+					return $elm$json$Json$Decode$fail(
+						$elm$json$Json$Decode$errorToString(finalErr));
+				}
+			} else {
+				return $elm$json$Json$Decode$succeed(fallback);
+			}
+		};
+		return A2($elm$json$Json$Decode$andThen, handleResult, $elm$json$Json$Decode$value);
+	});
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
+				A2($elm$json$Json$Decode$field, key, $elm$json$Json$Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var $author$project$Ports$smallGame = F3(
+	function (players, maybeModal, maybeSavedBiddingModel) {
+		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: maybeModal, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
+	});
+var $author$project$Ports$decodeGame = A4(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+	'savedBiddingPhaseModalModel',
+	$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedBiddingPhaseModalModel),
+	$elm$core$Maybe$Nothing,
+	A4(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+		'modal',
+		$elm$json$Json$Decode$nullable($author$project$Ports$decodeModal),
+		$elm$core$Maybe$Nothing,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'players',
+			$elm$json$Json$Decode$list($author$project$Ports$decodePlayer),
+			$elm$json$Json$Decode$succeed($author$project$Ports$smallGame))));
+var $author$project$Ports$parseGame = function (input) {
+	return A2($elm$json$Json$Decode$decodeValue, $author$project$Ports$decodeGame, input);
+};
+var $author$project$Main$init = function (appState) {
+	var savedState = A2(
+		$elm$core$Debug$log,
+		'input = ',
+		A2(
+			$elm$core$Maybe$map,
+			function (state) {
+				return $author$project$Ports$parseGame(state);
+			},
+			appState));
+	var _v0 = A2($elm$core$Debug$log, 'actual input = ', appState);
+	if ((savedState.$ === 'Just') && (savedState.a.$ === 'Ok')) {
+		var game = savedState.a.a;
+		return _Utils_Tuple2(
+			$author$project$Types$ViewGame(game),
+			$elm$core$Platform$Cmd$none);
+	} else {
+		var factions = _List_fromArray(
+			[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
+		var game = $author$project$Main$createGame(factions);
+		return _Utils_Tuple2(
+			$author$project$Types$ViewGame(game),
+			$elm$core$Platform$Cmd$none);
+	}
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$Main$subscriptions = function (_v0) {
+	return $elm$core$Platform$Sub$none;
+};
+var $author$project$Types$ViewSetup = function (a) {
+	return {$: 'ViewSetup', a: a};
+};
+var $pzp1997$assoc_list$AssocList$D = function (a) {
+	return {$: 'D', a: a};
+};
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $pzp1997$assoc_list$AssocList$remove = F2(
 	function (targetKey, _v0) {
@@ -5291,33 +5750,30 @@ var $author$project$Main$initSetup = function (_v0) {
 				return _Utils_Tuple2(faction, false);
 			},
 			factions));
-	var model = $author$project$Main$ViewSetup(
+	var model = $author$project$Types$ViewSetup(
 		{factions: factionDict});
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
-var $elm$core$Debug$log = _Debug_log;
-var $author$project$Main$AddCard = F2(
+var $author$project$Types$AddCard = F2(
 	function (a, b) {
 		return {$: 'AddCard', a: a, b: b};
 	});
-var $author$project$Main$AssignBiddingPhaseCards = function (a) {
+var $author$project$Types$AssignBiddingPhaseCards = function (a) {
 	return {$: 'AssignBiddingPhaseCards', a: a};
 };
-var $author$project$Main$ChangeCardViaModal = function (a) {
+var $author$project$Types$ChangeCardViaModal = function (a) {
 	return {$: 'ChangeCardViaModal', a: a};
 };
-var $author$project$Main$CloseModal = {$: 'CloseModal'};
-var $author$project$Main$ModalBidding = function (a) {
-	return {$: 'ModalBidding', a: a};
-};
-var $author$project$Main$ModalChangeCard = function (a) {
-	return {$: 'ModalChangeCard', a: a};
-};
-var $author$project$Main$ModalMsg = function (a) {
+var $author$project$Types$CloseModal = {$: 'CloseModal'};
+var $author$project$Types$DiscardCard = F2(
+	function (a, b) {
+		return {$: 'DiscardCard', a: a, b: b};
+	});
+var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
 };
-var $author$project$Main$OpenBiddingPhaseModal = {$: 'OpenBiddingPhaseModal'};
-var $author$project$Main$OpenChangeCardModal = F2(
+var $author$project$Types$OpenBiddingPhaseModal = {$: 'OpenBiddingPhaseModal'};
+var $author$project$Types$OpenChangeCardModal = F2(
 	function (a, b) {
 		return {$: 'OpenChangeCardModal', a: a, b: b};
 	});
@@ -5460,6 +5916,189 @@ var $author$project$Main$removeFirst = F2(
 			return _List_Nil;
 		}
 	});
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Ports$encodeGameMsg = function (msg) {
+	return $elm$json$Json$Encode$null;
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Card$encode = function (card) {
+	var s = card.a;
+	return $elm$json$Json$Encode$string(s);
+};
+var $author$project$Faction$encode = function (faction) {
+	var s = faction.a;
+	return $elm$json$Json$Encode$string(s);
+};
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $author$project$Ports$encodeChangeCardModal = function (model) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'faction',
+				$author$project$Faction$encode(model.faction)),
+				_Utils_Tuple2(
+				'selectedCard',
+				$author$project$Card$encode(model.selectedCard)),
+				_Utils_Tuple2(
+				'clickedCard',
+				$author$project$Card$encode(model.clickedCard))
+			]));
+};
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Array$foldl = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldl,
+			func,
+			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
+			tail);
+	});
+var $elm$json$Json$Encode$array = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$Array$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$Ports$encodeBid = function (_v0) {
+	var card = _v0.a;
+	var faction = _v0.b;
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'first',
+				$author$project$Card$encode(card)),
+				_Utils_Tuple2(
+				'second',
+				$author$project$Faction$encode(faction))
+			]));
+};
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$Ports$encodeModalBiddingModel = function (model) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'bids',
+				A2($elm$json$Json$Encode$array, $author$project$Ports$encodeBid, model.bids)),
+				_Utils_Tuple2(
+				'factions',
+				A2($elm$json$Json$Encode$list, $author$project$Faction$encode, model.factions))
+			]));
+};
+var $author$project$Ports$encodeModal = function (modal) {
+	if (modal.$ === 'ModalBidding') {
+		var model = modal.a;
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'type',
+					$elm$json$Json$Encode$string('ModalBidding')),
+					_Utils_Tuple2(
+					'value',
+					$author$project$Ports$encodeModalBiddingModel(model))
+				]));
+	} else {
+		var model = modal.a;
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'type',
+					$elm$json$Json$Encode$string('ModalChangeCard')),
+					_Utils_Tuple2(
+					'value',
+					$author$project$Ports$encodeChangeCardModal(model))
+				]));
+	}
+};
+var $author$project$Ports$encodePlayer = function (player) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'faction',
+				$author$project$Faction$encode(player.faction)),
+				_Utils_Tuple2(
+				'hand',
+				A2($elm$json$Json$Encode$list, $author$project$Card$encode, player.hand))
+			]));
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Ports$encodeGame = function (game) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'players',
+				A2($elm$json$Json$Encode$list, $author$project$Ports$encodePlayer, game.players)),
+				_Utils_Tuple2(
+				'history',
+				A2($elm$json$Json$Encode$list, $author$project$Ports$encodeGameMsg, game.history)),
+				_Utils_Tuple2(
+				'modal',
+				A2(
+					$elm$core$Maybe$withDefault,
+					$elm$json$Json$Encode$null,
+					A2($elm$core$Maybe$map, $author$project$Ports$encodeModal, game.modal))),
+				_Utils_Tuple2(
+				'savedBiddingPhaseModalModel',
+				A2(
+					$elm$core$Maybe$withDefault,
+					$elm$json$Json$Encode$null,
+					A2($elm$core$Maybe$map, $author$project$Ports$encodeModalBiddingModel, game.savedBiddingPhaseModalModel)))
+			]));
+};
+var $author$project$Ports$saveState = _Platform_outgoingPort('saveState', $elm$core$Basics$identity);
+var $author$project$Ports$saveGame = function (game) {
+	return $author$project$Ports$saveState(
+		$author$project$Ports$encodeGame(game));
+};
 var $elm$core$List$tail = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -5469,8 +6108,6 @@ var $elm$core$List$tail = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
-var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
 	function (a, b, c, d) {
 		return {$: 'DraggedOver', a: a, b: b, c: c, d: d};
@@ -5590,220 +6227,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
 		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$core$Dict$Black = {$: 'Black'};
-var $elm$core$Dict$RBNode_elm_builtin = F5(
-	function (a, b, c, d, e) {
-		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
-	});
-var $elm$core$Dict$Red = {$: 'Red'};
-var $elm$core$Dict$balance = F5(
-	function (color, key, value, left, right) {
-		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
-			var _v1 = right.a;
-			var rK = right.b;
-			var rV = right.c;
-			var rLeft = right.d;
-			var rRight = right.e;
-			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
-				var _v3 = left.a;
-				var lK = left.b;
-				var lV = left.c;
-				var lLeft = left.d;
-				var lRight = left.e;
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					$elm$core$Dict$Red,
-					key,
-					value,
-					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, lK, lV, lLeft, lRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rLeft, rRight));
-			} else {
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					color,
-					rK,
-					rV,
-					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, left, rLeft),
-					rRight);
-			}
-		} else {
-			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
-				var _v5 = left.a;
-				var lK = left.b;
-				var lV = left.c;
-				var _v6 = left.d;
-				var _v7 = _v6.a;
-				var llK = _v6.b;
-				var llV = _v6.c;
-				var llLeft = _v6.d;
-				var llRight = _v6.e;
-				var lRight = left.e;
-				return A5(
-					$elm$core$Dict$RBNode_elm_builtin,
-					$elm$core$Dict$Red,
-					lK,
-					lV,
-					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
-					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, key, value, lRight, right));
-			} else {
-				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
-			}
-		}
-	});
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$insertHelp = F3(
-	function (key, value, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
-		} else {
-			var nColor = dict.a;
-			var nKey = dict.b;
-			var nValue = dict.c;
-			var nLeft = dict.d;
-			var nRight = dict.e;
-			var _v1 = A2($elm$core$Basics$compare, key, nKey);
-			switch (_v1.$) {
-				case 'LT':
-					return A5(
-						$elm$core$Dict$balance,
-						nColor,
-						nKey,
-						nValue,
-						A3($elm$core$Dict$insertHelp, key, value, nLeft),
-						nRight);
-				case 'EQ':
-					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
-				default:
-					return A5(
-						$elm$core$Dict$balance,
-						nColor,
-						nKey,
-						nValue,
-						nLeft,
-						A3($elm$core$Dict$insertHelp, key, value, nRight));
-			}
-		}
-	});
-var $elm$core$Dict$insert = F3(
-	function (key, value, dict) {
-		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
-		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
-			var _v1 = _v0.a;
-			var k = _v0.b;
-			var v = _v0.c;
-			var l = _v0.d;
-			var r = _v0.e;
-			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
-		} else {
-			var x = _v0;
-			return x;
-		}
-	});
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
-var $author$project$Card$toString = function (card) {
-	var s = card.a;
-	return s;
-};
-var $author$project$Card$cheapHero = $author$project$Card$Card('Cheap Hero');
-var $author$project$Card$defensePoison = $author$project$Card$Card('Defense - Poison');
-var $author$project$Card$defenseProjectile = $author$project$Card$Card('Defense - Projectile');
-var $author$project$Card$familyAtomics = $author$project$Card$Card('Family Atomics');
-var $author$project$Card$ghola = $author$project$Card$Card('Tleilaxu Ghola');
-var $author$project$Card$hajr = $author$project$Card$Card('Hajr');
-var $author$project$Card$karama = $author$project$Card$Card('Karama');
-var $author$project$Card$truthTrance = $author$project$Card$Card('Truthtrance');
-var $author$project$Card$weaponLasgun = $author$project$Card$Card('Weapon - Lasgun');
-var $author$project$Card$weaponProjectile = $author$project$Card$Card('Weapon - Projectile');
-var $author$project$Card$weatherControl = $author$project$Card$Card('Weather Control');
-var $author$project$Card$uniqueCards = _List_fromArray(
-	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
-var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
-	A2(
-		$elm$core$List$map,
-		function (c) {
-			return _Utils_Tuple2(
-				$author$project$Card$toString(c),
-				c);
-		},
-		A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards)));
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
-var $author$project$Card$fromString = function (s) {
-	return A2($elm$core$Dict$get, s, $author$project$Card$cardsDict);
-};
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $author$project$Faction$factions = _List_fromArray(
-	[$author$project$Faction$atreides, $author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-var $author$project$Faction$factionsWithUnknown = A2(
-	$elm$core$List$append,
-	$author$project$Faction$factions,
-	_List_fromArray(
-		[$author$project$Faction$unknown]));
-var $author$project$Faction$toString = function (faction) {
-	var s = faction.a;
-	return s;
-};
-var $author$project$Faction$factionsDict = $elm$core$Dict$fromList(
-	A2(
-		$elm$core$List$map,
-		function (f) {
-			return _Utils_Tuple2(
-				$author$project$Faction$toString(f),
-				f);
-		},
-		$author$project$Faction$factionsWithUnknown));
-var $author$project$Faction$fromString = function (s) {
-	return A2($elm$core$Dict$get, s, $author$project$Faction$factionsDict);
-};
 var $elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
 		getHelp:
@@ -5839,16 +6262,6 @@ var $elm$core$Array$get = F2(
 			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
 	});
 var $elm$core$Array$setHelp = F4(
 	function (shift, index, value, tree) {
@@ -5892,15 +6305,6 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Main$updateModal = F2(
 	function (msg, modalModel) {
 		var _v0 = _Utils_Tuple2(msg, modalModel);
@@ -5915,7 +6319,7 @@ var $author$project$Main$updateModal = F2(
 						return modalModel;
 					} else {
 						var card = _v1.a;
-						return $author$project$Main$ModalChangeCard(
+						return $author$project$Types$ModalChangeCard(
 							_Utils_update(
 								model,
 								{selectedCard: card}));
@@ -5928,7 +6332,7 @@ var $author$project$Main$updateModal = F2(
 					case 'AddBid':
 						var _v2 = _v0.a;
 						var model = _v0.b.a;
-						return $author$project$Main$ModalBidding(
+						return $author$project$Types$ModalBidding(
 							_Utils_update(
 								model,
 								{
@@ -5940,7 +6344,7 @@ var $author$project$Main$updateModal = F2(
 					case 'ResetBids':
 						var _v3 = _v0.a;
 						var model = _v0.b.a;
-						return $author$project$Main$ModalBidding(
+						return $author$project$Types$ModalBidding(
 							_Utils_update(
 								model,
 								{
@@ -5961,7 +6365,7 @@ var $author$project$Main$updateModal = F2(
 							} else {
 								var _v6 = _v5.a;
 								var faction = _v6.b;
-								return $author$project$Main$ModalBidding(
+								return $author$project$Types$ModalBidding(
 									_Utils_update(
 										model,
 										{
@@ -5990,7 +6394,7 @@ var $author$project$Main$updateModal = F2(
 							} else {
 								var _v9 = _v8.a;
 								var card = _v9.a;
-								return $author$project$Main$ModalBidding(
+								return $author$project$Types$ModalBidding(
 									_Utils_update(
 										model,
 										{
@@ -6032,9 +6436,6 @@ var $author$project$Main$withHistory = F2(
 				history: A2($elm$core$List$cons, msg, model.history)
 			}) : model;
 	});
-var $author$project$Main$withNoCommand = function (model) {
-	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-};
 var $author$project$Main$popHistory = function (game) {
 	var tailHistory = A2(
 		$elm$core$Maybe$withDefault,
@@ -6071,8 +6472,9 @@ var $author$project$Main$updateGame = F2(
 		var _v0 = function () {
 			switch (msg.$) {
 				case 'Undo':
-					return $author$project$Main$withNoCommand(
-						$author$project$Main$popHistory(game));
+					return _Utils_Tuple2(
+						$author$project$Main$popHistory(game),
+						true);
 				case 'AddCard':
 					var card = msg.a;
 					var faction = msg.b;
@@ -6081,7 +6483,12 @@ var $author$project$Main$updateGame = F2(
 						{
 							players: A3($author$project$Main$addCardToPlayer, card, faction, game.players)
 						});
-					return $author$project$Main$withNoCommand(updatedGame);
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							A2($author$project$Types$AddCard, card, faction),
+							updatedGame),
+						true);
 				case 'DiscardCard':
 					var card = msg.a;
 					var faction = msg.b;
@@ -6099,29 +6506,36 @@ var $author$project$Main$updateGame = F2(
 					var updatedGame = _Utils_update(
 						game,
 						{players: updatedPlayers});
-					return $author$project$Main$withNoCommand(updatedGame);
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							A2($author$project$Types$DiscardCard, card, faction),
+							updatedGame),
+						true);
 				case 'DragDropCardToFaction':
 					var msg_ = msg.a;
 					var _v2 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
 					var model_ = _v2.a;
 					var result = _v2.b;
 					if (result.$ === 'Nothing') {
-						return $author$project$Main$withNoCommand(
+						return _Utils_Tuple2(
 							_Utils_update(
 								game,
-								{dragDrop: model_}));
+								{dragDrop: model_}),
+							false);
 					} else {
 						var _v4 = result.a;
 						var card = _v4.a;
 						var faction = _v4.b;
 						var updatedPlayers = A3($author$project$Main$addCardToPlayer, card, faction, game.players);
-						return $author$project$Main$withNoCommand(
+						return _Utils_Tuple2(
 							A2(
 								$author$project$Main$withHistory,
-								A2($author$project$Main$AddCard, card, faction),
+								A2($author$project$Types$AddCard, card, faction),
 								_Utils_update(
 									game,
-									{dragDrop: model_, players: updatedPlayers})));
+									{dragDrop: model_, players: updatedPlayers})),
+							true);
 					}
 				case 'OpenBiddingPhaseModal':
 					var initialState = function () {
@@ -6144,30 +6558,32 @@ var $author$project$Main$updateGame = F2(
 							return saved;
 						}
 					}();
-					var biddingModal = $author$project$Main$ModalBidding(initialState);
-					return $author$project$Main$withNoCommand(
+					var biddingModal = $author$project$Types$ModalBidding(initialState);
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							$author$project$Main$OpenBiddingPhaseModal,
+							$author$project$Types$OpenBiddingPhaseModal,
 							_Utils_update(
 								game,
 								{
 									modal: $elm$core$Maybe$Just(biddingModal)
-								})));
+								})),
+						true);
 				case 'OpenChangeCardModal':
 					var faction = msg.a;
 					var card = msg.b;
-					return $author$project$Main$withNoCommand(
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							A2($author$project$Main$OpenChangeCardModal, faction, card),
+							A2($author$project$Types$OpenChangeCardModal, faction, card),
 							_Utils_update(
 								game,
 								{
 									modal: $elm$core$Maybe$Just(
-										$author$project$Main$ModalChangeCard(
+										$author$project$Types$ModalChangeCard(
 											{clickedCard: card, faction: faction, selectedCard: card}))
-								})));
+								})),
+						true);
 				case 'ChangeCardViaModal':
 					var changeRequest = msg.a;
 					var updatedPlayers = A3(
@@ -6181,13 +6597,14 @@ var $author$project$Main$updateGame = F2(
 						},
 						changeRequest.faction,
 						game.players);
-					return $author$project$Main$withNoCommand(
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							$author$project$Main$ChangeCardViaModal(changeRequest),
+							$author$project$Types$ChangeCardViaModal(changeRequest),
 							_Utils_update(
 								game,
-								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers})));
+								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers})),
+						true);
 				case 'AssignBiddingPhaseCards':
 					var cards = msg.a;
 					var assignCard = F2(
@@ -6197,35 +6614,38 @@ var $author$project$Main$updateGame = F2(
 							return A3($author$project$Main$addCardToPlayer, card, faction, players);
 						});
 					var updatedPlayers = A3($elm$core$List$foldl, assignCard, game.players, cards);
-					return $author$project$Main$withNoCommand(
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							$author$project$Main$AssignBiddingPhaseCards(cards),
+							$author$project$Types$AssignBiddingPhaseCards(cards),
 							_Utils_update(
 								game,
-								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing})));
+								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing})),
+						true);
 				case 'CloseModal':
 					var _v7 = game.modal;
 					if ((_v7.$ === 'Just') && (_v7.a.$ === 'ModalBidding')) {
 						var biddingModel = _v7.a.a;
-						return $author$project$Main$withNoCommand(
+						return _Utils_Tuple2(
 							A2(
 								$author$project$Main$withHistory,
-								$author$project$Main$CloseModal,
+								$author$project$Types$CloseModal,
 								_Utils_update(
 									game,
 									{
 										modal: $elm$core$Maybe$Nothing,
 										savedBiddingPhaseModalModel: $elm$core$Maybe$Just(biddingModel)
-									})));
+									})),
+							true);
 					} else {
-						return $author$project$Main$withNoCommand(
+						return _Utils_Tuple2(
 							A2(
 								$author$project$Main$withHistory,
-								$author$project$Main$CloseModal,
+								$author$project$Types$CloseModal,
 								_Utils_update(
 									game,
-									{modal: $elm$core$Maybe$Nothing})));
+									{modal: $elm$core$Maybe$Nothing})),
+							true);
 					}
 				default:
 					var modalMsg = msg.a;
@@ -6239,23 +6659,23 @@ var $author$project$Main$updateGame = F2(
 								A2($author$project$Main$updateModal, modalMsg, modalModel));
 						}
 					}();
-					return $author$project$Main$withNoCommand(
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							$author$project$Main$ModalMsg(modalMsg),
+							$author$project$Types$ModalMsg(modalMsg),
 							_Utils_update(
 								game,
-								{modal: newModalModel})));
+								{modal: newModalModel})),
+						true);
 			}
 		}();
 		var updatedModel = _v0.a;
-		var cmd = _v0.b;
-		var historized = A2($author$project$Main$withHistory, msg, updatedModel);
+		var changed = _v0.b;
+		var cmd = changed ? $author$project$Ports$saveGame(updatedModel) : $elm$core$Platform$Cmd$none;
 		return _Utils_Tuple2(
-			$author$project$Main$ViewGame(historized),
+			$author$project$Types$ViewGame(updatedModel),
 			cmd);
 	});
-var $elm$core$Basics$not = _Basics_not;
 var $pzp1997$assoc_list$AssocList$get = F2(
 	function (targetKey, _v0) {
 		get:
@@ -6313,12 +6733,15 @@ var $pzp1997$assoc_list$AssocList$update = F3(
 			}
 		}
 	});
+var $author$project$Main$withNoCommand = function (model) {
+	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+};
 var $author$project$Main$updateSetup = F2(
 	function (msg, model) {
 		if (msg.$ === 'CreateGame') {
 			var factions = msg.a;
 			return $author$project$Main$withNoCommand(
-				$author$project$Main$ViewGame(
+				$author$project$Types$ViewGame(
 					$author$project$Main$createGame(
 						A2($elm$core$List$cons, $author$project$Faction$atreides, factions))));
 		} else {
@@ -6331,7 +6754,7 @@ var $author$project$Main$updateSetup = F2(
 				},
 				model.factions);
 			return $author$project$Main$withNoCommand(
-				$author$project$Main$ViewSetup(
+				$author$project$Types$ViewSetup(
 					{factions: updatedDict}));
 		}
 	});
@@ -6369,7 +6792,6 @@ var $author$project$Main$update = F2(
 			_Utils_Tuple2(msg, model));
 		return $author$project$Main$withNoCommand(model);
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6394,8 +6816,8 @@ var $elm$virtual_dom$VirtualDom$node = function (tag) {
 var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
 var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $elm$html$Html$section = _VirtualDom_node('section');
-var $author$project$Main$Undo = {$: 'Undo'};
-var $author$project$Main$ViewGameMsg = function (a) {
+var $author$project$Types$Undo = {$: 'Undo'};
+var $author$project$Types$ViewGameMsg = function (a) {
 	return {$: 'ViewGameMsg', a: a};
 };
 var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
@@ -6454,7 +6876,7 @@ var $author$project$Main$viewButtons = A2(
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 							$elm$html$Html$Events$onClick(
-							$author$project$Main$ViewGameMsg($author$project$Main$OpenBiddingPhaseModal))
+							$author$project$Types$ViewGameMsg($author$project$Types$OpenBiddingPhaseModal))
 						]),
 					_List_fromArray(
 						[
@@ -6467,7 +6889,7 @@ var $author$project$Main$viewButtons = A2(
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 							$elm$html$Html$Events$onClick(
-							$author$project$Main$ViewGameMsg($author$project$Main$Undo))
+							$author$project$Types$ViewGameMsg($author$project$Types$Undo))
 						]),
 					_List_fromArray(
 						[
@@ -6880,7 +7302,7 @@ var $author$project$Card$special = _List_fromArray(
 	[$author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl]);
 var $ahstro$elm_bulma_classes$Bulma$Classes$tile = 'tile';
 var $elm$html$Html$ul = _VirtualDom_node('ul');
-var $author$project$Main$DragDropCardToFaction = function (a) {
+var $author$project$Types$DragDropCardToFaction = function (a) {
 	return {$: 'DragDropCardToFaction', a: a};
 };
 var $author$project$Card$cardLimitDict = $elm$core$Dict$fromList(
@@ -6975,7 +7397,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 				},
 				decoder));
 	});
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 	function (wrap, drag) {
 		return _List_fromArray(
@@ -7018,7 +7439,7 @@ var $author$project$Main$viewDeckCard = F2(
 			$elm$html$Html$li,
 			A2(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$draggable,
-				A2($elm$core$Basics$composeL, $author$project$Main$ViewGameMsg, $author$project$Main$DragDropCardToFaction),
+				A2($elm$core$Basics$composeL, $author$project$Types$ViewGameMsg, $author$project$Types$DragDropCardToFaction),
 				card),
 			_List_fromArray(
 				[
@@ -7083,13 +7504,13 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 		_List_fromArray(
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 };
-var $author$project$Main$AddBid = {$: 'AddBid'};
-var $author$project$Main$ResetBids = {$: 'ResetBids'};
-var $author$project$Main$SelectBiddingCard = F2(
+var $author$project$Types$AddBid = {$: 'AddBid'};
+var $author$project$Types$ResetBids = {$: 'ResetBids'};
+var $author$project$Types$SelectBiddingCard = F2(
 	function (a, b) {
 		return {$: 'SelectBiddingCard', a: a, b: b};
 	});
-var $author$project$Main$SelectBiddingFaction = F2(
+var $author$project$Types$SelectBiddingFaction = F2(
 	function (a, b) {
 		return {$: 'SelectBiddingFaction', a: a, b: b};
 	});
@@ -7131,13 +7552,6 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
-var $author$project$Faction$eq = F2(
-	function (fac1, fac2) {
-		var _v0 = _Utils_Tuple2(fac1, fac2);
-		var s1 = _v0.a.a;
-		var s2 = _v0.b.a;
-		return _Utils_eq(s1, s2);
-	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
@@ -7255,12 +7669,10 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $elm$html$Html$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -7359,9 +7771,9 @@ var $author$project$Main$viewBiddingModal = function (model) {
 					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
 					name: 'Faction',
 					onSelect: function (s) {
-						return $author$project$Main$ViewGameMsg(
-							$author$project$Main$ModalMsg(
-								A2($author$project$Main$SelectBiddingFaction, index, s)));
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								A2($author$project$Types$SelectBiddingFaction, index, s)));
 					},
 					options: $author$project$Faction$factionsWithUnknown,
 					toHtml: function (f) {
@@ -7379,9 +7791,9 @@ var $author$project$Main$viewBiddingModal = function (model) {
 					isValid: true,
 					name: 'Card',
 					onSelect: function (s) {
-						return $author$project$Main$ViewGameMsg(
-							$author$project$Main$ModalMsg(
-								A2($author$project$Main$SelectBiddingCard, index, s)));
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								A2($author$project$Types$SelectBiddingCard, index, s)));
 					},
 					options: $author$project$Card$uniqueCardsWithUnknown,
 					toHtml: function (c) {
@@ -7434,8 +7846,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
 						$elm$html$Html$Events$onClick(
-						$author$project$Main$ViewGameMsg(
-							$author$project$Main$AssignBiddingPhaseCards(bidsList))),
+						$author$project$Types$ViewGameMsg(
+							$author$project$Types$AssignBiddingPhaseCards(bidsList))),
 						$elm$html$Html$Attributes$disabled(!validFactionsSelected)
 					]),
 				_List_fromArray(
@@ -7449,8 +7861,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
 						$elm$html$Html$Events$onClick(
-						$author$project$Main$ViewGameMsg(
-							$author$project$Main$ModalMsg($author$project$Main$AddBid)))
+						$author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg($author$project$Types$AddBid)))
 					]),
 				_List_fromArray(
 					[
@@ -7462,8 +7874,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 					[
 						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 						$elm$html$Html$Events$onClick(
-						$author$project$Main$ViewGameMsg(
-							$author$project$Main$ModalMsg($author$project$Main$ResetBids)))
+						$author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg($author$project$Types$ResetBids)))
 					]),
 				_List_fromArray(
 					[
@@ -7473,11 +7885,11 @@ var $author$project$Main$viewBiddingModal = function (model) {
 	return A4(
 		$author$project$View$modal,
 		modalTitle,
-		$author$project$Main$ViewGameMsg($author$project$Main$CloseModal),
+		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 		body,
 		footerChild);
 };
-var $author$project$Main$SelectIdentifyCard = function (a) {
+var $author$project$Types$SelectIdentifyCard = function (a) {
 	return {$: 'SelectIdentifyCard', a: a};
 };
 var $author$project$View$button = F3(
@@ -7522,23 +7934,23 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 			[
 				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess)
 			]),
-		$author$project$Main$ViewGameMsg(
-			$author$project$Main$ChangeCardViaModal(
+		$author$project$Types$ViewGameMsg(
+			$author$project$Types$ChangeCardViaModal(
 				{current: model.clickedCard, faction: model.faction, _new: model.selectedCard})),
 		'Identify Card');
 	var body = A3(
 		$author$project$View$cardTypeSelect,
 		$author$project$Card$uniqueCardsWithUnknown,
 		function (s) {
-			return $author$project$Main$ViewGameMsg(
-				$author$project$Main$ModalMsg(
-					$author$project$Main$SelectIdentifyCard(s)));
+			return $author$project$Types$ViewGameMsg(
+				$author$project$Types$ModalMsg(
+					$author$project$Types$SelectIdentifyCard(s)));
 		},
 		model.selectedCard);
 	return A4(
 		$author$project$View$modal,
 		modalTitle,
-		$author$project$Main$ViewGameMsg($author$project$Main$CloseModal),
+		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 		body,
 		footerChild);
 };
@@ -7552,7 +7964,7 @@ var $author$project$Main$viewModal = F2(
 			return $author$project$Main$viewBiddingModal(model);
 		}
 	});
-var $author$project$Main$ResetGame = {$: 'ResetGame'};
+var $author$project$Types$ResetGame = {$: 'ResetGame'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$height = function (n) {
 	return A2(
@@ -7637,7 +8049,7 @@ var $author$project$Main$viewNavbar = function (factions) {
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ViewGameMsg($author$project$Main$OpenBiddingPhaseModal))
+										$author$project$Types$ViewGameMsg($author$project$Types$OpenBiddingPhaseModal))
 									]),
 								_List_fromArray(
 									[
@@ -7650,7 +8062,7 @@ var $author$project$Main$viewNavbar = function (factions) {
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$ViewGameMsg($author$project$Main$Undo))
+										$author$project$Types$ViewGameMsg($author$project$Types$Undo))
 									]),
 								_List_fromArray(
 									[
@@ -7662,7 +8074,7 @@ var $author$project$Main$viewNavbar = function (factions) {
 									[
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-										$elm$html$Html$Events$onClick($author$project$Main$ResetGame)
+										$elm$html$Html$Events$onClick($author$project$Types$ResetGame)
 									]),
 								_List_fromArray(
 									[
@@ -7672,10 +8084,6 @@ var $author$project$Main$viewNavbar = function (factions) {
 					]))
 			]));
 };
-var $author$project$Main$DiscardCard = F2(
-	function (a, b) {
-		return {$: 'DiscardCard', a: a, b: b};
-	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
@@ -7793,8 +8201,8 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 						[
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$icon),
 							$elm$html$Html$Events$onClick(
-							$author$project$Main$ViewGameMsg(
-								A2($author$project$Main$DiscardCard, card, faction)))
+							$author$project$Types$ViewGameMsg(
+								A2($author$project$Types$DiscardCard, card, faction)))
 						]),
 					_List_fromArray(
 						[
@@ -7813,8 +8221,8 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 				var attr = _List_fromArray(
 					[
 						$elm$html$Html$Events$onClick(
-						$author$project$Main$ViewGameMsg(
-							A2($author$project$Main$OpenChangeCardModal, faction, card)))
+						$author$project$Types$ViewGameMsg(
+							A2($author$project$Types$OpenChangeCardModal, faction, card)))
 					]);
 				return A2(
 					$elm$html$Html$li,
@@ -7853,7 +8261,7 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 							]),
 						A2(
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
-							A2($elm$core$Basics$composeL, $author$project$Main$ViewGameMsg, $author$project$Main$DragDropCardToFaction),
+							A2($elm$core$Basics$composeL, $author$project$Types$ViewGameMsg, $author$project$Types$DragDropCardToFaction),
 							player.faction)),
 					_List_fromArray(
 						[
@@ -7943,13 +8351,13 @@ var $author$project$Main$viewGame = function (game) {
 				modal
 			]));
 };
-var $author$project$Main$CreateGame = function (a) {
+var $author$project$Types$CreateGame = function (a) {
 	return {$: 'CreateGame', a: a};
 };
-var $author$project$Main$ToggleFaction = function (a) {
+var $author$project$Types$ToggleFaction = function (a) {
 	return {$: 'ToggleFaction', a: a};
 };
-var $author$project$Main$ViewSetupMsg = function (a) {
+var $author$project$Types$ViewSetupMsg = function (a) {
 	return {$: 'ViewSetupMsg', a: a};
 };
 var $ahstro$elm_bulma_classes$Bulma$Classes$checkbox = 'checkbox';
@@ -8011,8 +8419,8 @@ var $author$project$Main$viewSetup = function (model) {
 												false,
 												A2($pzp1997$assoc_list$AssocList$get, faction, model.factions))),
 											$elm$html$Html$Events$onClick(
-											$author$project$Main$ViewSetupMsg(
-												$author$project$Main$ToggleFaction(faction)))
+											$author$project$Types$ViewSetupMsg(
+												$author$project$Types$ToggleFaction(faction)))
 										]),
 									_List_Nil),
 									$elm$html$Html$text(
@@ -8056,8 +8464,8 @@ var $author$project$Main$viewSetup = function (model) {
 								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isLink),
 								$elm$html$Html$Events$onClick(
-								$author$project$Main$ViewSetupMsg(
-									$author$project$Main$CreateGame(currentSelectedFactions)))
+								$author$project$Types$ViewSetupMsg(
+									$author$project$Types$CreateGame(currentSelectedFactions)))
 							]),
 						_List_fromArray(
 							[
@@ -8101,4 +8509,9 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	$elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$value)
+			])))(0)}});}(this));
