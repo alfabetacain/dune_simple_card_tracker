@@ -8,9 +8,13 @@ import Card
 import Dict
 import Faction
 import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, option, p, section, select, span, text, ul)
-import Html.Attributes exposing (checked, class, height, src, type_, width, disabled)
+import Html.Attributes exposing (checked, class, disabled, height, src, type_, width)
 import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
+import Json.Decode
+import Json.Encode
+import Ports
+import Types exposing (..)
 import View
 
 
@@ -21,60 +25,6 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
-
-
-type alias ModalChangeCardModel =
-    { faction : Faction.Type
-    , selectedCard : Card.Type
-    , clickedCard : Card.Type
-    }
-
-
-type alias ModalBiddingModel =
-    { bids : Array ( Card.Type, Faction.Type )
-    , factions : List Faction.Type
-    }
-
-
-type Modal
-    = ModalChangeCard ModalChangeCardModel
-    | ModalBidding ModalBiddingModel
-
-
-type alias Index =
-    Int
-
-
-type ModalMsg
-    = SelectIdentifyCard String
-    | SelectBiddingCard Index String
-    | SelectBiddingFaction Index String
-    | AddBid
-    | ResetBids
-
-
-type alias Game =
-    { players : List Player
-    , dragDrop : DragDrop.Model Card.Type Faction.Type
-    , history : List GameMsg
-    , modal : Maybe Modal
-    , savedBiddingPhaseModalModel : Maybe ModalBiddingModel
-    }
-
-
-type alias Setup =
-    { factions : ADict.Dict Faction.Type Bool }
-
-
-type Model
-    = ViewSetup Setup
-    | ViewGame Game
-
-
-type alias Player =
-    { faction : Faction.Type
-    , hand : List Card.Type
-    }
 
 
 initSetup : () -> ( Model, Cmd Msg )
@@ -92,47 +42,28 @@ initSetup _ =
     ( model, Cmd.none )
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : Maybe Json.Decode.Value -> ( Model, Cmd Msg )
+init appState =
     let
-        factions =
-            [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
+        _ =
+            Debug.log "actual input = " appState
 
-        game =
-            createGame factions
+        savedState =
+            Debug.log "input = " <| Maybe.map (\state -> Ports.parseGame state) appState
     in
-    ( ViewGame game, Cmd.none )
+    case savedState of
+        Just (Ok game) ->
+            ( ViewGame game, Cmd.none )
 
+        _ ->
+            let
+                factions =
+                    [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
 
-type SetupMsg
-    = CreateGame (List Faction.Type)
-    | ToggleFaction Faction.Type
-
-
-type alias ChangeCard =
-    { faction : Faction.Type
-    , current : Card.Type
-    , new : Card.Type
-    }
-
-
-type GameMsg
-    = AddCard Card.Type Faction.Type
-    | DiscardCard Card.Type Faction.Type
-    | DragDropCardToFaction (DragDrop.Msg Card.Type Faction.Type)
-    | Undo
-    | OpenChangeCardModal Faction.Type Card.Type
-    | ChangeCardViaModal ChangeCard
-    | OpenBiddingPhaseModal 
-    | AssignBiddingPhaseCards (List ( Card.Type, Faction.Type ))
-    | ModalMsg ModalMsg
-    | CloseModal
-
-
-type Msg
-    = ViewSetupMsg SetupMsg
-    | ViewGameMsg GameMsg
-    | ResetGame
+                game =
+                    createGame factions
+            in
+            ( ViewGame game, Cmd.none )
 
 
 updateFaction : (Player -> Player) -> Faction.Type -> List Player -> List Player
@@ -170,8 +101,11 @@ createPlayer faction =
 createGame : List Faction.Type -> Game
 createGame factions =
     let
+        withoutAtreides =
+            List.filter (\f -> not <| Faction.eq Faction.atreides f) factions
+
         players =
-            List.map createPlayer (Faction.atreides :: factions)
+            List.map createPlayer (Faction.atreides :: withoutAtreides)
     in
     { players = players
     , dragDrop = DragDrop.init
@@ -265,8 +199,9 @@ updateModal msg modalModel =
         ( AddBid, ModalBidding model ) ->
             ModalBidding
                 { model | bids = Array.push ( Card.unknown, Faction.unknown ) model.bids }
+
         ( ResetBids, ModalBidding model ) ->
-          ModalBidding { model | bids = Array.push (Card.unknown, Faction.unknown) Array.empty }
+            ModalBidding { model | bids = Array.push ( Card.unknown, Faction.unknown ) Array.empty }
 
         ( SelectBiddingCard index cardString, ModalBidding model ) ->
             let
@@ -305,17 +240,17 @@ updateModal msg modalModel =
 updateGame : GameMsg -> Game -> ( Model, Cmd Msg )
 updateGame msg game =
     let
-        ( updatedModel, cmd ) =
+        ( updatedModel, changed ) =
             case msg of
                 Undo ->
-                    withNoCommand <| popHistory game
+                    ( popHistory game, True )
 
                 AddCard card faction ->
                     let
                         updatedGame =
                             { game | players = addCardToPlayer card faction game.players }
                     in
-                    withNoCommand updatedGame
+                    ( withHistory (AddCard card faction) updatedGame, True )
 
                 DiscardCard card faction ->
                     let
@@ -325,7 +260,7 @@ updateGame msg game =
                         updatedGame =
                             { game | players = updatedPlayers }
                     in
-                    withNoCommand updatedGame
+                    ( withHistory (DiscardCard card faction) updatedGame, True )
 
                 DragDropCardToFaction msg_ ->
                     let
@@ -334,38 +269,41 @@ updateGame msg game =
                     in
                     case result of
                         Nothing ->
-                            withNoCommand { game | dragDrop = model_ }
+                            ( { game | dragDrop = model_ }, False )
 
                         Just ( card, faction, _ ) ->
                             let
                                 updatedPlayers =
                                     addCardToPlayer card faction game.players
                             in
-                            withNoCommand <| withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }
+                            ( withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }, True )
 
                 OpenBiddingPhaseModal ->
                     let
-                        initialState = 
-                          case game.savedBiddingPhaseModalModel of
-                            Nothing -> 
-                                { factions = List.map (\player -> player.faction) game.players
-                                , bids = Array.push (Card.unknown, Faction.unknown) Array.empty
-                                }
-                            Just saved -> saved
+                        initialState =
+                            case game.savedBiddingPhaseModalModel of
+                                Nothing ->
+                                    { factions = List.map (\player -> player.faction) game.players
+                                    , bids = Array.push ( Card.unknown, Faction.unknown ) Array.empty
+                                    }
+
+                                Just saved ->
+                                    saved
+
                         biddingModal =
                             ModalBidding initialState
                     in
-                    withNoCommand <| withHistory (OpenBiddingPhaseModal ) { game | modal = Just biddingModal }
+                    ( withHistory OpenBiddingPhaseModal { game | modal = Just biddingModal }, True )
 
                 OpenChangeCardModal faction card ->
-                    withNoCommand <| withHistory (OpenChangeCardModal faction card) { game | modal = Just <| ModalChangeCard <| { faction = faction, selectedCard = card, clickedCard = card } }
+                    ( withHistory (OpenChangeCardModal faction card) { game | modal = Just <| ModalChangeCard <| { faction = faction, selectedCard = card, clickedCard = card } }, True )
 
                 ChangeCardViaModal changeRequest ->
                     let
                         updatedPlayers =
                             updateFaction (\player -> { player | hand = changeCard changeRequest.current changeRequest.new player.hand }) changeRequest.faction game.players
                     in
-                    withNoCommand <| withHistory (ChangeCardViaModal changeRequest) { game | players = updatedPlayers, modal = Nothing }
+                    ( withHistory (ChangeCardViaModal changeRequest) { game | players = updatedPlayers, modal = Nothing }, True )
 
                 AssignBiddingPhaseCards cards ->
                     let
@@ -377,14 +315,15 @@ updateGame msg game =
                         updatedPlayers =
                             List.foldl assignCard game.players cards
                     in
-                    withNoCommand <| withHistory (AssignBiddingPhaseCards cards) { game | players = updatedPlayers, modal = Nothing, savedBiddingPhaseModalModel = Nothing }
+                    ( withHistory (AssignBiddingPhaseCards cards) { game | players = updatedPlayers, modal = Nothing, savedBiddingPhaseModalModel = Nothing }, True )
 
                 CloseModal ->
-                  case game.modal of
-                    Just (ModalBidding biddingModel) ->
-                      withNoCommand <| withHistory CloseModal { game | modal = Nothing, savedBiddingPhaseModalModel = Just biddingModel }
-                    _ ->
-                      withNoCommand <| withHistory CloseModal { game | modal = Nothing }
+                    case game.modal of
+                        Just (ModalBidding biddingModel) ->
+                            ( withHistory CloseModal { game | modal = Nothing, savedBiddingPhaseModalModel = Just biddingModel }, True )
+
+                        _ ->
+                            ( withHistory CloseModal { game | modal = Nothing }, True )
 
                 ModalMsg modalMsg ->
                     let
@@ -396,12 +335,16 @@ updateGame msg game =
                                 Just modalModel ->
                                     Just <| updateModal modalMsg modalModel
                     in
-                    withNoCommand <| withHistory (ModalMsg modalMsg) { game | modal = newModalModel }
+                    ( withHistory (ModalMsg modalMsg) { game | modal = newModalModel }, True )
 
-        historized =
-            withHistory msg updatedModel
+        cmd =
+            if changed then
+                Ports.saveGame updatedModel
+
+            else
+                Cmd.none
     in
-    ( ViewGame historized, cmd )
+    ( ViewGame updatedModel, cmd )
 
 
 updateSetup : SetupMsg -> Setup -> ( Model, Cmd Msg )
@@ -572,24 +515,27 @@ viewDeck cardsInPlay =
         , uselessTile
         ]
 
+
 viewButtons : Html Msg
 viewButtons =
-  nav [ class Bulma.level ]
-    [ div [ class Bulma.levelLeft ] []
-    , div [ class Bulma.levelRight ] 
-      [ button 
-        [ class Bulma.levelItem
-        , class Bulma.button
-        , onClick <| ViewGameMsg (OpenBiddingPhaseModal ) 
-        ] [ text "Bidding phase" ]
-      , button 
-        [ class Bulma.levelItem
-        , class Bulma.button
-        , onClick (ViewGameMsg Undo) 
-        ] [ text "Undo" ]
-      ]
-      ]
-            
+    nav [ class Bulma.level ]
+        [ div [ class Bulma.levelLeft ] []
+        , div [ class Bulma.levelRight ]
+            [ button
+                [ class Bulma.levelItem
+                , class Bulma.button
+                , onClick <| ViewGameMsg OpenBiddingPhaseModal
+                ]
+                [ text "Bidding phase" ]
+            , button
+                [ class Bulma.levelItem
+                , class Bulma.button
+                , onClick (ViewGameMsg Undo)
+                ]
+                [ text "Undo" ]
+            ]
+        ]
+
 
 viewNavbar : List Faction.Type -> Html Msg
 viewNavbar factions =
@@ -601,7 +547,7 @@ viewNavbar factions =
             ]
         , div [ class Bulma.navbarMenu ]
             [ div [ class Bulma.navbarEnd ]
-                [ button [ class Bulma.navbarItem, class Bulma.button, onClick <| ViewGameMsg (OpenBiddingPhaseModal) ] [ text "Bidding phase" ]
+                [ button [ class Bulma.navbarItem, class Bulma.button, onClick <| ViewGameMsg OpenBiddingPhaseModal ] [ text "Bidding phase" ]
                 , button [ class Bulma.navbarItem, class Bulma.button, onClick (ViewGameMsg Undo) ] [ text "Undo" ]
                 , button [ class Bulma.navbarItem, class Bulma.button, onClick ResetGame ] [ text "New game" ]
                 ]
@@ -627,7 +573,6 @@ viewGame game =
         ]
 
 
-
 viewChangeCardModal : ModalChangeCardModel -> Html Msg
 viewChangeCardModal model =
     let
@@ -638,7 +583,7 @@ viewChangeCardModal model =
             View.cardTypeSelect Card.uniqueCardsWithUnknown (\s -> ViewGameMsg <| ModalMsg <| SelectIdentifyCard s) model.selectedCard
 
         footerChild =
-          View.button [ class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
+            View.button [ class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
     in
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
@@ -646,7 +591,9 @@ viewChangeCardModal model =
 viewBiddingModal : ModalBiddingModel -> Html Msg
 viewBiddingModal model =
     let
-        validFactionsSelected = List.all (\bid -> not <| Faction.eq Faction.unknown (Tuple.second bid)) (Array.toList model.bids)
+        validFactionsSelected =
+            List.all (\bid -> not <| Faction.eq Faction.unknown (Tuple.second bid)) (Array.toList model.bids)
+
         modalTitle =
             "Bidding"
 
@@ -702,10 +649,10 @@ viewBiddingModal model =
                     ]
                     [ text "Add bid" ]
                 , button
-                  [ class Bulma.button
-                  , onClick <| ViewGameMsg <| ModalMsg ResetBids
-                  ]
-                  [ text "Reset" ]
+                    [ class Bulma.button
+                    , onClick <| ViewGameMsg <| ModalMsg ResetBids
+                    ]
+                    [ text "Reset" ]
                 ]
     in
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild

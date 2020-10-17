@@ -1,6 +1,8 @@
-module Card exposing (Type, cardLimit, cheapHero, deck, defensePoison, defenseProjectile, defenses, eq, familyAtomics, fromString, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Dict
+import Json.Decode as D
+import Json.Encode as E
 
 
 type Type
@@ -28,6 +30,27 @@ toString card =
 fromString : String -> Maybe Type
 fromString s =
     Dict.get s cardsDict
+
+
+encode : Type -> E.Value
+encode card =
+    case card of
+        Card s ->
+            E.string s
+
+
+decode : D.Decoder Type
+decode =
+    let
+        parse s =
+            case fromString s of
+                Nothing ->
+                    D.fail <| "No card named \"" ++ s ++ "\" exists"
+
+                Just c ->
+                    D.succeed c
+    in
+    D.andThen parse D.string
 
 
 cardLimitDict : Dict.Dict String Int

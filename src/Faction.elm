@@ -1,6 +1,8 @@
-module Faction exposing (Type, atreides, beneGesserit, emperor, eq, factions, factionsWithUnknown, fremen, fromString, harkonnen, spacingGuild, toString, unknown)
+module Faction exposing (Type, atreides, beneGesserit, decode, emperor, encode, eq, factions, factionsWithUnknown, fremen, fromString, harkonnen, spacingGuild, toString, unknown)
 
 import Dict
+import Json.Decode as D
+import Json.Encode as E
 
 
 type Type
@@ -28,6 +30,27 @@ toString faction =
 fromString : String -> Maybe Type
 fromString s =
     Dict.get s factionsDict
+
+
+encode : Type -> E.Value
+encode faction =
+    case faction of
+        Faction s ->
+            E.string s
+
+
+decode : D.Decoder Type
+decode =
+    let
+        parse s =
+            case fromString s of
+                Nothing ->
+                    D.fail <| "No faction named \"" ++ s ++ "\" exists"
+
+                Just f ->
+                    D.succeed f
+    in
+    D.andThen parse D.string
 
 
 
