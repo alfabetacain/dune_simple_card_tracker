@@ -5251,36 +5251,33 @@ var $elm$core$Maybe$map = F2(
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Types$ModalBidding = function (a) {
-	return {$: 'ModalBidding', a: a};
+var $author$project$Types$AddCard = F2(
+	function (a, b) {
+		return {$: 'AddCard', a: a, b: b};
+	});
+var $author$project$Types$AssignBiddingPhaseCards = function (a) {
+	return {$: 'AssignBiddingPhaseCards', a: a};
 };
-var $author$project$Types$ModalChangeCard = function (a) {
-	return {$: 'ModalChangeCard', a: a};
+var $author$project$Types$ChangeCard = F3(
+	function (faction, current, _new) {
+		return {current: current, faction: faction, _new: _new};
+	});
+var $author$project$Types$ChangeCardViaModal = function (a) {
+	return {$: 'ChangeCardViaModal', a: a};
 };
+var $author$project$Types$CloseModal = {$: 'CloseModal'};
+var $author$project$Types$DiscardCard = F2(
+	function (a, b) {
+		return {$: 'DiscardCard', a: a, b: b};
+	});
+var $author$project$Types$OpenBiddingPhaseModal = {$: 'OpenBiddingPhaseModal'};
+var $author$project$Types$OpenChangeCardModal = F2(
+	function (a, b) {
+		return {$: 'OpenChangeCardModal', a: a, b: b};
+	});
 var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $author$project$Types$ModalBiddingModel = F2(
-	function (bids, factions) {
-		return {bids: bids, factions: factions};
-	});
-var $elm$json$Json$Decode$array = _Json_decodeArray;
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
 var $elm$json$Json$Decode$fail = _Json_fail;
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
-var $author$project$Faction$factions = _List_fromArray(
-	[$author$project$Faction$atreides, $author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
-var $author$project$Faction$factionsWithUnknown = A2(
-	$elm$core$List$append,
-	$author$project$Faction$factions,
-	_List_fromArray(
-		[$author$project$Faction$unknown]));
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$core$Dict$Black = {$: 'Black'};
@@ -5404,19 +5401,33 @@ var $elm$core$Dict$fromList = function (assocs) {
 		$elm$core$Dict$empty,
 		assocs);
 };
-var $author$project$Faction$toString = function (faction) {
-	var s = faction.a;
+var $author$project$Card$toString = function (card) {
+	var s = card.a;
 	return s;
 };
-var $author$project$Faction$factionsDict = $elm$core$Dict$fromList(
+var $author$project$Card$cheapHero = $author$project$Card$Card('Cheap Hero');
+var $author$project$Card$defensePoison = $author$project$Card$Card('Defense - Poison');
+var $author$project$Card$defenseProjectile = $author$project$Card$Card('Defense - Projectile');
+var $author$project$Card$familyAtomics = $author$project$Card$Card('Family Atomics');
+var $author$project$Card$ghola = $author$project$Card$Card('Tleilaxu Ghola');
+var $author$project$Card$hajr = $author$project$Card$Card('Hajr');
+var $author$project$Card$karama = $author$project$Card$Card('Karama');
+var $author$project$Card$truthTrance = $author$project$Card$Card('Truthtrance');
+var $author$project$Card$weaponLasgun = $author$project$Card$Card('Weapon - Lasgun');
+var $author$project$Card$weaponProjectile = $author$project$Card$Card('Weapon - Projectile');
+var $author$project$Card$weatherControl = $author$project$Card$Card('Weather Control');
+var $author$project$Card$uniqueCards = _List_fromArray(
+	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
+var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
+var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
 	A2(
 		$elm$core$List$map,
-		function (f) {
+		function (c) {
 			return _Utils_Tuple2(
-				$author$project$Faction$toString(f),
-				f);
+				$author$project$Card$toString(c),
+				c);
 		},
-		$author$project$Faction$factionsWithUnknown));
+		A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards)));
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -5448,52 +5459,10 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
-var $author$project$Faction$fromString = function (s) {
-	return A2($elm$core$Dict$get, s, $author$project$Faction$factionsDict);
-};
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Faction$decode = function () {
-	var parse = function (s) {
-		var _v0 = $author$project$Faction$fromString(s);
-		if (_v0.$ === 'Nothing') {
-			return $elm$json$Json$Decode$fail('No faction named \"' + (s + '\" exists'));
-		} else {
-			var f = _v0.a;
-			return $elm$json$Json$Decode$succeed(f);
-		}
-	};
-	return A2($elm$json$Json$Decode$andThen, parse, $elm$json$Json$Decode$string);
-}();
-var $author$project$Card$toString = function (card) {
-	var s = card.a;
-	return s;
-};
-var $author$project$Card$cheapHero = $author$project$Card$Card('Cheap Hero');
-var $author$project$Card$defensePoison = $author$project$Card$Card('Defense - Poison');
-var $author$project$Card$defenseProjectile = $author$project$Card$Card('Defense - Projectile');
-var $author$project$Card$familyAtomics = $author$project$Card$Card('Family Atomics');
-var $author$project$Card$ghola = $author$project$Card$Card('Tleilaxu Ghola');
-var $author$project$Card$hajr = $author$project$Card$Card('Hajr');
-var $author$project$Card$karama = $author$project$Card$Card('Karama');
-var $author$project$Card$truthTrance = $author$project$Card$Card('Truthtrance');
-var $author$project$Card$weaponLasgun = $author$project$Card$Card('Weapon - Lasgun');
-var $author$project$Card$weaponProjectile = $author$project$Card$Card('Weapon - Projectile');
-var $author$project$Card$weatherControl = $author$project$Card$Card('Weather Control');
-var $author$project$Card$uniqueCards = _List_fromArray(
-	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
-var $author$project$Card$unknown = $author$project$Card$Card('Unknown');
-var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
-	A2(
-		$elm$core$List$map,
-		function (c) {
-			return _Utils_Tuple2(
-				$author$project$Card$toString(c),
-				c);
-		},
-		A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards)));
 var $author$project$Card$fromString = function (s) {
 	return A2($elm$core$Dict$get, s, $author$project$Card$cardsDict);
 };
+var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Card$decode = function () {
 	var parse = function (s) {
 		var _v0 = $author$project$Card$fromString(s);
@@ -5506,8 +5475,86 @@ var $author$project$Card$decode = function () {
 	};
 	return A2($elm$json$Json$Decode$andThen, parse, $elm$json$Json$Decode$string);
 }();
-var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
+var $author$project$Faction$factions = _List_fromArray(
+	[$author$project$Faction$atreides, $author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
+var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
+var $author$project$Faction$factionsWithUnknown = A2(
+	$elm$core$List$append,
+	$author$project$Faction$factions,
+	_List_fromArray(
+		[$author$project$Faction$unknown]));
+var $author$project$Faction$toString = function (faction) {
+	var s = faction.a;
+	return s;
+};
+var $author$project$Faction$factionsDict = $elm$core$Dict$fromList(
+	A2(
+		$elm$core$List$map,
+		function (f) {
+			return _Utils_Tuple2(
+				$author$project$Faction$toString(f),
+				f);
+		},
+		$author$project$Faction$factionsWithUnknown));
+var $author$project$Faction$fromString = function (s) {
+	return A2($elm$core$Dict$get, s, $author$project$Faction$factionsDict);
+};
+var $author$project$Faction$decode = function () {
+	var parse = function (s) {
+		var _v0 = $author$project$Faction$fromString(s);
+		if (_v0.$ === 'Nothing') {
+			return $elm$json$Json$Decode$fail('No faction named \"' + (s + '\" exists'));
+		} else {
+			var f = _v0.a;
+			return $elm$json$Json$Decode$succeed(f);
+		}
+	};
+	return A2($elm$json$Json$Decode$andThen, parse, $elm$json$Json$Decode$string);
+}();
+var $author$project$Ports$decodeConstant = function (constant) {
+	var handle = function (s) {
+		return _Utils_eq(s, constant) ? $elm$json$Json$Decode$succeed(s) : $elm$json$Json$Decode$fail('Value ' + (s + (' does not match constant ' + constant)));
+	};
+	return A2($elm$json$Json$Decode$andThen, handle, $elm$json$Json$Decode$string);
+};
 var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$index = _Json_decodeIndex;
+var $author$project$Ports$decodeBid = function () {
+	var typeDecoder = A2(
+		$elm$json$Json$Decode$field,
+		'type',
+		$author$project$Ports$decodeConstant('tuple'));
+	var decoder = A2(
+		$elm$json$Json$Decode$field,
+		'values',
+		A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2($elm$json$Json$Decode$index, 1, $author$project$Faction$decode),
+			A2(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+				A2($elm$json$Json$Decode$index, 0, $author$project$Card$decode),
+				$elm$json$Json$Decode$succeed(
+					F2(
+						function (card, faction) {
+							return _Utils_Tuple2(card, faction);
+						})))));
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		function (_v0) {
+			return decoder;
+		},
+		typeDecoder);
+}();
+var $elm$json$Json$Decode$list = _Json_decodeList;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
 		return A2(
@@ -5515,20 +5562,92 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2($elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var $author$project$Ports$decodeBid = A3(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'second',
-	$author$project$Faction$decode,
-	A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'first',
-		$author$project$Card$decode,
-		$elm$json$Json$Decode$succeed(
-			F2(
-				function (card, faction) {
-					return _Utils_Tuple2(card, faction);
-				}))));
-var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Ports$decodeGameMsg = function () {
+	var typeDecoder = A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string);
+	var chooseDecoder = function (typ) {
+		var valuesDecoder = A2($elm$json$Json$Decode$field, 'values', $elm$json$Json$Decode$value);
+		switch (typ) {
+			case 'AddCard':
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+						A2($elm$json$Json$Decode$index, 1, $author$project$Faction$decode),
+						A2(
+							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+							A2($elm$json$Json$Decode$index, 0, $author$project$Card$decode),
+							$elm$json$Json$Decode$succeed($author$project$Types$AddCard))));
+			case 'DiscardCard':
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+						A2($elm$json$Json$Decode$index, 1, $author$project$Faction$decode),
+						A2(
+							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+							A2($elm$json$Json$Decode$index, 0, $author$project$Card$decode),
+							$elm$json$Json$Decode$succeed($author$project$Types$DiscardCard))));
+			case 'OpenChangeCardModal':
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+						A2($elm$json$Json$Decode$index, 1, $author$project$Card$decode),
+						A2(
+							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+							A2($elm$json$Json$Decode$index, 0, $author$project$Faction$decode),
+							$elm$json$Json$Decode$succeed($author$project$Types$OpenChangeCardModal))));
+			case 'ChangeCardViaModal':
+				var requestDecoder = A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'new',
+					$author$project$Card$decode,
+					A3(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'current',
+						$author$project$Card$decode,
+						A3(
+							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							'faction',
+							$author$project$Faction$decode,
+							$elm$json$Json$Decode$succeed($author$project$Types$ChangeCard))));
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2($elm$json$Json$Decode$map, $author$project$Types$ChangeCardViaModal, requestDecoder));
+			case 'OpenBiddingPhaseModal':
+				return $elm$json$Json$Decode$succeed($author$project$Types$OpenBiddingPhaseModal);
+			case 'AssignBiddingPhaseCards':
+				var msgDecoder = A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Types$AssignBiddingPhaseCards,
+					$elm$json$Json$Decode$list($author$project$Ports$decodeBid));
+				return A2($elm$json$Json$Decode$field, 'values', msgDecoder);
+			case 'ModalMsg':
+				return $elm$json$Json$Decode$fail('modal');
+			case 'CloseModal':
+				return $elm$json$Json$Decode$succeed($author$project$Types$CloseModal);
+			default:
+				return $elm$json$Json$Decode$fail('Unknown type for GameMsg \"' + (typ + '\"'));
+		}
+	};
+	return A2($elm$json$Json$Decode$andThen, chooseDecoder, typeDecoder);
+}();
+var $author$project$Types$ModalBidding = function (a) {
+	return {$: 'ModalBidding', a: a};
+};
+var $author$project$Types$ModalChangeCard = function (a) {
+	return {$: 'ModalChangeCard', a: a};
+};
+var $author$project$Types$ModalBiddingModel = F2(
+	function (bids, factions) {
+		return {bids: bids, factions: factions};
+	});
+var $elm$json$Json$Decode$array = _Json_decodeArray;
 var $author$project$Ports$decodeModalBidding = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'factions',
@@ -5578,19 +5697,6 @@ var $author$project$Ports$decodeModal = function () {
 		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
 	return decoder;
 }();
-var $author$project$Types$Player = F2(
-	function (faction, hand) {
-		return {faction: faction, hand: hand};
-	});
-var $author$project$Ports$decodePlayer = A3(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'hand',
-	$elm$json$Json$Decode$list($author$project$Card$decode),
-	A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'faction',
-		$author$project$Faction$decode,
-		$elm$json$Json$Decode$succeed($author$project$Types$Player)));
 var $author$project$Ports$decodeSavedBiddingPhaseModalModel = $author$project$Ports$decodeModalBidding;
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
@@ -5603,7 +5709,6 @@ var $elm$json$Json$Decode$nullable = function (decoder) {
 			]));
 };
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
 	function (pathDecoder, valDecoder, fallback) {
 		var nullOr = function (decoder) {
@@ -5647,25 +5752,88 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
 				fallback),
 			decoder);
 	});
-var $author$project$Ports$smallGame = F3(
-	function (players, maybeModal, maybeSavedBiddingModel) {
-		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: maybeModal, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
+var $author$project$Types$Player = F2(
+	function (faction, hand) {
+		return {faction: faction, hand: hand};
 	});
-var $author$project$Ports$decodeGame = A4(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-	'savedBiddingPhaseModalModel',
-	$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedBiddingPhaseModalModel),
-	$elm$core$Maybe$Nothing,
-	A4(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-		'modal',
-		$elm$json$Json$Decode$nullable($author$project$Ports$decodeModal),
-		$elm$core$Maybe$Nothing,
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Card$encode = function (card) {
+	var s = card.a;
+	return $elm$json$Json$Encode$string(s);
+};
+var $author$project$Faction$encode = function (faction) {
+	var s = faction.a;
+	return $elm$json$Json$Encode$string(s);
+};
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $author$project$Ports$playerBicoder = function () {
+	var encoder = function (player) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'faction',
+					$author$project$Faction$encode(player.faction)),
+					_Utils_Tuple2(
+					'hand',
+					A2($elm$json$Json$Encode$list, $author$project$Card$encode, player.hand))
+				]));
+	};
+	var decoder = A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'hand',
+		$elm$json$Json$Decode$list($author$project$Card$decode),
 		A3(
 			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'players',
-			$elm$json$Json$Decode$list($author$project$Ports$decodePlayer),
-			$elm$json$Json$Decode$succeed($author$project$Ports$smallGame))));
+			'faction',
+			$author$project$Faction$decode,
+			$elm$json$Json$Decode$succeed($author$project$Types$Player)));
+	return {decode: decoder, encode: encoder};
+}();
+var $author$project$Ports$smallGame = F4(
+	function (players, maybeModal, maybeSavedBiddingModel, history) {
+		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
+	});
+var $author$project$Ports$decodeGame = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'history',
+	$elm$json$Json$Decode$list($author$project$Ports$decodeGameMsg),
+	A4(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+		'savedBiddingPhaseModalModel',
+		$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedBiddingPhaseModalModel),
+		$elm$core$Maybe$Nothing,
+		A4(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+			'modal',
+			$elm$json$Json$Decode$nullable($author$project$Ports$decodeModal),
+			$elm$core$Maybe$Nothing,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'players',
+				$elm$json$Json$Decode$list($author$project$Ports$playerBicoder.decode),
+				$elm$json$Json$Decode$succeed($author$project$Ports$smallGame)))));
 var $author$project$Ports$parseGame = function (input) {
 	return A2($elm$json$Json$Decode$decodeValue, $author$project$Ports$decodeGame, input);
 };
@@ -5754,29 +5922,9 @@ var $author$project$Main$initSetup = function (_v0) {
 		{factions: factionDict});
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
-var $author$project$Types$AddCard = F2(
-	function (a, b) {
-		return {$: 'AddCard', a: a, b: b};
-	});
-var $author$project$Types$AssignBiddingPhaseCards = function (a) {
-	return {$: 'AssignBiddingPhaseCards', a: a};
-};
-var $author$project$Types$ChangeCardViaModal = function (a) {
-	return {$: 'ChangeCardViaModal', a: a};
-};
-var $author$project$Types$CloseModal = {$: 'CloseModal'};
-var $author$project$Types$DiscardCard = F2(
-	function (a, b) {
-		return {$: 'DiscardCard', a: a, b: b};
-	});
 var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
 };
-var $author$project$Types$OpenBiddingPhaseModal = {$: 'OpenBiddingPhaseModal'};
-var $author$project$Types$OpenChangeCardModal = F2(
-	function (a, b) {
-		return {$: 'OpenChangeCardModal', a: a, b: b};
-	});
 var $author$project$Main$updateFaction = F3(
 	function (map, faction, players) {
 		var maybeUpdate = function (player) {
@@ -5916,31 +6064,161 @@ var $author$project$Main$removeFirst = F2(
 			return _List_Nil;
 		}
 	});
+var $author$project$Ports$encodeType = F2(
+	function (typeName, values) {
+		if (!values.b) {
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string(typeName))
+					]));
+		} else {
+			var list = values;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string(typeName)),
+						_Utils_Tuple2(
+						'values',
+						A2(
+							$elm$json$Json$Encode$list,
+							function (x) {
+								return x;
+							},
+							list))
+					]));
+		}
+	});
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $author$project$Ports$encodeModalMsg = function (msg) {
+	switch (msg.$) {
+		case 'SelectIdentifyCard':
+			var s = msg.a;
+			return A2(
+				$author$project$Ports$encodeType,
+				'SelectIdentifyCard',
+				_List_fromArray(
+					[
+						$elm$json$Json$Encode$string(s)
+					]));
+		case 'SelectBiddingCard':
+			var index = msg.a;
+			var s = msg.b;
+			return A2(
+				$author$project$Ports$encodeType,
+				'SelectBiddingCard',
+				_List_fromArray(
+					[
+						$elm$json$Json$Encode$int(index),
+						$elm$json$Json$Encode$string(s)
+					]));
+		case 'SelectBiddingFaction':
+			var index = msg.a;
+			var s = msg.b;
+			return A2(
+				$author$project$Ports$encodeType,
+				'SelectBiddingFaction',
+				_List_fromArray(
+					[
+						$elm$json$Json$Encode$int(index),
+						$elm$json$Json$Encode$string(s)
+					]));
+		case 'AddBid':
+			return A2($author$project$Ports$encodeType, 'AddBid', _List_Nil);
+		default:
+			return A2($author$project$Ports$encodeType, 'ResetBids', _List_Nil);
+	}
+};
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Ports$encodeGameMsg = function (msg) {
-	return $elm$json$Json$Encode$null;
-};
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Card$encode = function (card) {
-	var s = card.a;
-	return $elm$json$Json$Encode$string(s);
-};
-var $author$project$Faction$encode = function (faction) {
-	var s = faction.a;
-	return $elm$json$Json$Encode$string(s);
-};
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
+	switch (msg.$) {
+		case 'AddCard':
+			var card = msg.a;
+			var faction = msg.b;
+			return A2(
+				$author$project$Ports$encodeType,
+				'AddCard',
+				_List_fromArray(
+					[
+						$author$project$Card$encode(card),
+						$author$project$Faction$encode(faction)
+					]));
+		case 'DiscardCard':
+			var card = msg.a;
+			var faction = msg.b;
+			return A2(
+				$author$project$Ports$encodeType,
+				'DiscardCard',
+				_List_fromArray(
+					[
+						$author$project$Card$encode(card),
+						$author$project$Faction$encode(faction)
+					]));
+		case 'Undo':
+			return $elm$json$Json$Encode$null;
+		case 'OpenChangeCardModal':
+			var faction = msg.a;
+			var card = msg.b;
+			return A2(
+				$author$project$Ports$encodeType,
+				'OpenChangeCardModal',
+				_List_fromArray(
+					[
+						$author$project$Faction$encode(faction),
+						$author$project$Card$encode(card)
+					]));
+		case 'ChangeCardViaModal':
+			var request = msg.a;
+			var encodedRequest = $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'faction',
+						$author$project$Faction$encode(request.faction)),
+						_Utils_Tuple2(
+						'current',
+						$author$project$Card$encode(request.current)),
+						_Utils_Tuple2(
+						'new',
+						$author$project$Card$encode(request._new))
+					]));
+			return A2(
+				$author$project$Ports$encodeType,
+				'ChangeCardViaModal',
+				_List_fromArray(
+					[encodedRequest]));
+		case 'OpenBiddingPhaseModal':
+			return A2($author$project$Ports$encodeType, 'OpenBiddingPhaseModal', _List_Nil);
+		case 'AssignBiddingPhaseCards':
+			var assignments = msg.a;
+			var encodeAssignment = function (_v1) {
+				var card = _v1.a;
+				var faction = _v1.b;
+				return A2(
+					$author$project$Ports$encodeType,
+					'tuple',
+					_List_fromArray(
+						[
+							$author$project$Card$encode(card),
+							$author$project$Faction$encode(faction)
+						]));
+			};
+			return A2(
+				$author$project$Ports$encodeType,
+				'AssignBiddingPhaseCards',
+				A2($elm$core$List$map, encodeAssignment, assignments));
+		case 'ModalMsg':
+			var modalMsg = msg.a;
+			return $author$project$Ports$encodeModalMsg(modalMsg);
+		case 'CloseModal':
+			return A2($author$project$Ports$encodeType, 'CloseModal', _List_Nil);
+		default:
+			return $elm$json$Json$Encode$null;
+	}
 };
 var $author$project$Ports$encodeChangeCardModal = function (model) {
 	return $elm$json$Json$Encode$object(
@@ -5990,26 +6268,15 @@ var $elm$json$Json$Encode$array = F2(
 var $author$project$Ports$encodeBid = function (_v0) {
 	var card = _v0.a;
 	var faction = _v0.b;
-	return $elm$json$Json$Encode$object(
+	return A2(
+		$author$project$Ports$encodeType,
+		'tuple',
 		_List_fromArray(
 			[
-				_Utils_Tuple2(
-				'first',
-				$author$project$Card$encode(card)),
-				_Utils_Tuple2(
-				'second',
-				$author$project$Faction$encode(faction))
+				$author$project$Card$encode(card),
+				$author$project$Faction$encode(faction)
 			]));
 };
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
 var $author$project$Ports$encodeModalBiddingModel = function (model) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -6049,18 +6316,6 @@ var $author$project$Ports$encodeModal = function (modal) {
 				]));
 	}
 };
-var $author$project$Ports$encodePlayer = function (player) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'faction',
-				$author$project$Faction$encode(player.faction)),
-				_Utils_Tuple2(
-				'hand',
-				A2($elm$json$Json$Encode$list, $author$project$Card$encode, player.hand))
-			]));
-};
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6076,7 +6331,7 @@ var $author$project$Ports$encodeGame = function (game) {
 			[
 				_Utils_Tuple2(
 				'players',
-				A2($elm$json$Json$Encode$list, $author$project$Ports$encodePlayer, game.players)),
+				A2($elm$json$Json$Encode$list, $author$project$Ports$playerBicoder.encode, game.players)),
 				_Utils_Tuple2(
 				'history',
 				A2($elm$json$Json$Encode$list, $author$project$Ports$encodeGameMsg, game.history)),
@@ -6425,7 +6680,7 @@ var $author$project$Main$isSignificant = function (msg) {
 		case 'DiscardCard':
 			return true;
 		default:
-			return false;
+			return true;
 	}
 };
 var $author$project$Main$withHistory = F2(
