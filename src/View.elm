@@ -1,10 +1,12 @@
-module View exposing (SelectConfig, selectControl, select, cardTypeSelect, button, modal)
+module View exposing (SelectConfig, button, cardTypeSelect, modal, select, selectControl)
 
-import Html exposing (div, Html, label, text, option, header, p, section, footer)
-import Html.Attributes exposing (class, classList)
 import Bulma.Classes as Bulma
-import Html.Events exposing (onInput, onClick)
 import Card
+import Html exposing (Html, div, footer, header, i, label, option, p, section, span, text)
+import Html.Attributes exposing (class, classList)
+import Html.Events exposing (onClick, onInput)
+import Types exposing (GameMsg(..), Msg(..))
+
 
 type alias SelectConfig a msg =
     { eq : a -> a -> Bool
@@ -20,10 +22,11 @@ type alias SelectConfig a msg =
 selectControl : SelectConfig a msg -> Html msg
 selectControl config =
     div [ class Bulma.control ]
-        [ div [ class Bulma.select, classList [(Bulma.isDanger, not config.isValid)] ]
+        [ div [ class Bulma.select, classList [ ( Bulma.isDanger, not config.isValid ) ] ]
             [ Html.select [ onInput config.onSelect ] <| List.map (\x -> option [ Html.Attributes.selected (config.eq x config.current) ] [ config.toHtml x ]) config.options
             ]
         ]
+
 
 select : SelectConfig a msg -> Html msg
 select config =
@@ -31,6 +34,7 @@ select config =
         [ label [ class Bulma.label ] [ text config.name ]
         , selectControl config
         ]
+
 
 cardTypeSelect : List Card.Type -> (String -> msg) -> Card.Type -> Html msg
 cardTypeSelect cards onSelect selectedCard =
@@ -44,22 +48,26 @@ cardTypeSelect cards onSelect selectedCard =
         , isValid = True
         }
 
+
 button : List (Html.Attribute msg) -> msg -> String -> Html msg
 button attributes clickMsg name =
-  let 
-      allAttributes = 
-        List.append [ class Bulma.button, onClick clickMsg ] attributes
-  in
-  Html.button allAttributes [ text name]
+    let
+        allAttributes =
+            List.append [ class Bulma.button, onClick clickMsg ] attributes
+    in
+    Html.button allAttributes [ text name ]
 
-modal : String -> msg -> Html msg -> Html msg -> Html msg
+
+modal : String -> Msg -> Html Msg -> Html Msg -> Html Msg
 modal title onClose bodyChild footerChild =
     div [ class Bulma.modal, class Bulma.isActive ]
         [ div [ class Bulma.modalBackground ] []
         , div [ class Bulma.modalCard ]
             [ header [ class Bulma.modalCardHead ]
                 [ p [ class Bulma.modalCardTitle ] [ text title ]
-                , Html.button [ class Bulma.delete, onClick onClose] []
+                , span [ class Bulma.icon, onClick <| ViewGameMsg Undo ]
+                    [ i [ class "fas", class "fa-undo" ] [] ]
+                , Html.button [ class Bulma.delete, onClick onClose ] []
                 ]
             , section [ class Bulma.modalCardBody ]
                 [ bodyChild ]
@@ -67,4 +75,3 @@ modal title onClose bodyChild footerChild =
                 [ footerChild ]
             ]
         ]
-
