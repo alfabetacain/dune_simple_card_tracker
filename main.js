@@ -5870,6 +5870,9 @@ var $author$project$Main$subscriptions = function (_v0) {
 var $author$project$Types$ViewSetup = function (a) {
 	return {$: 'ViewSetup', a: a};
 };
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Ports$saveState = _Platform_outgoingPort('saveState', $elm$core$Basics$identity);
+var $author$project$Ports$clearState = $author$project$Ports$saveState($elm$json$Json$Encode$null);
 var $pzp1997$assoc_list$AssocList$D = function (a) {
 	return {$: 'D', a: a};
 };
@@ -5920,7 +5923,7 @@ var $author$project$Main$initSetup = function (_v0) {
 			factions));
 	var model = $author$project$Types$ViewSetup(
 		{factions: factionDict});
-	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+	return _Utils_Tuple2(model, $author$project$Ports$clearState);
 };
 var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
@@ -6133,7 +6136,6 @@ var $author$project$Ports$encodeModalMsg = function (msg) {
 			return A2($author$project$Ports$encodeType, 'ResetBids', _List_Nil);
 	}
 };
-var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$Ports$encodeGameMsg = function (msg) {
 	switch (msg.$) {
 		case 'AddCard':
@@ -6349,7 +6351,6 @@ var $author$project$Ports$encodeGame = function (game) {
 					A2($elm$core$Maybe$map, $author$project$Ports$encodeModalBiddingModel, game.savedBiddingPhaseModalModel)))
 			]));
 };
-var $author$project$Ports$saveState = _Platform_outgoingPort('saveState', $elm$core$Basics$identity);
 var $author$project$Ports$saveGame = function (game) {
 	return $author$project$Ports$saveState(
 		$author$project$Ports$encodeGame(game));
