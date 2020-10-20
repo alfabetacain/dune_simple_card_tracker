@@ -7822,6 +7822,8 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
 var $elm$html$Html$footer = _VirtualDom_node('footer');
 var $elm$html$Html$header = _VirtualDom_node('header');
+var $elm$html$Html$i = _VirtualDom_node('i');
+var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isActive = 'is-active';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modal = 'modal';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalBackground = 'modal-background';
@@ -7831,6 +7833,7 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
 var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$View$modal = F4(
 	function (title, onClose, bodyChild, footerChild) {
 		return A2(
@@ -7874,6 +7877,25 @@ var $author$project$View$modal = F4(
 									_List_fromArray(
 										[
 											$elm$html$Html$text(title)
+										])),
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$icon),
+											$elm$html$Html$Events$onClick(
+											$author$project$Types$ViewGameMsg($author$project$Types$Undo))
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$i,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$class('fas'),
+													$elm$html$Html$Attributes$class('fa-undo')
+												]),
+											_List_Nil)
 										])),
 									A2(
 									$elm$html$Html$button,
@@ -8266,7 +8288,6 @@ var $elm$core$List$repeat = F2(
 	function (n, value) {
 		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
 	});
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -8475,8 +8496,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
 			]);
 	});
-var $elm$html$Html$i = _VirtualDom_node('i');
-var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
 var $author$project$Main$viewPlayerTiles = function (players) {
 	var playerTile = function (player) {
