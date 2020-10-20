@@ -5233,7 +5233,7 @@ var $author$project$Main$createGame = function (factions) {
 		$elm$core$List$map,
 		$author$project$Main$createPlayer,
 		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -5813,7 +5813,7 @@ var $author$project$Ports$playerBicoder = function () {
 }();
 var $author$project$Ports$smallGame = F4(
 	function (players, maybeModal, maybeSavedBiddingModel, history) {
-		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
+		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
 	});
 var $author$project$Ports$decodeGame = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -6138,6 +6138,8 @@ var $author$project$Ports$encodeModalMsg = function (msg) {
 };
 var $author$project$Ports$encodeGameMsg = function (msg) {
 	switch (msg.$) {
+		case 'ToggleNavbar':
+			return $elm$json$Json$Encode$null;
 		case 'AddCard':
 			var card = msg.a;
 			var faction = msg.b;
@@ -6727,6 +6729,12 @@ var $author$project$Main$updateGame = F2(
 	function (msg, game) {
 		var _v0 = function () {
 			switch (msg.$) {
+				case 'ToggleNavbar':
+					return _Utils_Tuple2(
+						_Utils_update(
+							game,
+							{navbarExpanded: !game.navbarExpanded}),
+						false);
 				case 'Undo':
 					return _Utils_Tuple2(
 						$author$project$Main$popHistory(game),
@@ -8221,6 +8229,7 @@ var $author$project$Main$viewModal = F2(
 		}
 	});
 var $author$project$Types$ResetGame = {$: 'ResetGame'};
+var $author$project$Types$ToggleNavbar = {$: 'ToggleNavbar'};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$height = function (n) {
 	return A2(
@@ -8228,12 +8237,36 @@ var $elm$html$Html$Attributes$height = function (n) {
 		'height',
 		$elm$core$String$fromInt(n));
 };
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$img = _VirtualDom_node('img');
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd = 'navbar-end';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger = 'navbar-burger';
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarStart = 'navbar-start';
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -8246,7 +8279,8 @@ var $elm$html$Html$Attributes$width = function (n) {
 		'width',
 		$elm$core$String$fromInt(n));
 };
-var $author$project$Main$viewNavbar = function (factions) {
+var $author$project$Main$viewNavbar = function (isExpanded) {
+	var navbarId = 'duneNavbar';
 	return A2(
 		$elm$html$Html$section,
 		_List_fromArray(
@@ -8280,13 +8314,38 @@ var $author$project$Main$viewNavbar = function (factions) {
 										$elm$html$Html$Attributes$height(28)
 									]),
 								_List_Nil)
-							]))
+							])),
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger),
+								$elm$html$Html$Attributes$class('burger'),
+								$elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
+									])),
+								A2($elm$html$Html$Attributes$attribute, 'data-target', navbarId),
+								$elm$html$Html$Events$onClick(
+								$author$project$Types$ViewGameMsg($author$project$Types$ToggleNavbar))
+							]),
+						A2(
+							$elm$core$List$repeat,
+							3,
+							A2($elm$html$Html$span, _List_Nil, _List_Nil)))
 					])),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu)
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu),
+						$elm$html$Html$Attributes$id(navbarId),
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
+							]))
 					]),
 				_List_fromArray(
 					[
@@ -8294,42 +8353,15 @@ var $author$project$Main$viewNavbar = function (factions) {
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarEnd)
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarStart)
 							]),
 						_List_fromArray(
 							[
 								A2(
-								$elm$html$Html$button,
+								$elm$html$Html$a,
 								_List_fromArray(
 									[
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-										$elm$html$Html$Events$onClick(
-										$author$project$Types$ViewGameMsg($author$project$Types$OpenBiddingPhaseModal))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Bidding phase')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-										$elm$html$Html$Events$onClick(
-										$author$project$Types$ViewGameMsg($author$project$Types$Undo))
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Undo')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 										$elm$html$Html$Events$onClick($author$project$Types$ResetGame)
 									]),
 								_List_fromArray(
@@ -8445,7 +8477,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 	});
 var $elm$html$Html$i = _VirtualDom_node('i');
 var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
 var $author$project$Main$viewPlayerTiles = function (players) {
 	var playerTile = function (player) {
@@ -8579,13 +8610,7 @@ var $author$project$Main$viewGame = function (game) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$viewNavbar(
-				A2(
-					$elm$core$List$map,
-					function (player) {
-						return player.faction;
-					},
-					game.players)),
+				$author$project$Main$viewNavbar(game.navbarExpanded),
 				A2(
 				$elm$html$Html$section,
 				_List_fromArray(
