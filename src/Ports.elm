@@ -1,4 +1,4 @@
-port module Ports exposing (parseGame, saveGame)
+port module Ports exposing (clearState, parseGame, saveGame)
 
 import BiCoder
 import Card
@@ -16,6 +16,11 @@ port saveState : E.Value -> Cmd msg
 saveGame : Game -> Cmd msg
 saveGame game =
     saveState <| encodeGame game
+
+
+clearState : Cmd msg
+clearState =
+    saveState E.null
 
 
 encodeGame : Game -> E.Value

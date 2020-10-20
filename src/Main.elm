@@ -39,7 +39,7 @@ initSetup _ =
         model =
             ViewSetup { factions = factionDict }
     in
-    ( model, Cmd.none )
+    ( model, Ports.clearState )
 
 
 init : Maybe Json.Decode.Value -> ( Model, Cmd Msg )
