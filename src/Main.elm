@@ -149,7 +149,7 @@ isSignificant msg =
             True
 
         _ ->
-            False
+            True
 
 
 withHistory : GameMsg -> Game -> Game
