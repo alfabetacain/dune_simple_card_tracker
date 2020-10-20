@@ -85,6 +85,9 @@ encodeModalMsg msg =
 encodeGameMsg : GameMsg -> E.Value
 encodeGameMsg msg =
     case msg of
+        ToggleNavbar ->
+            E.null
+
         AddCard card faction ->
             encodeType "AddCard" [ Card.encode card, Faction.encode faction ]
 
@@ -206,6 +209,7 @@ smallGame players maybeModal maybeSavedBiddingModel history =
     , savedBiddingPhaseModalModel = maybeSavedBiddingModel
     , history = history
     , dragDrop = DragDrop.init
+    , navbarExpanded = False
     }
 
 

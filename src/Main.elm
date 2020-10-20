@@ -8,7 +8,7 @@ import Card
 import Dict
 import Faction
 import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, option, p, section, select, span, text, ul)
-import Html.Attributes exposing (checked, class, disabled, height, src, type_, width)
+import Html.Attributes exposing (checked, class, classList, disabled, height, src, type_, width)
 import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
 import Json.Decode
@@ -112,6 +112,7 @@ createGame factions =
     , history = []
     , modal = Nothing
     , savedBiddingPhaseModalModel = Nothing
+    , navbarExpanded = False
     }
 
 
@@ -242,6 +243,9 @@ updateGame msg game =
     let
         ( updatedModel, changed ) =
             case msg of
+                ToggleNavbar ->
+                    ( { game | navbarExpanded = not game.navbarExpanded }, False )
+
                 Undo ->
                     ( popHistory game, True )
 
@@ -537,19 +541,23 @@ viewButtons =
         ]
 
 
-viewNavbar : List Faction.Type -> Html Msg
-viewNavbar factions =
+viewNavbar : Bool -> Html Msg
+viewNavbar isExpanded =
+    let
+        navbarId =
+            "duneNavbar"
+    in
     section [ class Bulma.navbar ]
         [ div [ class Bulma.navbarBrand ]
             [ a [ class Bulma.navbarItem ]
                 [ img [ src "", width 112, height 28 ] []
                 ]
+            , a [ class Bulma.navbarBurger, class "burger", classList [ ( Bulma.isActive, isExpanded ) ], Html.Attributes.attribute "data-target" navbarId, onClick (ViewGameMsg ToggleNavbar) ]
+                (List.repeat 3 (span [] []))
             ]
-        , div [ class Bulma.navbarMenu ]
-            [ div [ class Bulma.navbarEnd ]
-                [ button [ class Bulma.navbarItem, class Bulma.button, onClick <| ViewGameMsg OpenBiddingPhaseModal ] [ text "Bidding phase" ]
-                , button [ class Bulma.navbarItem, class Bulma.button, onClick (ViewGameMsg Undo) ] [ text "Undo" ]
-                , button [ class Bulma.navbarItem, class Bulma.button, onClick ResetGame ] [ text "New game" ]
+        , div [ class Bulma.navbarMenu, Html.Attributes.id navbarId, classList [ ( Bulma.isActive, isExpanded ) ] ]
+            [ div [ class Bulma.navbarStart ]
+                [ a [ class Bulma.navbarItem, onClick ResetGame ] [ text "New game" ]
                 ]
             ]
         ]
@@ -563,7 +571,7 @@ viewGame game =
     in
     Html.node "body"
         []
-        [ viewNavbar <| List.map (\player -> player.faction) game.players
+        [ viewNavbar game.navbarExpanded
         , section [ class Bulma.section ]
             [ viewButtons
             , viewDeck <| List.concatMap (\player -> player.hand) game.players

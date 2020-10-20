@@ -43,6 +43,7 @@ type alias Game =
     , history : List GameMsg
     , modal : Maybe Modal
     , savedBiddingPhaseModalModel : Maybe ModalBiddingModel
+    , navbarExpanded : Bool
     }
 
 
@@ -83,6 +84,7 @@ type GameMsg
     | OpenBiddingPhaseModal
     | AssignBiddingPhaseCards (List ( Card.Type, Faction.Type ))
     | ModalMsg ModalMsg
+    | ToggleNavbar
     | CloseModal
 
 
