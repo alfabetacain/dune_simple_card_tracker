@@ -20,13 +20,41 @@ type alias ModalBiddingModel =
     }
 
 
+type alias CombatCard =
+    { card : Card.Type
+    , discard : Bool
+    }
+
+
+type alias ModalCombatModel =
+    { leftFaction : Faction.Type
+    , leftCards : List CombatCard
+    , rightFaction : Faction.Type
+    , rightCards : List CombatCard
+    }
+
+
 type Modal
     = ModalChangeCard ModalChangeCardModel
     | ModalBidding ModalBiddingModel
+    | ModalCombat ModalCombatModel
 
 
 type alias Index =
     Int
+
+
+type CombatModalMsg
+    = SelectLeftFaction Faction.Type
+    | SelectRightFaction Faction.Type
+    | AddLeftCard
+    | AddRightCard
+    | RemoveLeftCard Index
+    | RemoveRightCard Index
+    | SelectLeftCard Index Card.Type
+    | SelectRightCard Index Card.Type
+    | ToggleLeftCardDiscard Index
+    | ToggleRightCardDiscard Index
 
 
 type ModalMsg
@@ -35,6 +63,7 @@ type ModalMsg
     | SelectBiddingFaction Index String
     | AddBid
     | ResetBids
+    | CombatModalMsg CombatModalMsg
 
 
 type alias Game =
@@ -86,6 +115,7 @@ type GameMsg
     | ModalMsg ModalMsg
     | ToggleNavbar
     | CloseModal
+    | FinishCombat Faction.Type (List CombatCard) Faction.Type (List CombatCard)
 
 
 type Msg

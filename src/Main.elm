@@ -12,7 +12,11 @@ import Html.Attributes exposing (checked, class, classList, disabled, height, sr
 import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
 import Json.Decode
-import Json.Encode
+import List.Extra as ListE
+import Monocle.Common
+import Monocle.Compose
+import Monocle.Lens as Lens exposing (Lens)
+import Monocle.Optional as Optional exposing (Optional)
 import Ports
 import Types exposing (..)
 import View
@@ -186,9 +190,66 @@ popHistory game =
     { updatedGame | history = tailHistory }
 
 
+combatModelLeftCards : Lens ModalCombatModel (List CombatCard)
+combatModelLeftCards =
+    Lens .leftCards (\b a -> { a | leftCards = b })
+
+
+combatModelRightCards : Lens ModalCombatModel (List CombatCard)
+combatModelRightCards =
+    Lens .rightCards (\b a -> { a | rightCards = b })
+
+
+combatModelLeftCardsIndexOptional : Int -> Lens ModalCombatModel (Array CombatCard) -> Optional ModalCombatModel CombatCard
+combatModelLeftCardsIndexOptional index lens =
+    Monocle.Compose.lensWithOptional (Monocle.Common.array index) lens
+
+
+updateCardAtIndex : Lens ModalCombatModel (List CombatCard) -> (CombatCard -> CombatCard) -> Index -> ModalCombatModel -> ModalCombatModel
+updateCardAtIndex listLens updater index model =
+    Optional.modify (Monocle.Compose.lensWithOptional (Monocle.Common.list index) listLens) updater model
+
+
+updateCombatModal : CombatModalMsg -> ModalCombatModel -> ModalCombatModel
+updateCombatModal msg model =
+    case msg of
+        SelectLeftFaction faction ->
+            { model | leftFaction = faction }
+
+        SelectRightFaction faction ->
+            { model | rightFaction = faction }
+
+        AddLeftCard ->
+            { model | leftCards = List.append model.leftCards [ { card = Card.unknown, discard = False } ] }
+
+        AddRightCard ->
+            { model | rightCards = List.append model.rightCards [ { card = Card.unknown, discard = False } ] }
+
+        RemoveLeftCard index ->
+            { model | leftCards = ListE.removeAt index model.leftCards }
+
+        RemoveRightCard index ->
+            { model | rightCards = ListE.removeAt index model.rightCards }
+
+        SelectLeftCard index card ->
+            updateCardAtIndex combatModelLeftCards (\cc -> { cc | card = card }) index model
+
+        SelectRightCard index card ->
+            updateCardAtIndex combatModelRightCards (\cc -> { cc | card = card }) index model
+
+        ToggleLeftCardDiscard index ->
+            updateCardAtIndex combatModelLeftCards (\cc -> { cc | discard = not cc.discard }) index model
+
+        ToggleRightCardDiscard index ->
+            updateCardAtIndex combatModelRightCards (\cc -> { cc | discard = not cc.discard }) index model
+
+
 updateModal : ModalMsg -> Modal -> Modal
 updateModal msg modalModel =
     case ( msg, modalModel ) of
+        ( CombatModalMsg combatMsg, ModalCombat model ) ->
+            ModalCombat <| updateCombatModal combatMsg model
+
         ( SelectIdentifyCard cardString, ModalChangeCard model ) ->
             case Card.fromString cardString of
                 Nothing ->
@@ -236,6 +297,20 @@ updateModal msg modalModel =
 
         ( _, _ ) ->
             modalModel
+
+
+replaceOrInsert : Card.Type -> List Card.Type -> List Card.Type
+replaceOrInsert card cards =
+    case cards of
+        [] ->
+            [ card ]
+
+        h :: t ->
+            if Card.eq h Card.unknown then
+                card :: t
+
+            else
+                h :: replaceOrInsert card t
 
 
 updateGame : GameMsg -> Game -> ( Model, Cmd Msg )
@@ -308,6 +383,32 @@ updateGame msg game =
                             updateFaction (\player -> { player | hand = changeCard changeRequest.current changeRequest.new player.hand }) changeRequest.faction game.players
                     in
                     ( withHistory (ChangeCardViaModal changeRequest) { game | players = updatedPlayers, modal = Nothing }, True )
+
+                FinishCombat leftFaction leftCards rightFaction rightCards ->
+                    let
+                        updateWithCard card cards =
+                            if List.any (\c -> Card.eq card c) cards then
+                                cards
+
+                            else
+                                replaceOrInsert card cards
+
+                        updateWithCombatCard combatCard cards =
+                            if combatCard.discard then
+                                ListE.remove combatCard.card cards
+
+                            else
+                                updateWithCard combatCard.card cards
+
+                        updatePlayer cards faction game_ =
+                            { game
+                                | players = updateFaction (\p -> { p | hand = List.foldl (\current acc -> updateWithCombatCard current acc) p.hand cards }) faction game_.players
+                            }
+
+                        updatedGame =
+                            updatePlayer rightCards rightFaction <| updatePlayer leftCards leftFaction game
+                    in
+                    ( withHistory (FinishCombat leftFaction leftCards rightFaction rightCards) { updatedGame | modal = Nothing }, True )
 
                 AssignBiddingPhaseCards cards ->
                     let
@@ -666,6 +767,11 @@ viewBiddingModal model =
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
 
+viewCombatModal : ModalCombatModel -> Html Msg
+viewCombatModal model =
+    div [] []
+
+
 viewModal : List Card.Type -> Modal -> Html Msg
 viewModal _ modal =
     case modal of
@@ -674,6 +780,9 @@ viewModal _ modal =
 
         ModalBidding model ->
             viewBiddingModal model
+
+        ModalCombat model ->
+            viewCombatModal model
 
 
 view : Model -> Html Msg

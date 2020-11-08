@@ -81,6 +81,9 @@ encodeModalMsg msg =
         ResetBids ->
             encodeType "ResetBids" []
 
+        _ ->
+            E.null
+
 
 encodeGameMsg : GameMsg -> E.Value
 encodeGameMsg msg =
@@ -130,6 +133,9 @@ encodeGameMsg msg =
         DragDropCardToFaction _ ->
             E.null
 
+        FinishCombat _ _ _ _ ->
+            E.null
+
 
 encodeChangeCardModal : ModalChangeCardModel -> E.Value
 encodeChangeCardModal model =
@@ -154,6 +160,9 @@ encodeModal modal =
                 [ ( "type", E.string "ModalChangeCard" )
                 , ( "value", encodeChangeCardModal model )
                 ]
+
+        _ ->
+            E.null
 
 
 type alias BiCoder a =
