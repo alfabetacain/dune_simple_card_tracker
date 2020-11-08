@@ -5925,6 +5925,10 @@ var $author$project$Main$initSetup = function (_v0) {
 		{factions: factionDict});
 	return _Utils_Tuple2(model, $author$project$Ports$clearState);
 };
+var $author$project$Types$FinishCombat = F4(
+	function (a, b, c, d) {
+		return {$: 'FinishCombat', a: a, b: b, c: c, d: d};
+	});
 var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
 };
@@ -5948,6 +5952,27 @@ var $author$project$Main$addCardToPlayer = F3(
 			},
 			faction,
 			players);
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
 	});
 var $author$project$Card$eq = F2(
 	function (card1, card2) {
@@ -6054,6 +6079,19 @@ var $elm$core$Array$push = F2(
 			A2($elm$core$Elm$JsArray$push, a, tail),
 			array);
 	});
+var $elm_community$list_extra$List$Extra$remove = F2(
+	function (x, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var y = xs.a;
+			var ys = xs.b;
+			return _Utils_eq(x, y) ? ys : A2(
+				$elm$core$List$cons,
+				y,
+				A2($elm_community$list_extra$List$Extra$remove, x, ys));
+		}
+	});
 var $author$project$Main$removeFirst = F2(
 	function (card, cards) {
 		if (cards.b) {
@@ -6065,6 +6103,20 @@ var $author$project$Main$removeFirst = F2(
 				A2($author$project$Main$removeFirst, card, tail));
 		} else {
 			return _List_Nil;
+		}
+	});
+var $author$project$Main$replaceOrInsert = F2(
+	function (card, cards) {
+		if (!cards.b) {
+			return _List_fromArray(
+				[card]);
+		} else {
+			var h = cards.a;
+			var t = cards.b;
+			return A2($author$project$Card$eq, h, $author$project$Card$unknown) ? A2($elm$core$List$cons, card, t) : A2(
+				$elm$core$List$cons,
+				h,
+				A2($author$project$Main$replaceOrInsert, card, t));
 		}
 	});
 var $author$project$Ports$encodeType = F2(
@@ -6132,8 +6184,10 @@ var $author$project$Ports$encodeModalMsg = function (msg) {
 					]));
 		case 'AddBid':
 			return A2($author$project$Ports$encodeType, 'AddBid', _List_Nil);
-		default:
+		case 'ResetBids':
 			return A2($author$project$Ports$encodeType, 'ResetBids', _List_Nil);
+		default:
+			return $elm$json$Json$Encode$null;
 	}
 };
 var $author$project$Ports$encodeGameMsg = function (msg) {
@@ -6220,6 +6274,8 @@ var $author$project$Ports$encodeGameMsg = function (msg) {
 			return $author$project$Ports$encodeModalMsg(modalMsg);
 		case 'CloseModal':
 			return A2($author$project$Ports$encodeType, 'CloseModal', _List_Nil);
+		case 'DragDropCardToFaction':
+			return $elm$json$Json$Encode$null;
 		default:
 			return $elm$json$Json$Encode$null;
 	}
@@ -6294,30 +6350,33 @@ var $author$project$Ports$encodeModalBiddingModel = function (model) {
 			]));
 };
 var $author$project$Ports$encodeModal = function (modal) {
-	if (modal.$ === 'ModalBidding') {
-		var model = modal.a;
-		return $elm$json$Json$Encode$object(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'type',
-					$elm$json$Json$Encode$string('ModalBidding')),
-					_Utils_Tuple2(
-					'value',
-					$author$project$Ports$encodeModalBiddingModel(model))
-				]));
-	} else {
-		var model = modal.a;
-		return $elm$json$Json$Encode$object(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'type',
-					$elm$json$Json$Encode$string('ModalChangeCard')),
-					_Utils_Tuple2(
-					'value',
-					$author$project$Ports$encodeChangeCardModal(model))
-				]));
+	switch (modal.$) {
+		case 'ModalBidding':
+			var model = modal.a;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string('ModalBidding')),
+						_Utils_Tuple2(
+						'value',
+						$author$project$Ports$encodeModalBiddingModel(model))
+					]));
+		case 'ModalChangeCard':
+			var model = modal.a;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string('ModalChangeCard')),
+						_Utils_Tuple2(
+						'value',
+						$author$project$Ports$encodeChangeCardModal(model))
+					]));
+		default:
+			return $elm$json$Json$Encode$null;
 	}
 };
 var $elm$core$Maybe$withDefault = F2(
@@ -6485,6 +6544,9 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
 		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
+var $author$project$Types$ModalCombat = function (a) {
+	return {$: 'ModalCombat', a: a};
+};
 var $elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
 		getHelp:
@@ -6563,115 +6625,579 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
+var $arturopala$elm_monocle$Monocle$Lens$Lens = F2(
+	function (get, set) {
+		return {get: get, set: set};
+	});
+var $author$project$Main$combatModelLeftCards = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.leftCards;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{leftCards: b});
+		}));
+var $author$project$Main$combatModelRightCards = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.rightCards;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{rightCards: b});
+		}));
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $elm_community$list_extra$List$Extra$removeAt = F2(
+	function (index, l) {
+		if (index < 0) {
+			return l;
+		} else {
+			var _v0 = A2($elm$core$List$drop, index, l);
+			if (!_v0.b) {
+				return l;
+			} else {
+				var rest = _v0.b;
+				return _Utils_ap(
+					A2($elm$core$List$take, index, l),
+					rest);
+			}
+		}
+	});
+var $arturopala$elm_monocle$Monocle$Optional$Optional = F2(
+	function (getOption, set) {
+		return {getOption: getOption, set: set};
+	});
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var $arturopala$elm_monocle$Monocle$Lens$modify = F2(
+	function (lens, f) {
+		var mf = function (a) {
+			return function (b) {
+				return A2(lens.set, b, a);
+			}(
+				f(
+					lens.get(a)));
+		};
+		return mf;
+	});
+var $arturopala$elm_monocle$Monocle$Compose$lensWithOptional = F2(
+	function (inner, outer) {
+		var set = function (c) {
+			return A2(
+				$arturopala$elm_monocle$Monocle$Lens$modify,
+				outer,
+				inner.set(c));
+		};
+		var getOption = A2($elm$core$Basics$composeR, outer.get, inner.getOption);
+		return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, set);
+	});
+var $arturopala$elm_monocle$Monocle$Common$array = function (index) {
+	return {
+		getOption: $elm$core$Array$get(index),
+		set: $elm$core$Array$set(index)
+	};
+};
+var $arturopala$elm_monocle$Monocle$Optional$flip = F3(
+	function (f, b, a) {
+		return A2(f, a, b);
+	});
+var $arturopala$elm_monocle$Monocle$Optional$compose = F2(
+	function (outer, inner) {
+		var set = F2(
+			function (c, a) {
+				return A2(
+					$elm$core$Maybe$withDefault,
+					a,
+					A2(
+						$elm$core$Maybe$map,
+						A2(
+							$elm$core$Basics$composeR,
+							inner.set(c),
+							A2($arturopala$elm_monocle$Monocle$Optional$flip, outer.set, a)),
+						outer.getOption(a)));
+			});
+		var getOption = function (a) {
+			var _v0 = outer.getOption(a);
+			if (_v0.$ === 'Just') {
+				var x = _v0.a;
+				return inner.getOption(x);
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		};
+		return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, set);
+	});
+var $arturopala$elm_monocle$Monocle$Lens$fromIso = function (iso) {
+	var set = F2(
+		function (b, _v0) {
+			return iso.reverseGet(b);
+		});
+	return A2($arturopala$elm_monocle$Monocle$Lens$Lens, iso.get, set);
+};
+var $arturopala$elm_monocle$Monocle$Optional$fromLens = function (lens) {
+	var getOption = function (a) {
+		return $elm$core$Maybe$Just(
+			lens.get(a));
+	};
+	return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, lens.set);
+};
+var $arturopala$elm_monocle$Monocle$Iso$Iso = F2(
+	function (get, reverseGet) {
+		return {get: get, reverseGet: reverseGet};
+	});
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $arturopala$elm_monocle$Monocle$Common$listToArray = A2($arturopala$elm_monocle$Monocle$Iso$Iso, $elm$core$Array$fromList, $elm$core$Array$toList);
+var $arturopala$elm_monocle$Monocle$Common$list = function (index) {
+	return A2(
+		$arturopala$elm_monocle$Monocle$Optional$compose,
+		$arturopala$elm_monocle$Monocle$Optional$fromLens(
+			$arturopala$elm_monocle$Monocle$Lens$fromIso($arturopala$elm_monocle$Monocle$Common$listToArray)),
+		$arturopala$elm_monocle$Monocle$Common$array(index));
+};
+var $arturopala$elm_monocle$Monocle$Optional$modifyOption = F2(
+	function (opt, fx) {
+		var mf = function (a) {
+			return A2(
+				$elm$core$Maybe$map,
+				A2(
+					$elm$core$Basics$composeR,
+					fx,
+					A2($arturopala$elm_monocle$Monocle$Optional$flip, opt.set, a)),
+				opt.getOption(a));
+		};
+		return mf;
+	});
+var $arturopala$elm_monocle$Monocle$Optional$modify = F2(
+	function (opt, fx) {
+		var mf = function (a) {
+			return A2(
+				$elm$core$Maybe$withDefault,
+				a,
+				A3($arturopala$elm_monocle$Monocle$Optional$modifyOption, opt, fx, a));
+		};
+		return mf;
+	});
+var $author$project$Main$updateCardAtIndex = F4(
+	function (listLens, updater, index, model) {
+		return A3(
+			$arturopala$elm_monocle$Monocle$Optional$modify,
+			A2(
+				$arturopala$elm_monocle$Monocle$Compose$lensWithOptional,
+				$arturopala$elm_monocle$Monocle$Common$list(index),
+				listLens),
+			updater,
+			model);
+	});
+var $author$project$Main$updateCombatModal = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'SelectLeftFaction':
+				var faction = msg.a;
+				return _Utils_update(
+					model,
+					{leftFaction: faction});
+			case 'SelectRightFaction':
+				var faction = msg.a;
+				return _Utils_update(
+					model,
+					{rightFaction: faction});
+			case 'AddLeftCard':
+				return _Utils_update(
+					model,
+					{
+						leftCards: A2(
+							$elm$core$List$append,
+							model.leftCards,
+							_List_fromArray(
+								[
+									{card: $author$project$Card$unknown, discard: false}
+								]))
+					});
+			case 'AddRightCard':
+				return _Utils_update(
+					model,
+					{
+						rightCards: A2(
+							$elm$core$List$append,
+							model.rightCards,
+							_List_fromArray(
+								[
+									{card: $author$project$Card$unknown, discard: false}
+								]))
+					});
+			case 'RemoveLeftCard':
+				var index = msg.a;
+				return _Utils_update(
+					model,
+					{
+						leftCards: A2($elm_community$list_extra$List$Extra$removeAt, index, model.leftCards)
+					});
+			case 'RemoveRightCard':
+				var index = msg.a;
+				return _Utils_update(
+					model,
+					{
+						rightCards: A2($elm_community$list_extra$List$Extra$removeAt, index, model.rightCards)
+					});
+			case 'SelectLeftCard':
+				var index = msg.a;
+				var card = msg.b;
+				return A4(
+					$author$project$Main$updateCardAtIndex,
+					$author$project$Main$combatModelLeftCards,
+					function (cc) {
+						return _Utils_update(
+							cc,
+							{card: card});
+					},
+					index,
+					model);
+			case 'SelectRightCard':
+				var index = msg.a;
+				var card = msg.b;
+				return A4(
+					$author$project$Main$updateCardAtIndex,
+					$author$project$Main$combatModelRightCards,
+					function (cc) {
+						return _Utils_update(
+							cc,
+							{card: card});
+					},
+					index,
+					model);
+			case 'ToggleLeftCardDiscard':
+				var index = msg.a;
+				return A4(
+					$author$project$Main$updateCardAtIndex,
+					$author$project$Main$combatModelLeftCards,
+					function (cc) {
+						return _Utils_update(
+							cc,
+							{discard: !cc.discard});
+					},
+					index,
+					model);
+			default:
+				var index = msg.a;
+				return A4(
+					$author$project$Main$updateCardAtIndex,
+					$author$project$Main$combatModelRightCards,
+					function (cc) {
+						return _Utils_update(
+							cc,
+							{discard: !cc.discard});
+					},
+					index,
+					model);
+		}
+	});
 var $author$project$Main$updateModal = F2(
 	function (msg, modalModel) {
 		var _v0 = _Utils_Tuple2(msg, modalModel);
-		_v0$5:
+		_v0$6:
 		while (true) {
-			if (_v0.b.$ === 'ModalChangeCard') {
-				if (_v0.a.$ === 'SelectIdentifyCard') {
-					var cardString = _v0.a.a;
-					var model = _v0.b.a;
-					var _v1 = $author$project$Card$fromString(cardString);
-					if (_v1.$ === 'Nothing') {
-						return modalModel;
+			switch (_v0.b.$) {
+				case 'ModalCombat':
+					if (_v0.a.$ === 'CombatModalMsg') {
+						var combatMsg = _v0.a.a;
+						var model = _v0.b.a;
+						return $author$project$Types$ModalCombat(
+							A2($author$project$Main$updateCombatModal, combatMsg, model));
 					} else {
-						var card = _v1.a;
-						return $author$project$Types$ModalChangeCard(
-							_Utils_update(
-								model,
-								{selectedCard: card}));
+						break _v0$6;
 					}
-				} else {
-					break _v0$5;
-				}
-			} else {
-				switch (_v0.a.$) {
-					case 'AddBid':
-						var _v2 = _v0.a;
+				case 'ModalChangeCard':
+					if (_v0.a.$ === 'SelectIdentifyCard') {
+						var cardString = _v0.a.a;
 						var model = _v0.b.a;
-						return $author$project$Types$ModalBidding(
-							_Utils_update(
-								model,
-								{
-									bids: A2(
-										$elm$core$Array$push,
-										_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
-										model.bids)
-								}));
-					case 'ResetBids':
-						var _v3 = _v0.a;
-						var model = _v0.b.a;
-						return $author$project$Types$ModalBidding(
-							_Utils_update(
-								model,
-								{
-									bids: A2(
-										$elm$core$Array$push,
-										_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
-										$elm$core$Array$empty)
-								}));
-					case 'SelectBiddingCard':
-						var _v4 = _v0.a;
-						var index = _v4.a;
-						var cardString = _v4.b;
-						var model = _v0.b.a;
-						var updateBid = function (card) {
-							var _v5 = A2($elm$core$Array$get, index, model.bids);
-							if (_v5.$ === 'Nothing') {
-								return modalModel;
-							} else {
-								var _v6 = _v5.a;
-								var faction = _v6.b;
-								return $author$project$Types$ModalBidding(
-									_Utils_update(
-										model,
-										{
-											bids: A3(
-												$elm$core$Array$set,
-												index,
-												_Utils_Tuple2(card, faction),
-												model.bids)
-										}));
-							}
-						};
-						var maybeUpdated = A2(
-							$elm$core$Maybe$map,
-							updateBid,
-							$author$project$Card$fromString(cardString));
-						return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
-					case 'SelectBiddingFaction':
-						var _v7 = _v0.a;
-						var index = _v7.a;
-						var factionString = _v7.b;
-						var model = _v0.b.a;
-						var updateBid = function (faction) {
-							var _v8 = A2($elm$core$Array$get, index, model.bids);
-							if (_v8.$ === 'Nothing') {
-								return modalModel;
-							} else {
-								var _v9 = _v8.a;
-								var card = _v9.a;
-								return $author$project$Types$ModalBidding(
-									_Utils_update(
-										model,
-										{
-											bids: A3(
-												$elm$core$Array$set,
-												index,
-												_Utils_Tuple2(card, faction),
-												model.bids)
-										}));
-							}
-						};
-						var maybeUpdated = A2(
-							$elm$core$Maybe$map,
-							updateBid,
-							$author$project$Faction$fromString(factionString));
-						return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
-					default:
-						break _v0$5;
-				}
+						var _v1 = $author$project$Card$fromString(cardString);
+						if (_v1.$ === 'Nothing') {
+							return modalModel;
+						} else {
+							var card = _v1.a;
+							return $author$project$Types$ModalChangeCard(
+								_Utils_update(
+									model,
+									{selectedCard: card}));
+						}
+					} else {
+						break _v0$6;
+					}
+				default:
+					switch (_v0.a.$) {
+						case 'AddBid':
+							var _v2 = _v0.a;
+							var model = _v0.b.a;
+							return $author$project$Types$ModalBidding(
+								_Utils_update(
+									model,
+									{
+										bids: A2(
+											$elm$core$Array$push,
+											_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
+											model.bids)
+									}));
+						case 'ResetBids':
+							var _v3 = _v0.a;
+							var model = _v0.b.a;
+							return $author$project$Types$ModalBidding(
+								_Utils_update(
+									model,
+									{
+										bids: A2(
+											$elm$core$Array$push,
+											_Utils_Tuple2($author$project$Card$unknown, $author$project$Faction$unknown),
+											$elm$core$Array$empty)
+									}));
+						case 'SelectBiddingCard':
+							var _v4 = _v0.a;
+							var index = _v4.a;
+							var cardString = _v4.b;
+							var model = _v0.b.a;
+							var updateBid = function (card) {
+								var _v5 = A2($elm$core$Array$get, index, model.bids);
+								if (_v5.$ === 'Nothing') {
+									return modalModel;
+								} else {
+									var _v6 = _v5.a;
+									var faction = _v6.b;
+									return $author$project$Types$ModalBidding(
+										_Utils_update(
+											model,
+											{
+												bids: A3(
+													$elm$core$Array$set,
+													index,
+													_Utils_Tuple2(card, faction),
+													model.bids)
+											}));
+								}
+							};
+							var maybeUpdated = A2(
+								$elm$core$Maybe$map,
+								updateBid,
+								$author$project$Card$fromString(cardString));
+							return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
+						case 'SelectBiddingFaction':
+							var _v7 = _v0.a;
+							var index = _v7.a;
+							var factionString = _v7.b;
+							var model = _v0.b.a;
+							var updateBid = function (faction) {
+								var _v8 = A2($elm$core$Array$get, index, model.bids);
+								if (_v8.$ === 'Nothing') {
+									return modalModel;
+								} else {
+									var _v9 = _v8.a;
+									var card = _v9.a;
+									return $author$project$Types$ModalBidding(
+										_Utils_update(
+											model,
+											{
+												bids: A3(
+													$elm$core$Array$set,
+													index,
+													_Utils_Tuple2(card, faction),
+													model.bids)
+											}));
+								}
+							};
+							var maybeUpdated = A2(
+								$elm$core$Maybe$map,
+								updateBid,
+								$author$project$Faction$fromString(factionString));
+							return A2($elm$core$Maybe$withDefault, modalModel, maybeUpdated);
+						default:
+							break _v0$6;
+					}
 			}
 		}
 		return modalModel;
@@ -6868,6 +7394,62 @@ var $author$project$Main$updateGame = F2(
 							_Utils_update(
 								game,
 								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers})),
+						true);
+				case 'FinishCombat':
+					var leftFaction = msg.a;
+					var leftCards = msg.b;
+					var rightFaction = msg.c;
+					var rightCards = msg.d;
+					var updateWithCard = F2(
+						function (card, cards) {
+							return A2(
+								$elm$core$List$any,
+								function (c) {
+									return A2($author$project$Card$eq, card, c);
+								},
+								cards) ? cards : A2($author$project$Main$replaceOrInsert, card, cards);
+						});
+					var updateWithCombatCard = F2(
+						function (combatCard, cards) {
+							return combatCard.discard ? A2($elm_community$list_extra$List$Extra$remove, combatCard.card, cards) : A2(updateWithCard, combatCard.card, cards);
+						});
+					var updatePlayer = F3(
+						function (cards, faction, game_) {
+							return _Utils_update(
+								game,
+								{
+									players: A3(
+										$author$project$Main$updateFaction,
+										function (p) {
+											return _Utils_update(
+												p,
+												{
+													hand: A3(
+														$elm$core$List$foldl,
+														F2(
+															function (current, acc) {
+																return A2(updateWithCombatCard, current, acc);
+															}),
+														p.hand,
+														cards)
+												});
+										},
+										faction,
+										game_.players)
+								});
+						});
+					var updatedGame = A3(
+						updatePlayer,
+						rightCards,
+						rightFaction,
+						A3(updatePlayer, leftCards, leftFaction, game));
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							A4($author$project$Types$FinishCombat, leftFaction, leftCards, rightFaction, rightCards),
+							_Utils_update(
+								updatedGame,
+								{modal: $elm$core$Maybe$Nothing})),
 						true);
 				case 'AssignBiddingPhaseCards':
 					var cards = msg.a;
@@ -7778,27 +8360,6 @@ var $author$project$Types$SelectBiddingFaction = F2(
 	function (a, b) {
 		return {$: 'SelectBiddingFaction', a: a, b: b};
 	});
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var $elm$core$List$all = F2(
 	function (isOkay, list) {
 		return !A2(
@@ -8240,14 +8801,21 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		body,
 		footerChild);
 };
+var $author$project$Main$viewCombatModal = function (model) {
+	return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+};
 var $author$project$Main$viewModal = F2(
 	function (_v0, modal) {
-		if (modal.$ === 'ModalChangeCard') {
-			var model = modal.a;
-			return $author$project$Main$viewChangeCardModal(model);
-		} else {
-			var model = modal.a;
-			return $author$project$Main$viewBiddingModal(model);
+		switch (modal.$) {
+			case 'ModalChangeCard':
+				var model = modal.a;
+				return $author$project$Main$viewChangeCardModal(model);
+			case 'ModalBidding':
+				var model = modal.a;
+				return $author$project$Main$viewBiddingModal(model);
+			default:
+				var model = modal.a;
+				return $author$project$Main$viewCombatModal(model);
 		}
 	});
 var $author$project$Types$ResetGame = {$: 'ResetGame'};
