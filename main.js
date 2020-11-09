@@ -5680,15 +5680,19 @@ var $author$project$Ports$decodeModalChangeCard = A3(
 			'faction',
 			$author$project$Faction$decode,
 			$elm$json$Json$Decode$succeed($author$project$Types$ModalChangeCardModel))));
-var $author$project$Types$ModalCombatModel = F4(
-	function (leftFaction, leftCards, rightFaction, rightCards) {
-		return {leftCards: leftCards, leftFaction: leftFaction, rightCards: rightCards, rightFaction: rightFaction};
+var $author$project$Types$ModalCombatModel = F2(
+	function (left, right) {
+		return {left: left, right: right};
 	});
+var $author$project$Types$CombatSide = F4(
+	function (faction, weapon, defense, cheapHero) {
+		return {cheapHero: cheapHero, defense: defense, faction: faction, weapon: weapon};
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Types$CombatCard = F2(
 	function (card, discard) {
 		return {card: card, discard: discard};
 	});
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Ports$decodeCombatCard = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'discard',
@@ -5698,23 +5702,32 @@ var $author$project$Ports$decodeCombatCard = A3(
 		'card',
 		$author$project$Card$decode,
 		$elm$json$Json$Decode$succeed($author$project$Types$CombatCard)));
-var $author$project$Ports$decodeModalCombat = A3(
+var $author$project$Ports$decodeCombatSide = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'rightCards',
-	$elm$json$Json$Decode$list($author$project$Ports$decodeCombatCard),
+	'cheapHero',
+	$elm$json$Json$Decode$bool,
 	A3(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'rightFaction',
-		$author$project$Faction$decode,
+		'defense',
+		$author$project$Ports$decodeCombatCard,
 		A3(
 			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'leftCards',
-			$elm$json$Json$Decode$list($author$project$Ports$decodeCombatCard),
+			'weapon',
+			$author$project$Ports$decodeCombatCard,
 			A3(
 				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'leftFaction',
+				'faction',
 				$author$project$Faction$decode,
-				$elm$json$Json$Decode$succeed($author$project$Types$ModalCombatModel)))));
+				$elm$json$Json$Decode$succeed($author$project$Types$CombatSide)))));
+var $author$project$Ports$decodeModalCombat = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'right',
+	$author$project$Ports$decodeCombatSide,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'left',
+		$author$project$Ports$decodeCombatSide,
+		$elm$json$Json$Decode$succeed($author$project$Types$ModalCombatModel)));
 var $author$project$Ports$decodeModal = function () {
 	var decide = function (s) {
 		switch (s) {
@@ -6344,7 +6357,7 @@ var $author$project$Ports$encodeChangeCardModal = function (model) {
 			]));
 };
 var $elm$json$Json$Encode$bool = _Json_wrap;
-var $author$project$Ports$encodeCombatModel = function (model) {
+var $author$project$Ports$encodeCombatSide = function (side) {
 	var encodeCombatCard = function (combatCard) {
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
@@ -6361,17 +6374,29 @@ var $author$project$Ports$encodeCombatModel = function (model) {
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
-				'leftFaction',
-				$author$project$Faction$encode(model.leftFaction)),
+				'faction',
+				$author$project$Faction$encode(side.faction)),
 				_Utils_Tuple2(
-				'rightFaction',
-				$author$project$Faction$encode(model.rightFaction)),
+				'weapon',
+				encodeCombatCard(side.weapon)),
 				_Utils_Tuple2(
-				'leftCards',
-				A2($elm$json$Json$Encode$list, encodeCombatCard, model.leftCards)),
+				'defense',
+				encodeCombatCard(side.defense)),
 				_Utils_Tuple2(
-				'rightCards',
-				A2($elm$json$Json$Encode$list, encodeCombatCard, model.rightCards))
+				'cheapHero',
+				$elm$json$Json$Encode$bool(side.cheapHero))
+			]));
+};
+var $author$project$Ports$encodeCombatModel = function (model) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'left',
+				$author$project$Ports$encodeCombatSide(model.left)),
+				_Utils_Tuple2(
+				'right',
+				$author$project$Ports$encodeCombatSide(model.right))
 			]));
 };
 var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
@@ -6715,199 +6740,56 @@ var $arturopala$elm_monocle$Monocle$Lens$Lens = F2(
 	function (get, set) {
 		return {get: get, set: set};
 	});
-var $author$project$Main$combatModelLeftCards = A2(
+var $author$project$Main$selectLeftSide = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
-		return $.leftCards;
+		return $.left;
 	},
 	F2(
 		function (b, a) {
 			return _Utils_update(
 				a,
-				{leftCards: b});
+				{left: b});
 		}));
-var $author$project$Main$combatModelRightCards = A2(
+var $author$project$Main$selectRightSide = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
-		return $.rightCards;
+		return $.right;
 	},
 	F2(
 		function (b, a) {
 			return _Utils_update(
 				a,
-				{rightCards: b});
+				{right: b});
 		}));
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $elm_community$list_extra$List$Extra$removeAt = F2(
-	function (index, l) {
-		if (index < 0) {
-			return l;
-		} else {
-			var _v0 = A2($elm$core$List$drop, index, l);
-			if (!_v0.b) {
-				return l;
-			} else {
-				var rest = _v0.b;
-				return _Utils_ap(
-					A2($elm$core$List$take, index, l),
-					rest);
-			}
-		}
-	});
-var $arturopala$elm_monocle$Monocle$Optional$Optional = F2(
-	function (getOption, set) {
-		return {getOption: getOption, set: set};
-	});
+var $author$project$Main$chooseSideLens = function (side) {
+	if (side.$ === 'Left') {
+		return $author$project$Main$selectLeftSide;
+	} else {
+		return $author$project$Main$selectRightSide;
+	}
+};
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
 			f(x));
+	});
+var $arturopala$elm_monocle$Monocle$Lens$compose = F2(
+	function (outer, inner) {
+		var set = F2(
+			function (c, a) {
+				return function (b) {
+					return A2(outer.set, b, a);
+				}(
+					A2(
+						inner.set,
+						c,
+						outer.get(a)));
+			});
+		return A2(
+			$arturopala$elm_monocle$Monocle$Lens$Lens,
+			A2($elm$core$Basics$composeR, outer.get, inner.get),
+			set);
 	});
 var $arturopala$elm_monocle$Monocle$Lens$modify = F2(
 	function (lens, f) {
@@ -6920,272 +6802,139 @@ var $arturopala$elm_monocle$Monocle$Lens$modify = F2(
 		};
 		return mf;
 	});
-var $arturopala$elm_monocle$Monocle$Compose$lensWithOptional = F2(
-	function (inner, outer) {
-		var set = function (c) {
-			return A2(
-				$arturopala$elm_monocle$Monocle$Lens$modify,
-				outer,
-				inner.set(c));
-		};
-		var getOption = A2($elm$core$Basics$composeR, outer.get, inner.getOption);
-		return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, set);
-	});
-var $arturopala$elm_monocle$Monocle$Common$array = function (index) {
-	return {
-		getOption: $elm$core$Array$get(index),
-		set: $elm$core$Array$set(index)
-	};
-};
-var $arturopala$elm_monocle$Monocle$Optional$flip = F3(
-	function (f, b, a) {
-		return A2(f, a, b);
-	});
-var $arturopala$elm_monocle$Monocle$Optional$compose = F2(
-	function (outer, inner) {
-		var set = F2(
-			function (c, a) {
-				return A2(
-					$elm$core$Maybe$withDefault,
-					a,
-					A2(
-						$elm$core$Maybe$map,
-						A2(
-							$elm$core$Basics$composeR,
-							inner.set(c),
-							A2($arturopala$elm_monocle$Monocle$Optional$flip, outer.set, a)),
-						outer.getOption(a)));
-			});
-		var getOption = function (a) {
-			var _v0 = outer.getOption(a);
-			if (_v0.$ === 'Just') {
-				var x = _v0.a;
-				return inner.getOption(x);
-			} else {
-				return $elm$core$Maybe$Nothing;
-			}
-		};
-		return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, set);
-	});
-var $arturopala$elm_monocle$Monocle$Lens$fromIso = function (iso) {
-	var set = F2(
-		function (b, _v0) {
-			return iso.reverseGet(b);
-		});
-	return A2($arturopala$elm_monocle$Monocle$Lens$Lens, iso.get, set);
-};
-var $arturopala$elm_monocle$Monocle$Optional$fromLens = function (lens) {
-	var getOption = function (a) {
-		return $elm$core$Maybe$Just(
-			lens.get(a));
-	};
-	return A2($arturopala$elm_monocle$Monocle$Optional$Optional, getOption, lens.set);
-};
-var $arturopala$elm_monocle$Monocle$Iso$Iso = F2(
-	function (get, reverseGet) {
-		return {get: get, reverseGet: reverseGet};
-	});
-var $elm$core$Array$fromListHelp = F3(
-	function (list, nodeList, nodeListSize) {
-		fromListHelp:
-		while (true) {
-			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
-			var jsArray = _v0.a;
-			var remainingItems = _v0.b;
-			if (_Utils_cmp(
-				$elm$core$Elm$JsArray$length(jsArray),
-				$elm$core$Array$branchFactor) < 0) {
-				return A2(
-					$elm$core$Array$builderToArray,
-					true,
-					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
-			} else {
-				var $temp$list = remainingItems,
-					$temp$nodeList = A2(
-					$elm$core$List$cons,
-					$elm$core$Array$Leaf(jsArray),
-					nodeList),
-					$temp$nodeListSize = nodeListSize + 1;
-				list = $temp$list;
-				nodeList = $temp$nodeList;
-				nodeListSize = $temp$nodeListSize;
-				continue fromListHelp;
-			}
-		}
-	});
-var $elm$core$Array$fromList = function (list) {
-	if (!list.b) {
-		return $elm$core$Array$empty;
-	} else {
-		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
-	}
-};
-var $arturopala$elm_monocle$Monocle$Common$listToArray = A2($arturopala$elm_monocle$Monocle$Iso$Iso, $elm$core$Array$fromList, $elm$core$Array$toList);
-var $arturopala$elm_monocle$Monocle$Common$list = function (index) {
-	return A2(
-		$arturopala$elm_monocle$Monocle$Optional$compose,
-		$arturopala$elm_monocle$Monocle$Optional$fromLens(
-			$arturopala$elm_monocle$Monocle$Lens$fromIso($arturopala$elm_monocle$Monocle$Common$listToArray)),
-		$arturopala$elm_monocle$Monocle$Common$array(index));
-};
-var $arturopala$elm_monocle$Monocle$Optional$modifyOption = F2(
-	function (opt, fx) {
-		var mf = function (a) {
-			return A2(
-				$elm$core$Maybe$map,
-				A2(
-					$elm$core$Basics$composeR,
-					fx,
-					A2($arturopala$elm_monocle$Monocle$Optional$flip, opt.set, a)),
-				opt.getOption(a));
-		};
-		return mf;
-	});
-var $arturopala$elm_monocle$Monocle$Optional$modify = F2(
-	function (opt, fx) {
-		var mf = function (a) {
-			return A2(
-				$elm$core$Maybe$withDefault,
+var $author$project$Main$sideCheapHero = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.cheapHero;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
 				a,
-				A3($arturopala$elm_monocle$Monocle$Optional$modifyOption, opt, fx, a));
-		};
-		return mf;
-	});
-var $author$project$Main$updateCardAtIndex = F4(
-	function (listLens, updater, index, model) {
-		return A3(
-			$arturopala$elm_monocle$Monocle$Optional$modify,
-			A2(
-				$arturopala$elm_monocle$Monocle$Compose$lensWithOptional,
-				$arturopala$elm_monocle$Monocle$Common$list(index),
-				listLens),
-			updater,
-			model);
-	});
+				{cheapHero: b});
+		}));
+var $author$project$Main$sideDefense = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.defense;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{defense: b});
+		}));
+var $author$project$Main$sideFaction = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.faction;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{faction: b});
+		}));
+var $author$project$Main$sideWeapon = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.weapon;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{weapon: b});
+		}));
 var $author$project$Main$updateCombatModal = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'SelectLeftFaction':
-				var faction = msg.a;
+			case 'SelectFaction':
+				var side = msg.a;
+				var faction = msg.b;
 				var _v1 = $author$project$Faction$fromString(faction);
 				if (_v1.$ === 'Just') {
 					var f = _v1.a;
-					return _Utils_update(
-						model,
-						{leftFaction: f});
+					var sideLens = $author$project$Main$chooseSideLens(side);
+					return A3(
+						$arturopala$elm_monocle$Monocle$Lens$modify,
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideFaction),
+						function (_v2) {
+							return f;
+						},
+						model);
 				} else {
 					return model;
 				}
-			case 'SelectRightFaction':
-				var faction = msg.a;
-				var _v2 = $author$project$Faction$fromString(faction);
-				if (_v2.$ === 'Just') {
-					var f = _v2.a;
-					return _Utils_update(
-						model,
-						{rightFaction: f});
-				} else {
-					return model;
-				}
-			case 'AddLeftCard':
-				return ($elm$core$List$length(model.leftCards) < 3) ? _Utils_update(
-					model,
-					{
-						leftCards: A2(
-							$elm$core$List$append,
-							model.leftCards,
-							_List_fromArray(
-								[
-									{card: $author$project$Card$unknown, discard: false}
-								]))
-					}) : model;
-			case 'AddRightCard':
-				return ($elm$core$List$length(model.rightCards) < 3) ? _Utils_update(
-					model,
-					{
-						rightCards: A2(
-							$elm$core$List$append,
-							model.rightCards,
-							_List_fromArray(
-								[
-									{card: $author$project$Card$unknown, discard: false}
-								]))
-					}) : model;
-			case 'RemoveLeftCard':
-				var index = msg.a;
-				return _Utils_update(
-					model,
-					{
-						leftCards: A2($elm_community$list_extra$List$Extra$removeAt, index, model.leftCards)
-					});
-			case 'RemoveRightCard':
-				var index = msg.a;
-				return _Utils_update(
-					model,
-					{
-						rightCards: A2($elm_community$list_extra$List$Extra$removeAt, index, model.rightCards)
-					});
-			case 'SelectLeftCard':
-				var index = msg.a;
+			case 'SelectWeapon':
+				var side = msg.a;
 				var card = msg.b;
 				var _v3 = $author$project$Card$fromString(card);
 				if (_v3.$ === 'Just') {
 					var c = _v3.a;
-					return A4(
-						$author$project$Main$updateCardAtIndex,
-						$author$project$Main$combatModelLeftCards,
+					var sideLens = $author$project$Main$chooseSideLens(side);
+					return A3(
+						$arturopala$elm_monocle$Monocle$Lens$modify,
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideWeapon),
 						function (cc) {
 							return _Utils_update(
 								cc,
 								{card: c});
 						},
-						index,
 						model);
 				} else {
 					return model;
 				}
-			case 'SelectRightCard':
-				var index = msg.a;
+			case 'SelectDefense':
+				var side = msg.a;
 				var card = msg.b;
 				var _v4 = $author$project$Card$fromString(card);
 				if (_v4.$ === 'Just') {
 					var c = _v4.a;
-					return A4(
-						$author$project$Main$updateCardAtIndex,
-						$author$project$Main$combatModelRightCards,
+					var sideLens = $author$project$Main$chooseSideLens(side);
+					return A3(
+						$arturopala$elm_monocle$Monocle$Lens$modify,
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideDefense),
 						function (cc) {
 							return _Utils_update(
 								cc,
 								{card: c});
 						},
-						index,
 						model);
 				} else {
 					return model;
 				}
-			case 'ToggleLeftCardDiscard':
-				var index = msg.a;
-				return A4(
-					$author$project$Main$updateCardAtIndex,
-					$author$project$Main$combatModelLeftCards,
+			case 'ToggleWeaponDiscard':
+				var side = msg.a;
+				var sideLens = $author$project$Main$chooseSideLens(side);
+				return A3(
+					$arturopala$elm_monocle$Monocle$Lens$modify,
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideWeapon),
 					function (cc) {
 						return _Utils_update(
 							cc,
 							{discard: !cc.discard});
 					},
-					index,
+					model);
+			case 'ToggleDefenseDiscard':
+				var side = msg.a;
+				var sideLens = $author$project$Main$chooseSideLens(side);
+				return A3(
+					$arturopala$elm_monocle$Monocle$Lens$modify,
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideDefense),
+					function (cc) {
+						return _Utils_update(
+							cc,
+							{discard: !cc.discard});
+					},
 					model);
 			default:
-				var index = msg.a;
-				return A4(
-					$author$project$Main$updateCardAtIndex,
-					$author$project$Main$combatModelRightCards,
-					function (cc) {
-						return _Utils_update(
-							cc,
-							{discard: !cc.discard});
-					},
-					index,
+				var side = msg.a;
+				var sideLens = $author$project$Main$chooseSideLens(side);
+				return A3(
+					$arturopala$elm_monocle$Monocle$Lens$modify,
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideCheapHero),
+					$elm$core$Basics$not,
 					model);
 		}
 	});
@@ -7470,7 +7219,13 @@ var $author$project$Main$updateGame = F2(
 								})),
 						true);
 				case 'OpenCombatModal':
-					var initialState = {leftCards: _List_Nil, leftFaction: $author$project$Faction$unknown, rightCards: _List_Nil, rightFaction: $author$project$Faction$unknown};
+					var initialSide = {
+						cheapHero: false,
+						defense: {card: $author$project$Card$unknown, discard: false},
+						faction: $author$project$Faction$unknown,
+						weapon: {card: $author$project$Card$unknown, discard: false}
+					};
+					var initialState = {left: initialSide, right: initialSide};
 					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
@@ -8936,25 +8691,23 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		body,
 		footerChild);
 };
-var $author$project$Types$AddLeftCard = {$: 'AddLeftCard'};
-var $author$project$Types$AddRightCard = {$: 'AddRightCard'};
 var $author$project$Types$CombatModalMsg = function (a) {
 	return {$: 'CombatModalMsg', a: a};
 };
-var $author$project$Types$SelectLeftCard = F2(
+var $author$project$Types$Left = {$: 'Left'};
+var $author$project$Types$Right = {$: 'Right'};
+var $author$project$Types$SelectDefense = F2(
 	function (a, b) {
-		return {$: 'SelectLeftCard', a: a, b: b};
+		return {$: 'SelectDefense', a: a, b: b};
 	});
-var $author$project$Types$SelectLeftFaction = function (a) {
-	return {$: 'SelectLeftFaction', a: a};
-};
-var $author$project$Types$SelectRightCard = F2(
+var $author$project$Types$SelectFaction = F2(
 	function (a, b) {
-		return {$: 'SelectRightCard', a: a, b: b};
+		return {$: 'SelectFaction', a: a, b: b};
 	});
-var $author$project$Types$SelectRightFaction = function (a) {
-	return {$: 'SelectRightFaction', a: a};
-};
+var $author$project$Types$SelectWeapon = F2(
+	function (a, b) {
+		return {$: 'SelectWeapon', a: a, b: b};
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
 var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered = 'has-text-centered';
@@ -8984,77 +8737,68 @@ var $author$project$Main$viewCombatModal = function (model) {
 					}
 				});
 		});
-	var viewCardSelect = F3(
-		function (msg, index, card) {
+	var viewCardSelect = F4(
+		function (name, msg, card, cards) {
 			return $author$project$View$select(
 				{
 					current: card.card,
 					eq: $author$project$Card$eq,
 					isValid: true,
-					name: 'Card',
+					name: name,
 					onSelect: function (s) {
 						return $author$project$Types$ViewGameMsg(
 							$author$project$Types$ModalMsg(
 								$author$project$Types$CombatModalMsg(
-									A2(msg, index, s))));
+									msg(s))));
 					},
-					options: $author$project$Card$uniqueCardsWithUnknown,
+					options: cards,
 					toHtml: function (c) {
 						return $elm$html$Html$text(
 							$author$project$Card$toString(c));
 					}
 				});
 		});
-	var viewLeftCards = A2(
-		$elm$core$List$indexedMap,
-		viewCardSelect($author$project$Types$SelectLeftCard),
-		model.leftCards);
-	var viewRightCards = A2(
-		$elm$core$List$indexedMap,
-		viewCardSelect($author$project$Types$SelectRightCard),
-		model.rightCards);
-	var viewAddCardButton = function (msg) {
-		return A2(
-			$elm$html$Html$button,
-			_List_fromArray(
+	var viewCards = F2(
+		function (side, combatSide) {
+			return _List_fromArray(
 				[
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
-					$elm$html$Html$Events$onClick(
-					$author$project$Types$ViewGameMsg(
-						$author$project$Types$ModalMsg(
-							$author$project$Types$CombatModalMsg(msg))))
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('Add card')
-				]));
-	};
+					A4(
+					viewCardSelect,
+					'Weapon',
+					$author$project$Types$SelectWeapon(side),
+					combatSide.weapon,
+					A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$weapons)),
+					A4(
+					viewCardSelect,
+					'Defense',
+					$author$project$Types$SelectDefense(side),
+					combatSide.defense,
+					A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$defenses))
+				]);
+		});
 	var viewLeftSide = $elm$core$List$concat(
 		_List_fromArray(
 			[
 				_List_fromArray(
 				[
-					A2(viewFactionSelect, model.leftFaction, $author$project$Types$SelectLeftFaction)
+					A2(
+					viewFactionSelect,
+					model.left.faction,
+					$author$project$Types$SelectFaction($author$project$Types$Left))
 				]),
-				viewLeftCards,
-				_List_fromArray(
-				[
-					viewAddCardButton($author$project$Types$AddLeftCard)
-				])
+				A2(viewCards, $author$project$Types$Left, model.left)
 			]));
 	var viewRightSide = $elm$core$List$concat(
 		_List_fromArray(
 			[
 				_List_fromArray(
 				[
-					A2(viewFactionSelect, model.rightFaction, $author$project$Types$SelectRightFaction)
+					A2(
+					viewFactionSelect,
+					model.right.faction,
+					$author$project$Types$SelectFaction($author$project$Types$Right))
 				]),
-				viewRightCards,
-				_List_fromArray(
-				[
-					viewAddCardButton($author$project$Types$AddRightCard)
-				])
+				A2(viewCards, $author$project$Types$Right, model.right)
 			]));
 	var modalTitle = 'Combat';
 	var footer = A2($elm$html$Html$div, _List_Nil, _List_Nil);
