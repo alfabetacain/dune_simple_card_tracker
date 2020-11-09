@@ -5275,6 +5275,7 @@ var $author$project$Types$OpenChangeCardModal = F2(
 	function (a, b) {
 		return {$: 'OpenChangeCardModal', a: a, b: b};
 	});
+var $author$project$Types$OpenCombatModal = {$: 'OpenCombatModal'};
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
 var $elm$json$Json$Decode$fail = _Json_fail;
@@ -5631,6 +5632,8 @@ var $author$project$Ports$decodeGameMsg = function () {
 				return $elm$json$Json$Decode$fail('modal');
 			case 'CloseModal':
 				return $elm$json$Json$Decode$succeed($author$project$Types$CloseModal);
+			case 'OpenCombatModal':
+				return $elm$json$Json$Decode$succeed($author$project$Types$OpenCombatModal);
 			default:
 				return $elm$json$Json$Decode$fail('Unknown type for GameMsg \"' + (typ + '\"'));
 		}
@@ -5642,6 +5645,9 @@ var $author$project$Types$ModalBidding = function (a) {
 };
 var $author$project$Types$ModalChangeCard = function (a) {
 	return {$: 'ModalChangeCard', a: a};
+};
+var $author$project$Types$ModalCombat = function (a) {
+	return {$: 'ModalCombat', a: a};
 };
 var $author$project$Types$ModalBiddingModel = F2(
 	function (bids, factions) {
@@ -5674,6 +5680,41 @@ var $author$project$Ports$decodeModalChangeCard = A3(
 			'faction',
 			$author$project$Faction$decode,
 			$elm$json$Json$Decode$succeed($author$project$Types$ModalChangeCardModel))));
+var $author$project$Types$ModalCombatModel = F4(
+	function (leftFaction, leftCards, rightFaction, rightCards) {
+		return {leftCards: leftCards, leftFaction: leftFaction, rightCards: rightCards, rightFaction: rightFaction};
+	});
+var $author$project$Types$CombatCard = F2(
+	function (card, discard) {
+		return {card: card, discard: discard};
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $author$project$Ports$decodeCombatCard = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'discard',
+	$elm$json$Json$Decode$bool,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'card',
+		$author$project$Card$decode,
+		$elm$json$Json$Decode$succeed($author$project$Types$CombatCard)));
+var $author$project$Ports$decodeModalCombat = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'rightCards',
+	$elm$json$Json$Decode$list($author$project$Ports$decodeCombatCard),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'rightFaction',
+		$author$project$Faction$decode,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'leftCards',
+			$elm$json$Json$Decode$list($author$project$Ports$decodeCombatCard),
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'leftFaction',
+				$author$project$Faction$decode,
+				$elm$json$Json$Decode$succeed($author$project$Types$ModalCombatModel)))));
 var $author$project$Ports$decodeModal = function () {
 	var decide = function (s) {
 		switch (s) {
@@ -5687,6 +5728,11 @@ var $author$project$Ports$decodeModal = function () {
 					$elm$json$Json$Decode$map,
 					$author$project$Types$ModalBidding,
 					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeModalBidding));
+			case 'ModalCombat':
+				return A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Types$ModalCombat,
+					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeModalCombat));
 			default:
 				return $elm$json$Json$Decode$fail('Unknown modal type ' + s);
 		}
@@ -6276,8 +6322,10 @@ var $author$project$Ports$encodeGameMsg = function (msg) {
 			return A2($author$project$Ports$encodeType, 'CloseModal', _List_Nil);
 		case 'DragDropCardToFaction':
 			return $elm$json$Json$Encode$null;
-		default:
+		case 'FinishCombat':
 			return $elm$json$Json$Encode$null;
+		default:
+			return A2($author$project$Ports$encodeType, 'OpenCombatModal', _List_Nil);
 	}
 };
 var $author$project$Ports$encodeChangeCardModal = function (model) {
@@ -6293,6 +6341,37 @@ var $author$project$Ports$encodeChangeCardModal = function (model) {
 				_Utils_Tuple2(
 				'clickedCard',
 				$author$project$Card$encode(model.clickedCard))
+			]));
+};
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $author$project$Ports$encodeCombatModel = function (model) {
+	var encodeCombatCard = function (combatCard) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'card',
+					$author$project$Card$encode(combatCard.card)),
+					_Utils_Tuple2(
+					'discard',
+					$elm$json$Json$Encode$bool(combatCard.discard))
+				]));
+	};
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'leftFaction',
+				$author$project$Faction$encode(model.leftFaction)),
+				_Utils_Tuple2(
+				'rightFaction',
+				$author$project$Faction$encode(model.rightFaction)),
+				_Utils_Tuple2(
+				'leftCards',
+				A2($elm$json$Json$Encode$list, encodeCombatCard, model.leftCards)),
+				_Utils_Tuple2(
+				'rightCards',
+				A2($elm$json$Json$Encode$list, encodeCombatCard, model.rightCards))
 			]));
 };
 var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
@@ -6376,7 +6455,17 @@ var $author$project$Ports$encodeModal = function (modal) {
 						$author$project$Ports$encodeChangeCardModal(model))
 					]));
 		default:
-			return $elm$json$Json$Encode$null;
+			var model = modal.a;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string('ModalCombat')),
+						_Utils_Tuple2(
+						'value',
+						$author$project$Ports$encodeCombatModel(model))
+					]));
 	}
 };
 var $elm$core$Maybe$withDefault = F2(
@@ -6544,9 +6633,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
 		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
-var $author$project$Types$ModalCombat = function (a) {
-	return {$: 'ModalCombat', a: a};
-};
 var $elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
 		getHelp:
@@ -6981,16 +7067,28 @@ var $author$project$Main$updateCombatModal = F2(
 		switch (msg.$) {
 			case 'SelectLeftFaction':
 				var faction = msg.a;
-				return _Utils_update(
-					model,
-					{leftFaction: faction});
+				var _v1 = $author$project$Faction$fromString(faction);
+				if (_v1.$ === 'Just') {
+					var f = _v1.a;
+					return _Utils_update(
+						model,
+						{leftFaction: f});
+				} else {
+					return model;
+				}
 			case 'SelectRightFaction':
 				var faction = msg.a;
-				return _Utils_update(
-					model,
-					{rightFaction: faction});
+				var _v2 = $author$project$Faction$fromString(faction);
+				if (_v2.$ === 'Just') {
+					var f = _v2.a;
+					return _Utils_update(
+						model,
+						{rightFaction: f});
+				} else {
+					return model;
+				}
 			case 'AddLeftCard':
-				return _Utils_update(
+				return ($elm$core$List$length(model.leftCards) < 3) ? _Utils_update(
 					model,
 					{
 						leftCards: A2(
@@ -7000,9 +7098,9 @@ var $author$project$Main$updateCombatModal = F2(
 								[
 									{card: $author$project$Card$unknown, discard: false}
 								]))
-					});
+					}) : model;
 			case 'AddRightCard':
-				return _Utils_update(
+				return ($elm$core$List$length(model.rightCards) < 3) ? _Utils_update(
 					model,
 					{
 						rightCards: A2(
@@ -7012,7 +7110,7 @@ var $author$project$Main$updateCombatModal = F2(
 								[
 									{card: $author$project$Card$unknown, discard: false}
 								]))
-					});
+					}) : model;
 			case 'RemoveLeftCard':
 				var index = msg.a;
 				return _Utils_update(
@@ -7030,29 +7128,41 @@ var $author$project$Main$updateCombatModal = F2(
 			case 'SelectLeftCard':
 				var index = msg.a;
 				var card = msg.b;
-				return A4(
-					$author$project$Main$updateCardAtIndex,
-					$author$project$Main$combatModelLeftCards,
-					function (cc) {
-						return _Utils_update(
-							cc,
-							{card: card});
-					},
-					index,
-					model);
+				var _v3 = $author$project$Card$fromString(card);
+				if (_v3.$ === 'Just') {
+					var c = _v3.a;
+					return A4(
+						$author$project$Main$updateCardAtIndex,
+						$author$project$Main$combatModelLeftCards,
+						function (cc) {
+							return _Utils_update(
+								cc,
+								{card: c});
+						},
+						index,
+						model);
+				} else {
+					return model;
+				}
 			case 'SelectRightCard':
 				var index = msg.a;
 				var card = msg.b;
-				return A4(
-					$author$project$Main$updateCardAtIndex,
-					$author$project$Main$combatModelRightCards,
-					function (cc) {
-						return _Utils_update(
-							cc,
-							{card: card});
-					},
-					index,
-					model);
+				var _v4 = $author$project$Card$fromString(card);
+				if (_v4.$ === 'Just') {
+					var c = _v4.a;
+					return A4(
+						$author$project$Main$updateCardAtIndex,
+						$author$project$Main$combatModelRightCards,
+						function (cc) {
+							return _Utils_update(
+								cc,
+								{card: c});
+						},
+						index,
+						model);
+				} else {
+					return model;
+				}
 			case 'ToggleLeftCardDiscard':
 				var index = msg.a;
 				return A4(
@@ -7357,6 +7467,19 @@ var $author$project$Main$updateGame = F2(
 								game,
 								{
 									modal: $elm$core$Maybe$Just(biddingModal)
+								})),
+						true);
+				case 'OpenCombatModal':
+					var initialState = {leftCards: _List_Nil, leftFaction: $author$project$Faction$unknown, rightCards: _List_Nil, rightFaction: $author$project$Faction$unknown};
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Types$OpenCombatModal,
+							_Utils_update(
+								game,
+								{
+									modal: $elm$core$Maybe$Just(
+										$author$project$Types$ModalCombat(initialState))
 								})),
 						true);
 				case 'OpenChangeCardModal':
@@ -7727,6 +7850,19 @@ var $author$project$Main$viewButtons = A2(
 					_List_fromArray(
 						[
 							$elm$html$Html$text('Bidding phase')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg($author$project$Types$OpenCombatModal))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Combat')
 						])),
 					A2(
 					$elm$html$Html$button,
@@ -8368,7 +8504,6 @@ var $elm$core$List$all = F2(
 			list);
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$container = 'container';
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -8801,8 +8936,173 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		body,
 		footerChild);
 };
+var $author$project$Types$AddLeftCard = {$: 'AddLeftCard'};
+var $author$project$Types$AddRightCard = {$: 'AddRightCard'};
+var $author$project$Types$CombatModalMsg = function (a) {
+	return {$: 'CombatModalMsg', a: a};
+};
+var $author$project$Types$SelectLeftCard = F2(
+	function (a, b) {
+		return {$: 'SelectLeftCard', a: a, b: b};
+	});
+var $author$project$Types$SelectLeftFaction = function (a) {
+	return {$: 'SelectLeftFaction', a: a};
+};
+var $author$project$Types$SelectRightCard = F2(
+	function (a, b) {
+		return {$: 'SelectRightCard', a: a, b: b};
+	});
+var $author$project$Types$SelectRightFaction = function (a) {
+	return {$: 'SelectRightFaction', a: a};
+};
+var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
+var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered = 'has-text-centered';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths = 'is-two-fifths';
 var $author$project$Main$viewCombatModal = function (model) {
-	return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+	var viewFactionSelect = F2(
+		function (faction, msg) {
+			return $author$project$View$select(
+				{
+					current: faction,
+					eq: $author$project$Faction$eq,
+					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
+					name: 'Faction',
+					onSelect: function (s) {
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								$author$project$Types$CombatModalMsg(
+									msg(s))));
+					},
+					options: $author$project$Faction$factionsWithUnknown,
+					toHtml: function (f) {
+						return $elm$html$Html$text(
+							$author$project$Faction$toString(f));
+					}
+				});
+		});
+	var viewCardSelect = F3(
+		function (msg, index, card) {
+			return $author$project$View$select(
+				{
+					current: card.card,
+					eq: $author$project$Card$eq,
+					isValid: true,
+					name: 'Card',
+					onSelect: function (s) {
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								$author$project$Types$CombatModalMsg(
+									A2(msg, index, s))));
+					},
+					options: $author$project$Card$uniqueCardsWithUnknown,
+					toHtml: function (c) {
+						return $elm$html$Html$text(
+							$author$project$Card$toString(c));
+					}
+				});
+		});
+	var viewLeftCards = A2(
+		$elm$core$List$indexedMap,
+		viewCardSelect($author$project$Types$SelectLeftCard),
+		model.leftCards);
+	var viewRightCards = A2(
+		$elm$core$List$indexedMap,
+		viewCardSelect($author$project$Types$SelectRightCard),
+		model.rightCards);
+	var viewAddCardButton = function (msg) {
+		return A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$CombatModalMsg(msg))))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Add card')
+				]));
+	};
+	var viewLeftSide = $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					A2(viewFactionSelect, model.leftFaction, $author$project$Types$SelectLeftFaction)
+				]),
+				viewLeftCards,
+				_List_fromArray(
+				[
+					viewAddCardButton($author$project$Types$AddLeftCard)
+				])
+			]));
+	var viewRightSide = $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					A2(viewFactionSelect, model.rightFaction, $author$project$Types$SelectRightFaction)
+				]),
+				viewRightCards,
+				_List_fromArray(
+				[
+					viewAddCardButton($author$project$Types$AddRightCard)
+				])
+			]));
+	var modalTitle = 'Combat';
+	var footer = A2($elm$html$Html$div, _List_Nil, _List_Nil);
+	var body = A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+					]),
+				viewLeftSide),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('VS')
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+					]),
+				viewRightSide)
+			]));
+	return A4(
+		$author$project$View$modal,
+		modalTitle,
+		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+		body,
+		footer);
 };
 var $author$project$Main$viewModal = F2(
 	function (_v0, modal) {
