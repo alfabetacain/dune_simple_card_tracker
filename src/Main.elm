@@ -214,16 +214,34 @@ updateCombatModal : CombatModalMsg -> ModalCombatModel -> ModalCombatModel
 updateCombatModal msg model =
     case msg of
         SelectLeftFaction faction ->
-            { model | leftFaction = faction }
+            case Faction.fromString faction of
+                Just f ->
+                    { model | leftFaction = f }
+
+                Nothing ->
+                    model
 
         SelectRightFaction faction ->
-            { model | rightFaction = faction }
+            case Faction.fromString faction of
+                Just f ->
+                    { model | rightFaction = f }
+
+                Nothing ->
+                    model
 
         AddLeftCard ->
-            { model | leftCards = List.append model.leftCards [ { card = Card.unknown, discard = False } ] }
+            if List.length model.leftCards < 3 then
+                { model | leftCards = List.append model.leftCards [ { card = Card.unknown, discard = False } ] }
+
+            else
+                model
 
         AddRightCard ->
-            { model | rightCards = List.append model.rightCards [ { card = Card.unknown, discard = False } ] }
+            if List.length model.rightCards < 3 then
+                { model | rightCards = List.append model.rightCards [ { card = Card.unknown, discard = False } ] }
+
+            else
+                model
 
         RemoveLeftCard index ->
             { model | leftCards = ListE.removeAt index model.leftCards }
@@ -232,10 +250,20 @@ updateCombatModal msg model =
             { model | rightCards = ListE.removeAt index model.rightCards }
 
         SelectLeftCard index card ->
-            updateCardAtIndex combatModelLeftCards (\cc -> { cc | card = card }) index model
+            case Card.fromString card of
+                Just c ->
+                    updateCardAtIndex combatModelLeftCards (\cc -> { cc | card = c }) index model
+
+                Nothing ->
+                    model
 
         SelectRightCard index card ->
-            updateCardAtIndex combatModelRightCards (\cc -> { cc | card = card }) index model
+            case Card.fromString card of
+                Just c ->
+                    updateCardAtIndex combatModelRightCards (\cc -> { cc | card = c }) index model
+
+                Nothing ->
+                    model
 
         ToggleLeftCardDiscard index ->
             updateCardAtIndex combatModelLeftCards (\cc -> { cc | discard = not cc.discard }) index model
@@ -373,6 +401,17 @@ updateGame msg game =
                             ModalBidding initialState
                     in
                     ( withHistory OpenBiddingPhaseModal { game | modal = Just biddingModal }, True )
+
+                OpenCombatModal ->
+                    let
+                        initialState =
+                            { leftFaction = Faction.unknown
+                            , leftCards = []
+                            , rightFaction = Faction.unknown
+                            , rightCards = []
+                            }
+                    in
+                    ( withHistory OpenCombatModal { game | modal = Just <| ModalCombat initialState }, True )
 
                 OpenChangeCardModal faction card ->
                     ( withHistory (OpenChangeCardModal faction card) { game | modal = Just <| ModalChangeCard <| { faction = faction, selectedCard = card, clickedCard = card } }, True )
@@ -635,6 +674,12 @@ viewButtons =
             , button
                 [ class Bulma.levelItem
                 , class Bulma.button
+                , onClick <| ViewGameMsg OpenCombatModal
+                ]
+                [ text "Combat" ]
+            , button
+                [ class Bulma.levelItem
+                , class Bulma.button
                 , onClick (ViewGameMsg Undo)
                 ]
                 [ text "Undo" ]
@@ -769,7 +814,68 @@ viewBiddingModal model =
 
 viewCombatModal : ModalCombatModel -> Html Msg
 viewCombatModal model =
-    div [] []
+    let
+        modalTitle =
+            "Combat"
+
+        viewFactionSelect faction msg =
+            View.select
+                { eq = Faction.eq
+                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
+                , current = faction
+                , options = Faction.factionsWithUnknown
+                , toHtml = \f -> text <| Faction.toString f
+                , name = "Faction"
+                , isValid = not <| Faction.eq faction Faction.unknown
+                }
+
+        viewCardSelect msg index card =
+            View.select
+                { eq = Card.eq
+                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg index s
+                , current = card.card
+                , options = Card.uniqueCardsWithUnknown
+                , toHtml = \c -> text <| Card.toString c
+                , name = "Card"
+                , isValid = True
+                }
+
+        viewAddCardButton msg =
+            button [ class Bulma.button, class Bulma.isInfo, onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg msg ] [ text "Add card" ]
+
+        viewLeftCards =
+            List.indexedMap (viewCardSelect SelectLeftCard) model.leftCards
+
+        viewLeftSide =
+            List.concat
+                [ [ viewFactionSelect model.leftFaction SelectLeftFaction ]
+                , viewLeftCards
+                , [ viewAddCardButton AddLeftCard ]
+                ]
+
+        viewRightCards =
+            List.indexedMap (viewCardSelect SelectRightCard) model.rightCards
+
+        viewRightSide =
+            List.concat
+                [ [ viewFactionSelect model.rightFaction SelectRightFaction ]
+                , viewRightCards
+                , [ viewAddCardButton AddRightCard ]
+                ]
+
+        body =
+            div [ class Bulma.columns ]
+                [ div [ class Bulma.column, class Bulma.hasTextLeft, class Bulma.isTwoFifths ]
+                    viewLeftSide
+                , div [ class Bulma.column, class Bulma.hasTextCentered, class Bulma.isOneFifth ] [ text "VS" ]
+                , div [ class Bulma.column, class Bulma.hasTextRight, class Bulma.isTwoFifths ]
+                    viewRightSide
+                ]
+
+        footer =
+            div [] []
+    in
+    View.modal modalTitle (ViewGameMsg CloseModal) body footer
 
 
 viewModal : List Card.Type -> Modal -> Html Msg

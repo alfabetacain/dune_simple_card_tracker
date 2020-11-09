@@ -136,6 +136,9 @@ encodeGameMsg msg =
         FinishCombat _ _ _ _ ->
             E.null
 
+        OpenCombatModal ->
+            encodeType "OpenCombatModal" []
+
 
 encodeChangeCardModal : ModalChangeCardModel -> E.Value
 encodeChangeCardModal model =
@@ -143,6 +146,23 @@ encodeChangeCardModal model =
         [ ( "faction", Faction.encode model.faction )
         , ( "selectedCard", Card.encode model.selectedCard )
         , ( "clickedCard", Card.encode model.clickedCard )
+        ]
+
+
+encodeCombatModel : ModalCombatModel -> E.Value
+encodeCombatModel model =
+    let
+        encodeCombatCard combatCard =
+            E.object
+                [ ( "card", Card.encode combatCard.card )
+                , ( "discard", E.bool combatCard.discard )
+                ]
+    in
+    E.object
+        [ ( "leftFaction", Faction.encode model.leftFaction )
+        , ( "rightFaction", Faction.encode model.rightFaction )
+        , ( "leftCards", E.list encodeCombatCard model.leftCards )
+        , ( "rightCards", E.list encodeCombatCard model.rightCards )
         ]
 
 
@@ -161,8 +181,11 @@ encodeModal modal =
                 , ( "value", encodeChangeCardModal model )
                 ]
 
-        _ ->
-            E.null
+        ModalCombat model ->
+            E.object
+                [ ( "type", E.string "ModalCombat" )
+                , ( "value", encodeCombatModel model )
+                ]
 
 
 type alias BiCoder a =
@@ -326,6 +349,9 @@ decodeGameMsg =
                 "CloseModal" ->
                     D.succeed CloseModal
 
+                "OpenCombatModal" ->
+                    D.succeed OpenCombatModal
+
                 _ ->
                     D.fail <| "Unknown type for GameMsg \"" ++ typ ++ "\""
 
@@ -379,6 +405,22 @@ decodeModalBidding =
         |> required "factions" (D.list Faction.decode)
 
 
+decodeCombatCard : Decoder CombatCard
+decodeCombatCard =
+    D.succeed CombatCard
+        |> required "card" Card.decode
+        |> required "discard" D.bool
+
+
+decodeModalCombat : Decoder ModalCombatModel
+decodeModalCombat =
+    D.succeed ModalCombatModel
+        |> required "leftFaction" Faction.decode
+        |> required "leftCards" (D.list decodeCombatCard)
+        |> required "rightFaction" Faction.decode
+        |> required "rightCards" (D.list decodeCombatCard)
+
+
 decodeModal : Decoder Modal
 decodeModal =
     let
@@ -389,6 +431,9 @@ decodeModal =
 
                 "ModalBidding" ->
                     D.map ModalBidding (D.field "value" decodeModalBidding)
+
+                "ModalCombat" ->
+                    D.map ModalCombat (D.field "value" decodeModalCombat)
 
                 _ ->
                     D.fail <| "Unknown modal type " ++ s

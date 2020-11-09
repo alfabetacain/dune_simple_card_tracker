@@ -45,14 +45,14 @@ type alias Index =
 
 
 type CombatModalMsg
-    = SelectLeftFaction Faction.Type
-    | SelectRightFaction Faction.Type
+    = SelectLeftFaction String
+    | SelectRightFaction String
     | AddLeftCard
     | AddRightCard
     | RemoveLeftCard Index
     | RemoveRightCard Index
-    | SelectLeftCard Index Card.Type
-    | SelectRightCard Index Card.Type
+    | SelectLeftCard Index String
+    | SelectRightCard Index String
     | ToggleLeftCardDiscard Index
     | ToggleRightCardDiscard Index
 
@@ -116,6 +116,7 @@ type GameMsg
     | ToggleNavbar
     | CloseModal
     | FinishCombat Faction.Type (List CombatCard) Faction.Type (List CombatCard)
+    | OpenCombatModal
 
 
 type Msg
