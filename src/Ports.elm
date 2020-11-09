@@ -149,8 +149,8 @@ encodeChangeCardModal model =
         ]
 
 
-encodeCombatModel : ModalCombatModel -> E.Value
-encodeCombatModel model =
+encodeCombatSide : CombatSide -> E.Value
+encodeCombatSide side =
     let
         encodeCombatCard combatCard =
             E.object
@@ -159,10 +159,18 @@ encodeCombatModel model =
                 ]
     in
     E.object
-        [ ( "leftFaction", Faction.encode model.leftFaction )
-        , ( "rightFaction", Faction.encode model.rightFaction )
-        , ( "leftCards", E.list encodeCombatCard model.leftCards )
-        , ( "rightCards", E.list encodeCombatCard model.rightCards )
+        [ ( "faction", Faction.encode side.faction )
+        , ( "weapon", encodeCombatCard side.weapon )
+        , ( "defense", encodeCombatCard side.defense )
+        , ( "cheapHero", E.bool side.cheapHero )
+        ]
+
+
+encodeCombatModel : ModalCombatModel -> E.Value
+encodeCombatModel model =
+    E.object
+        [ ( "left", encodeCombatSide model.left )
+        , ( "right", encodeCombatSide model.right )
         ]
 
 
@@ -412,13 +420,20 @@ decodeCombatCard =
         |> required "discard" D.bool
 
 
+decodeCombatSide : Decoder CombatSide
+decodeCombatSide =
+    D.succeed CombatSide
+        |> required "faction" Faction.decode
+        |> required "weapon" decodeCombatCard
+        |> required "defense" decodeCombatCard
+        |> required "cheapHero" D.bool
+
+
 decodeModalCombat : Decoder ModalCombatModel
 decodeModalCombat =
     D.succeed ModalCombatModel
-        |> required "leftFaction" Faction.decode
-        |> required "leftCards" (D.list decodeCombatCard)
-        |> required "rightFaction" Faction.decode
-        |> required "rightCards" (D.list decodeCombatCard)
+        |> required "left" decodeCombatSide
+        |> required "right" decodeCombatSide
 
 
 decodeModal : Decoder Modal

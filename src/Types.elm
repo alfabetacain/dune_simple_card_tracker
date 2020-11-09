@@ -26,12 +26,23 @@ type alias CombatCard =
     }
 
 
-type alias ModalCombatModel =
-    { leftFaction : Faction.Type
-    , leftCards : List CombatCard
-    , rightFaction : Faction.Type
-    , rightCards : List CombatCard
+type alias CombatSide =
+    { faction : Faction.Type
+    , weapon : CombatCard
+    , defense : CombatCard
+    , cheapHero : Bool
     }
+
+
+type alias ModalCombatModel =
+    { left : CombatSide
+    , right : CombatSide
+    }
+
+
+type Side
+    = Left
+    | Right
 
 
 type Modal
@@ -45,16 +56,12 @@ type alias Index =
 
 
 type CombatModalMsg
-    = SelectLeftFaction String
-    | SelectRightFaction String
-    | AddLeftCard
-    | AddRightCard
-    | RemoveLeftCard Index
-    | RemoveRightCard Index
-    | SelectLeftCard Index String
-    | SelectRightCard Index String
-    | ToggleLeftCardDiscard Index
-    | ToggleRightCardDiscard Index
+    = SelectFaction Side String
+    | SelectWeapon Side String
+    | SelectDefense Side String
+    | ToggleCheapHero Side
+    | ToggleWeaponDiscard Side
+    | ToggleDefenseDiscard Side
 
 
 type ModalMsg

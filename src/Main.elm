@@ -190,86 +190,105 @@ popHistory game =
     { updatedGame | history = tailHistory }
 
 
-combatModelLeftCards : Lens ModalCombatModel (List CombatCard)
-combatModelLeftCards =
-    Lens .leftCards (\b a -> { a | leftCards = b })
+selectLeftSide : Lens ModalCombatModel CombatSide
+selectLeftSide =
+    Lens .left (\b a -> { a | left = b })
 
 
-combatModelRightCards : Lens ModalCombatModel (List CombatCard)
-combatModelRightCards =
-    Lens .rightCards (\b a -> { a | rightCards = b })
+selectRightSide : Lens ModalCombatModel CombatSide
+selectRightSide =
+    Lens .right (\b a -> { a | right = b })
 
 
-combatModelLeftCardsIndexOptional : Int -> Lens ModalCombatModel (Array CombatCard) -> Optional ModalCombatModel CombatCard
-combatModelLeftCardsIndexOptional index lens =
-    Monocle.Compose.lensWithOptional (Monocle.Common.array index) lens
+sideWeapon : Lens CombatSide CombatCard
+sideWeapon =
+    Lens .weapon (\b a -> { a | weapon = b })
 
 
-updateCardAtIndex : Lens ModalCombatModel (List CombatCard) -> (CombatCard -> CombatCard) -> Index -> ModalCombatModel -> ModalCombatModel
-updateCardAtIndex listLens updater index model =
-    Optional.modify (Monocle.Compose.lensWithOptional (Monocle.Common.list index) listLens) updater model
+sideDefense : Lens CombatSide CombatCard
+sideDefense =
+    Lens .defense (\b a -> { a | defense = b })
+
+
+sideCheapHero : Lens CombatSide Bool
+sideCheapHero =
+    Lens .cheapHero (\b a -> { a | cheapHero = b })
+
+
+sideFaction : Lens CombatSide Faction.Type
+sideFaction =
+    Lens .faction (\b a -> { a | faction = b })
+
+
+chooseSideLens : Side -> Lens ModalCombatModel CombatSide
+chooseSideLens side =
+    case side of
+        Left ->
+            selectLeftSide
+
+        Right ->
+            selectRightSide
 
 
 updateCombatModal : CombatModalMsg -> ModalCombatModel -> ModalCombatModel
 updateCombatModal msg model =
     case msg of
-        SelectLeftFaction faction ->
+        SelectFaction side faction ->
             case Faction.fromString faction of
                 Just f ->
-                    { model | leftFaction = f }
+                    let
+                        sideLens =
+                            chooseSideLens side
+                    in
+                    Lens.modify (Lens.compose sideLens sideFaction) (\_ -> f) model
 
                 Nothing ->
                     model
 
-        SelectRightFaction faction ->
-            case Faction.fromString faction of
-                Just f ->
-                    { model | rightFaction = f }
-
-                Nothing ->
-                    model
-
-        AddLeftCard ->
-            if List.length model.leftCards < 3 then
-                { model | leftCards = List.append model.leftCards [ { card = Card.unknown, discard = False } ] }
-
-            else
-                model
-
-        AddRightCard ->
-            if List.length model.rightCards < 3 then
-                { model | rightCards = List.append model.rightCards [ { card = Card.unknown, discard = False } ] }
-
-            else
-                model
-
-        RemoveLeftCard index ->
-            { model | leftCards = ListE.removeAt index model.leftCards }
-
-        RemoveRightCard index ->
-            { model | rightCards = ListE.removeAt index model.rightCards }
-
-        SelectLeftCard index card ->
+        SelectWeapon side card ->
             case Card.fromString card of
                 Just c ->
-                    updateCardAtIndex combatModelLeftCards (\cc -> { cc | card = c }) index model
+                    let
+                        sideLens =
+                            chooseSideLens side
+                    in
+                    Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | card = c }) model
 
                 Nothing ->
                     model
 
-        SelectRightCard index card ->
+        SelectDefense side card ->
             case Card.fromString card of
                 Just c ->
-                    updateCardAtIndex combatModelRightCards (\cc -> { cc | card = c }) index model
+                    let
+                        sideLens =
+                            chooseSideLens side
+                    in
+                    Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | card = c }) model
 
                 Nothing ->
                     model
 
-        ToggleLeftCardDiscard index ->
-            updateCardAtIndex combatModelLeftCards (\cc -> { cc | discard = not cc.discard }) index model
+        ToggleWeaponDiscard side ->
+            let
+                sideLens =
+                    chooseSideLens side
+            in
+            Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | discard = not cc.discard }) model
 
-        ToggleRightCardDiscard index ->
-            updateCardAtIndex combatModelRightCards (\cc -> { cc | discard = not cc.discard }) index model
+        ToggleDefenseDiscard side ->
+            let
+                sideLens =
+                    chooseSideLens side
+            in
+            Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | discard = not cc.discard }) model
+
+        ToggleCheapHero side ->
+            let
+                sideLens =
+                    chooseSideLens side
+            in
+            Lens.modify (Lens.compose sideLens sideCheapHero) not model
 
 
 updateModal : ModalMsg -> Modal -> Modal
@@ -404,11 +423,16 @@ updateGame msg game =
 
                 OpenCombatModal ->
                     let
+                        initialSide =
+                            { faction = Faction.unknown
+                            , weapon = { card = Card.unknown, discard = False }
+                            , defense = { card = Card.unknown, discard = False }
+                            , cheapHero = False
+                            }
+
                         initialState =
-                            { leftFaction = Faction.unknown
-                            , leftCards = []
-                            , rightFaction = Faction.unknown
-                            , rightCards = []
+                            { left = initialSide
+                            , right = initialSide
                             }
                     in
                     ( withHistory OpenCombatModal { game | modal = Just <| ModalCombat initialState }, True )
@@ -829,38 +853,32 @@ viewCombatModal model =
                 , isValid = not <| Faction.eq faction Faction.unknown
                 }
 
-        viewCardSelect msg index card =
+        viewCardSelect name msg card cards =
             View.select
                 { eq = Card.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg index s
+                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
                 , current = card.card
-                , options = Card.uniqueCardsWithUnknown
+                , options = cards
                 , toHtml = \c -> text <| Card.toString c
-                , name = "Card"
+                , name = name
                 , isValid = True
                 }
 
-        viewAddCardButton msg =
-            button [ class Bulma.button, class Bulma.isInfo, onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg msg ] [ text "Add card" ]
-
-        viewLeftCards =
-            List.indexedMap (viewCardSelect SelectLeftCard) model.leftCards
+        viewCards side combatSide =
+            [ viewCardSelect "Weapon" (SelectWeapon side) combatSide.weapon (Card.unknown :: Card.weapons)
+            , viewCardSelect "Defense" (SelectDefense side) combatSide.defense (Card.unknown :: Card.defenses)
+            ]
 
         viewLeftSide =
             List.concat
-                [ [ viewFactionSelect model.leftFaction SelectLeftFaction ]
-                , viewLeftCards
-                , [ viewAddCardButton AddLeftCard ]
+                [ [ viewFactionSelect model.left.faction (SelectFaction Left) ]
+                , viewCards Left model.left
                 ]
-
-        viewRightCards =
-            List.indexedMap (viewCardSelect SelectRightCard) model.rightCards
 
         viewRightSide =
             List.concat
-                [ [ viewFactionSelect model.rightFaction SelectRightFaction ]
-                , viewRightCards
-                , [ viewAddCardButton AddRightCard ]
+                [ [ viewFactionSelect model.right.faction (SelectFaction Right) ]
+                , viewCards Right model.right
                 ]
 
         body =
