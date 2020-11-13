@@ -5910,14 +5910,20 @@ var $author$project$Main$init = function (appState) {
 	if ((savedState.$ === 'Just') && (savedState.a.$ === 'Ok')) {
 		var game = savedState.a.a;
 		return _Utils_Tuple2(
-			$author$project$Types$ViewGame(game),
+			{
+				navbarExpanded: false,
+				page: $author$project$Types$ViewGame(game)
+			},
 			$elm$core$Platform$Cmd$none);
 	} else {
 		var factions = _List_fromArray(
 			[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
 		var game = $author$project$Main$createGame(factions);
 		return _Utils_Tuple2(
-			$author$project$Types$ViewGame(game),
+			{
+				navbarExpanded: false,
+				page: $author$project$Types$ViewGame(game)
+			},
 			$elm$core$Platform$Cmd$none);
 	}
 };
@@ -5980,8 +5986,11 @@ var $author$project$Main$initSetup = function (_v0) {
 				return _Utils_Tuple2(faction, false);
 			},
 			factions));
-	var model = $author$project$Types$ViewSetup(
-		{factions: factionDict});
+	var model = {
+		navbarExpanded: false,
+		page: $author$project$Types$ViewSetup(
+			{factions: factionDict})
+	};
 	return _Utils_Tuple2(model, $author$project$Ports$clearState);
 };
 var $author$project$Types$FinishCombat = F4(
@@ -6251,8 +6260,6 @@ var $author$project$Ports$encodeModalMsg = function (msg) {
 };
 var $author$project$Ports$encodeGameMsg = function (msg) {
 	switch (msg.$) {
-		case 'ToggleNavbar':
-			return $elm$json$Json$Encode$null;
 		case 'AddCard':
 			var card = msg.a;
 			var faction = msg.b;
@@ -7114,12 +7121,6 @@ var $author$project$Main$updateGame = F2(
 	function (msg, game) {
 		var _v0 = function () {
 			switch (msg.$) {
-				case 'ToggleNavbar':
-					return _Utils_Tuple2(
-						_Utils_update(
-							game,
-							{navbarExpanded: !game.navbarExpanded}),
-						false);
 				case 'Undo':
 					return _Utils_Tuple2(
 						$author$project$Main$popHistory(game),
@@ -7460,14 +7461,21 @@ var $pzp1997$assoc_list$AssocList$update = F3(
 var $author$project$Main$withNoCommand = function (model) {
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$updateSetup = F2(
-	function (msg, model) {
+var $author$project$Main$updateSetup = F3(
+	function (msg, parentModel, model) {
 		if (msg.$ === 'CreateGame') {
 			var factions = msg.a;
-			return $author$project$Main$withNoCommand(
+			var _v1 = $author$project$Main$withNoCommand(
 				$author$project$Types$ViewGame(
 					$author$project$Main$createGame(
 						A2($elm$core$List$cons, $author$project$Faction$atreides, factions))));
+			var newModel = _v1.a;
+			var cmd = _v1.b;
+			return _Utils_Tuple2(
+				_Utils_update(
+					parentModel,
+					{page: newModel}),
+				cmd);
 		} else {
 			var faction = msg.a;
 			var updatedDict = A3(
@@ -7477,45 +7485,76 @@ var $author$project$Main$updateSetup = F2(
 					return A2($elm$core$Maybe$map, $elm$core$Basics$not, v);
 				},
 				model.factions);
-			return $author$project$Main$withNoCommand(
+			var _v2 = $author$project$Main$withNoCommand(
 				$author$project$Types$ViewSetup(
 					{factions: updatedDict}));
+			var newModel = _v2.a;
+			var cmd = _v2.b;
+			return _Utils_Tuple2(
+				_Utils_update(
+					parentModel,
+					{page: newModel}),
+				cmd);
 		}
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		var _v0 = _Utils_Tuple2(msg, model);
-		_v0$3:
+		var _v0 = _Utils_Tuple2(msg, model.page);
+		_v0$4:
 		while (true) {
-			if (_v0.b.$ === 'ViewGame') {
-				switch (_v0.a.$) {
-					case 'ViewGameMsg':
+			switch (_v0.a.$) {
+				case 'ViewGameMsg':
+					if (_v0.b.$ === 'ViewGame') {
 						var gameMsg = _v0.a.a;
 						var game = _v0.b.a;
-						return A2($author$project$Main$updateGame, gameMsg, game);
-					case 'ResetGame':
-						var _v1 = _v0.a;
+						var _v1 = A2($author$project$Main$updateGame, gameMsg, game);
+						var updatedGame = _v1.a;
+						var cmd = _v1.b;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{page: updatedGame}),
+							cmd);
+					} else {
+						break _v0$4;
+					}
+				case 'ResetGame':
+					if (_v0.b.$ === 'ViewGame') {
+						var _v2 = _v0.a;
 						var game = _v0.b.a;
 						return $author$project$Main$initSetup(_Utils_Tuple0);
-					default:
-						break _v0$3;
-				}
-			} else {
-				if (_v0.a.$ === 'ViewSetupMsg') {
-					var setupMsg = _v0.a.a;
-					var state = _v0.b.a;
-					return A2($author$project$Main$updateSetup, setupMsg, state);
-				} else {
-					break _v0$3;
-				}
+					} else {
+						break _v0$4;
+					}
+				case 'ViewSetupMsg':
+					if (_v0.b.$ === 'ViewSetup') {
+						var setupMsg = _v0.a.a;
+						var state = _v0.b.a;
+						return A3($author$project$Main$updateSetup, setupMsg, model, state);
+					} else {
+						break _v0$4;
+					}
+				default:
+					var _v3 = _v0.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{navbarExpanded: !model.navbarExpanded}),
+						$elm$core$Platform$Cmd$none);
 			}
 		}
-		var _v2 = A2(
+		var _v4 = A2(
 			$elm$core$Debug$log,
 			'Unmatched msg',
 			_Utils_Tuple2(msg, model));
 		return $author$project$Main$withNoCommand(model);
 	});
+var $elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
+var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -7524,6 +7563,59 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $ahstro$elm_bulma_classes$Bulma$Classes$content = 'content';
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $ahstro$elm_bulma_classes$Bulma$Classes$footer = 'footer';
+var $elm$html$Html$footer = _VirtualDom_node('footer');
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered = 'has-text-centered';
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$viewFooter = function () {
+	var inspiration = 'https://github.com/ohgoditspotato/atreides_mentat';
+	return A2(
+		$elm$html$Html$footer,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$footer)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$content),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Heavily inspired by '),
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$href(inspiration)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(inspiration)
+									]))
+							]))
+					]))
+			]));
+}();
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
@@ -7532,12 +7624,6 @@ var $elm$core$List$concatMap = F2(
 		return $elm$core$List$concat(
 			A2($elm$core$List$map, f, list));
 	});
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$virtual_dom$VirtualDom$node = function (tag) {
-	return _VirtualDom_node(
-		_VirtualDom_noScript(tag));
-};
-var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
 var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $elm$html$Html$section = _VirtualDom_node('section');
 var $author$project$Types$Undo = {$: 'Undo'};
@@ -7568,8 +7654,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$viewButtons = A2(
 	$elm$html$Html$nav,
 	_List_fromArray(
@@ -8271,7 +8355,6 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
-var $elm$html$Html$footer = _VirtualDom_node('footer');
 var $elm$html$Html$header = _VirtualDom_node('header');
 var $elm$html$Html$i = _VirtualDom_node('i');
 var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
@@ -8283,7 +8366,6 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
-var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$View$modal = F4(
 	function (title, onClose, bodyChild, footerChild) {
@@ -8710,7 +8792,6 @@ var $author$project$Types$SelectWeapon = F2(
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
 var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
-var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered = 'has-text-centered';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
@@ -8862,149 +8943,6 @@ var $author$project$Main$viewModal = F2(
 				return $author$project$Main$viewCombatModal(model);
 		}
 	});
-var $author$project$Types$ResetGame = {$: 'ResetGame'};
-var $author$project$Types$ToggleNavbar = {$: 'ToggleNavbar'};
-var $elm$html$Html$a = _VirtualDom_node('a');
-var $elm$html$Html$Attributes$height = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'height',
-		$elm$core$String$fromInt(n));
-};
-var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
-var $elm$html$Html$img = _VirtualDom_node('img');
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger = 'navbar-burger';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
-var $ahstro$elm_bulma_classes$Bulma$Classes$navbarStart = 'navbar-start';
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var $elm$html$Html$Attributes$width = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'width',
-		$elm$core$String$fromInt(n));
-};
-var $author$project$Main$viewNavbar = function (isExpanded) {
-	var navbarId = 'duneNavbar';
-	return A2(
-		$elm$html$Html$section,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbar)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$a,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem)
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$img,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$src(''),
-										$elm$html$Html$Attributes$width(112),
-										$elm$html$Html$Attributes$height(28)
-									]),
-								_List_Nil)
-							])),
-						A2(
-						$elm$html$Html$a,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger),
-								$elm$html$Html$Attributes$class('burger'),
-								$elm$html$Html$Attributes$classList(
-								_List_fromArray(
-									[
-										_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
-									])),
-								A2($elm$html$Html$Attributes$attribute, 'data-target', navbarId),
-								$elm$html$Html$Events$onClick(
-								$author$project$Types$ViewGameMsg($author$project$Types$ToggleNavbar))
-							]),
-						A2(
-							$elm$core$List$repeat,
-							3,
-							A2($elm$html$Html$span, _List_Nil, _List_Nil)))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu),
-						$elm$html$Html$Attributes$id(navbarId),
-						$elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
-							]))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarStart)
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$a,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
-										$elm$html$Html$Events$onClick($author$project$Types$ResetGame)
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('New game')
-									]))
-							]))
-					]))
-			]));
-};
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
@@ -9241,7 +9179,6 @@ var $author$project$Main$viewGame = function (game) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$viewNavbar(game.navbarExpanded),
 				A2(
 				$elm$html$Html$section,
 				_List_fromArray(
@@ -9261,6 +9198,147 @@ var $author$project$Main$viewGame = function (game) {
 						$author$project$Main$viewPlayerTiles(game.players)
 					])),
 				modal
+			]));
+};
+var $author$project$Types$ResetGame = {$: 'ResetGame'};
+var $author$project$Types$ToggleNavbar = {$: 'ToggleNavbar'};
+var $elm$html$Html$Attributes$height = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'height',
+		$elm$core$String$fromInt(n));
+};
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$img = _VirtualDom_node('img');
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger = 'navbar-burger';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarItem = 'navbar-item';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu = 'navbar-menu';
+var $ahstro$elm_bulma_classes$Bulma$Classes$navbarStart = 'navbar-start';
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var $elm$html$Html$Attributes$width = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'width',
+		$elm$core$String$fromInt(n));
+};
+var $author$project$Main$viewNavbar = function (isExpanded) {
+	var navbarId = 'duneNavbar';
+	return A2(
+		$elm$html$Html$section,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbar)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$img,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$src(''),
+										$elm$html$Html$Attributes$width(112),
+										$elm$html$Html$Attributes$height(28)
+									]),
+								_List_Nil)
+							])),
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger),
+								$elm$html$Html$Attributes$class('burger'),
+								$elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
+									])),
+								A2($elm$html$Html$Attributes$attribute, 'data-target', navbarId),
+								$elm$html$Html$Events$onClick($author$project$Types$ToggleNavbar)
+							]),
+						A2(
+							$elm$core$List$repeat,
+							3,
+							A2($elm$html$Html$span, _List_Nil, _List_Nil)))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarMenu),
+						$elm$html$Html$Attributes$id(navbarId),
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isActive, isExpanded)
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarStart)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$a,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
+										$elm$html$Html$Events$onClick($author$project$Types$ResetGame)
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('New game')
+									]))
+							]))
+					]))
 			]));
 };
 var $author$project$Types$CreateGame = function (a) {
@@ -9408,15 +9486,25 @@ var $author$project$Main$viewSetup = function (model) {
 };
 var $author$project$Main$view = function (model) {
 	var body = function () {
-		if (model.$ === 'ViewSetup') {
-			var setup = model.a;
+		var _v0 = model.page;
+		if (_v0.$ === 'ViewSetup') {
+			var setup = _v0.a;
 			return $author$project$Main$viewSetup(setup);
 		} else {
-			var game = model.a;
+			var game = _v0.a;
 			return $author$project$Main$viewGame(game);
 		}
 	}();
-	return body;
+	return A3(
+		$elm$html$Html$node,
+		'body',
+		_List_Nil,
+		_List_fromArray(
+			[
+				$author$project$Main$viewNavbar(model.navbarExpanded),
+				body,
+				$author$project$Main$viewFooter
+			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
