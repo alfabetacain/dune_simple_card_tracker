@@ -41,7 +41,7 @@ initSetup _ =
             ADict.fromList <| List.map (\faction -> ( faction, False )) factions
 
         model =
-            ViewSetup { factions = factionDict }
+            { navbarExpanded = False, page = ViewSetup { factions = factionDict } }
     in
     ( model, Ports.clearState )
 
@@ -57,7 +57,7 @@ init appState =
     in
     case savedState of
         Just (Ok game) ->
-            ( ViewGame game, Cmd.none )
+            ( { navbarExpanded = False, page = ViewGame game }, Cmd.none )
 
         _ ->
             let
@@ -67,7 +67,7 @@ init appState =
                 game =
                     createGame factions
             in
-            ( ViewGame game, Cmd.none )
+            ( { navbarExpanded = False, page = ViewGame game }, Cmd.none )
 
 
 updateFaction : (Player -> Player) -> Faction.Type -> List Player -> List Player
@@ -360,14 +360,11 @@ replaceOrInsert card cards =
                 h :: replaceOrInsert card t
 
 
-updateGame : GameMsg -> Game -> ( Model, Cmd Msg )
+updateGame : GameMsg -> Game -> ( Page, Cmd Msg )
 updateGame msg game =
     let
         ( updatedModel, changed ) =
             case msg of
-                ToggleNavbar ->
-                    ( { game | navbarExpanded = not game.navbarExpanded }, False )
-
                 Undo ->
                     ( popHistory game, True )
 
@@ -515,31 +512,46 @@ updateGame msg game =
     ( ViewGame updatedModel, cmd )
 
 
-updateSetup : SetupMsg -> Setup -> ( Model, Cmd Msg )
-updateSetup msg model =
+updateSetup : SetupMsg -> Model -> Setup -> ( Model, Cmd Msg )
+updateSetup msg parentModel model =
     case msg of
         CreateGame factions ->
-            withNoCommand <| ViewGame <| createGame (Faction.atreides :: factions)
+            let
+                ( newModel, cmd ) =
+                    withNoCommand <| ViewGame <| createGame (Faction.atreides :: factions)
+            in
+            ( { parentModel | page = newModel }, cmd )
 
         ToggleFaction faction ->
             let
                 updatedDict =
                     ADict.update faction (\v -> Maybe.map not v) model.factions
             in
-            withNoCommand <| ViewSetup { factions = updatedDict }
+            let
+                ( newModel, cmd ) =
+                    withNoCommand <| ViewSetup { factions = updatedDict }
+            in
+            ( { parentModel | page = newModel }, cmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model ) of
+    case ( msg, model.page ) of
         ( ViewGameMsg gameMsg, ViewGame game ) ->
-            updateGame gameMsg game
+            let
+                ( updatedGame, cmd ) =
+                    updateGame gameMsg game
+            in
+            ( { model | page = updatedGame }, cmd )
 
         ( ResetGame, ViewGame game ) ->
             initSetup ()
 
         ( ViewSetupMsg setupMsg, ViewSetup state ) ->
-            updateSetup setupMsg state
+            updateSetup setupMsg model state
+
+        ( ToggleNavbar, _ ) ->
+            ( { model | navbarExpanded = not model.navbarExpanded }, Cmd.none )
 
         ( _, _ ) ->
             let
@@ -722,7 +734,7 @@ viewNavbar isExpanded =
             [ a [ class Bulma.navbarItem ]
                 [ img [ src "", width 112, height 28 ] []
                 ]
-            , a [ class Bulma.navbarBurger, class "burger", classList [ ( Bulma.isActive, isExpanded ) ], Html.Attributes.attribute "data-target" navbarId, onClick (ViewGameMsg ToggleNavbar) ]
+            , a [ class Bulma.navbarBurger, class "burger", classList [ ( Bulma.isActive, isExpanded ) ], Html.Attributes.attribute "data-target" navbarId, onClick ToggleNavbar ]
                 (List.repeat 3 (span [] []))
             ]
         , div [ class Bulma.navbarMenu, Html.Attributes.id navbarId, classList [ ( Bulma.isActive, isExpanded ) ] ]
@@ -741,8 +753,7 @@ viewGame game =
     in
     Html.node "body"
         []
-        [ viewNavbar game.navbarExpanded
-        , section [ class Bulma.section ]
+        [ section [ class Bulma.section ]
             [ viewButtons
             , viewDeck <| List.concatMap (\player -> player.hand) game.players
             , viewPlayerTiles game.players
@@ -896,6 +907,22 @@ viewCombatModal model =
     View.modal modalTitle (ViewGameMsg CloseModal) body footer
 
 
+viewFooter : Html msg
+viewFooter =
+    let
+        inspiration =
+            "https://github.com/ohgoditspotato/atreides_mentat"
+    in
+    footer [ class Bulma.footer ]
+        [ div [ class Bulma.content, class Bulma.hasTextCentered ]
+            [ p []
+                [ text "Heavily inspired by "
+                , a [ Html.Attributes.href inspiration ] [ text inspiration ]
+                ]
+            ]
+        ]
+
+
 viewModal : List Card.Type -> Modal -> Html Msg
 viewModal _ modal =
     case modal of
@@ -913,11 +940,16 @@ view : Model -> Html Msg
 view model =
     let
         body =
-            case model of
+            case model.page of
                 ViewSetup setup ->
                     viewSetup setup
 
                 ViewGame game ->
                     viewGame game
     in
-    body
+    Html.node "body"
+        []
+        [ viewNavbar model.navbarExpanded
+        , body
+        , viewFooter
+        ]

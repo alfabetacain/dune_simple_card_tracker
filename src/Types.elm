@@ -87,7 +87,13 @@ type alias Setup =
     { factions : ADict.Dict Faction.Type Bool }
 
 
-type Model
+type alias Model =
+    { navbarExpanded : Bool
+    , page : Page
+    }
+
+
+type Page
     = ViewSetup Setup
     | ViewGame Game
 
@@ -120,7 +126,6 @@ type GameMsg
     | OpenBiddingPhaseModal
     | AssignBiddingPhaseCards (List ( Card.Type, Faction.Type ))
     | ModalMsg ModalMsg
-    | ToggleNavbar
     | CloseModal
     | FinishCombat Faction.Type (List CombatCard) Faction.Type (List CombatCard)
     | OpenCombatModal
@@ -130,3 +135,4 @@ type Msg
     = ViewSetupMsg SetupMsg
     | ViewGameMsg GameMsg
     | ResetGame
+    | ToggleNavbar
