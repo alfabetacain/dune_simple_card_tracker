@@ -5402,6 +5402,7 @@ var $elm$core$Dict$fromList = function (assocs) {
 		$elm$core$Dict$empty,
 		assocs);
 };
+var $author$project$Card$none = $author$project$Card$Card('None');
 var $author$project$Card$toString = function (card) {
 	var s = card.a;
 	return s;
@@ -5428,7 +5429,10 @@ var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
 				$author$project$Card$toString(c),
 				c);
 		},
-		A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards)));
+		A2(
+			$elm$core$List$cons,
+			$author$project$Card$unknown,
+			A2($elm$core$List$cons, $author$project$Card$none, $author$project$Card$uniqueCards))));
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -6937,11 +6941,23 @@ var $author$project$Main$updateCombatModal = F2(
 					model);
 			default:
 				var side = msg.a;
+				var card = msg.b;
 				var sideLens = $author$project$Main$chooseSideLens(side);
+				var isOn = function () {
+					var _v6 = $author$project$Card$fromString(card);
+					if (_v6.$ === 'Nothing') {
+						return false;
+					} else {
+						var c = _v6.a;
+						return !A2($author$project$Card$eq, $author$project$Card$none, c);
+					}
+				}();
 				return A3(
 					$arturopala$elm_monocle$Monocle$Lens$modify,
 					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideCheapHero),
-					$elm$core$Basics$not,
+					function (_v5) {
+						return isOn;
+					},
 					model);
 		}
 	});
@@ -8790,8 +8806,19 @@ var $author$project$Types$SelectWeapon = F2(
 	function (a, b) {
 		return {$: 'SelectWeapon', a: a, b: b};
 	});
+var $author$project$Types$ToggleCheapHero = F2(
+	function (a, b) {
+		return {$: 'ToggleCheapHero', a: a, b: b};
+	});
+var $author$project$Types$ToggleDefenseDiscard = function (a) {
+	return {$: 'ToggleDefenseDiscard', a: a};
+};
+var $author$project$Types$ToggleWeaponDiscard = function (a) {
+	return {$: 'ToggleWeaponDiscard', a: a};
+};
 var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
 var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasAddons = 'has-addons';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
@@ -8818,11 +8845,102 @@ var $author$project$Main$viewCombatModal = function (model) {
 					}
 				});
 		});
+	var viewCardSelectWithDiscard = F6(
+		function (name, cardSelectMsg, checkboxMsg, card, cards, isDiscard) {
+			var _v0 = isDiscard ? _Utils_Tuple2(
+				'Discard',
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDanger)) : _Utils_Tuple2(
+				'Keep',
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess));
+			var buttonText = _v0.a;
+			var buttonType = _v0.b;
+			return A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(name)
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
+									]),
+								_List_fromArray(
+									[
+										$author$project$View$selectControl(
+										{
+											current: card,
+											eq: $author$project$Card$eq,
+											isValid: true,
+											name: name,
+											onSelect: function (s) {
+												return $author$project$Types$ViewGameMsg(
+													$author$project$Types$ModalMsg(
+														$author$project$Types$CombatModalMsg(
+															cardSelectMsg(s))));
+											},
+											options: cards,
+											toHtml: function (c) {
+												return $elm$html$Html$text(
+													$author$project$Card$toString(c));
+											}
+										}),
+										A2(
+										$elm$html$Html$div,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+											]),
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$button,
+												_List_fromArray(
+													[
+														$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+														buttonType,
+														$elm$html$Html$Events$onClick(
+														$author$project$Types$ViewGameMsg(
+															$author$project$Types$ModalMsg(
+																$author$project$Types$CombatModalMsg(checkboxMsg))))
+													]),
+												_List_fromArray(
+													[
+														$elm$html$Html$text(buttonText)
+													]))
+											]))
+									]))
+							]))
+					]));
+		});
 	var viewCardSelect = F4(
 		function (name, msg, card, cards) {
 			return $author$project$View$select(
 				{
-					current: card.card,
+					current: card,
 					eq: $author$project$Card$eq,
 					isValid: true,
 					name: name,
@@ -8839,22 +8957,38 @@ var $author$project$Main$viewCombatModal = function (model) {
 					}
 				});
 		});
+	var modalTitle = 'Combat';
+	var footer = A2($elm$html$Html$div, _List_Nil, _List_Nil);
+	var cheapHeroCard = function (isOn) {
+		return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
+	};
 	var viewCards = F2(
 		function (side, combatSide) {
 			return _List_fromArray(
 				[
-					A4(
-					viewCardSelect,
+					A6(
+					viewCardSelectWithDiscard,
 					'Weapon',
 					$author$project$Types$SelectWeapon(side),
-					combatSide.weapon,
-					A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$weapons)),
-					A4(
-					viewCardSelect,
+					$author$project$Types$ToggleWeaponDiscard(side),
+					combatSide.weapon.card,
+					A2($elm$core$List$cons, $author$project$Card$none, $author$project$Card$weapons),
+					combatSide.weapon.discard),
+					A6(
+					viewCardSelectWithDiscard,
 					'Defense',
 					$author$project$Types$SelectDefense(side),
-					combatSide.defense,
-					A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$defenses))
+					$author$project$Types$ToggleDefenseDiscard(side),
+					combatSide.defense.card,
+					A2($elm$core$List$cons, $author$project$Card$none, $author$project$Card$defenses),
+					combatSide.defense.discard),
+					A4(
+					viewCardSelect,
+					'Cheap hero',
+					$author$project$Types$ToggleCheapHero(side),
+					cheapHeroCard(combatSide.cheapHero),
+					_List_fromArray(
+						[$author$project$Card$none, $author$project$Card$cheapHero]))
 				]);
 		});
 	var viewLeftSide = $elm$core$List$concat(
@@ -8881,8 +9015,6 @@ var $author$project$Main$viewCombatModal = function (model) {
 				]),
 				A2(viewCards, $author$project$Types$Right, model.right)
 			]));
-	var modalTitle = 'Combat';
-	var footer = A2($elm$html$Html$div, _List_Nil, _List_Nil);
 	var body = A2(
 		$elm$html$Html$div,
 		_List_fromArray(
