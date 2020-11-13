@@ -1,4 +1,4 @@
-module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Dict
 import Json.Decode as D
@@ -140,6 +140,15 @@ unknown =
 
 
 
+-- The absence of a card
+
+
+none : Type
+none =
+    Card "None"
+
+
+
 -- collections
 
 
@@ -168,7 +177,7 @@ uniqueCardsWithUnknown =
 
 cardsDict : Dict.Dict String Type
 cardsDict =
-    Dict.fromList <| List.map (\c -> ( toString c, c )) (unknown :: uniqueCards)
+    Dict.fromList <| List.map (\c -> ( toString c, c )) (unknown :: none :: uniqueCards)
 
 
 weapons =

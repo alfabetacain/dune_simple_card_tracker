@@ -283,12 +283,20 @@ updateCombatModal msg model =
             in
             Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | discard = not cc.discard }) model
 
-        ToggleCheapHero side ->
+        ToggleCheapHero side card ->
             let
+                isOn =
+                    case Card.fromString card of
+                        Nothing ->
+                            False
+
+                        Just c ->
+                            not <| Card.eq Card.none c
+
                 sideLens =
                     chooseSideLens side
             in
-            Lens.modify (Lens.compose sideLens sideCheapHero) not model
+            Lens.modify (Lens.compose sideLens sideCheapHero) (\_ -> isOn) model
 
 
 updateModal : ModalMsg -> Modal -> Modal
@@ -864,20 +872,70 @@ viewCombatModal model =
                 , isValid = not <| Faction.eq faction Faction.unknown
                 }
 
+        viewCardSelectWithDiscard name cardSelectMsg checkboxMsg card cards isDiscard =
+            let
+                ( buttonText, buttonType ) =
+                    if isDiscard then
+                        ( "Discard", class Bulma.isDanger )
+
+                    else
+                        ( "Keep", class Bulma.isSuccess )
+            in
+            div [ class Bulma.field, class Bulma.hasAddons ]
+                [ Html.label [ class Bulma.label ]
+                    [ text name ]
+                , Html.p [ class Bulma.control ]
+                    [ div [ class Bulma.field, class Bulma.hasAddons ]
+                        [ View.selectControl
+                            { eq = Card.eq
+                            , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| cardSelectMsg s
+                            , current = card
+                            , options = cards
+                            , toHtml = \c -> text <| Card.toString c
+                            , name = name
+                            , isValid = True
+                            }
+                        , div [ class Bulma.control ]
+                            [ button [ class Bulma.button, buttonType, onClick (ViewGameMsg <| ModalMsg <| CombatModalMsg checkboxMsg) ] [ text buttonText ]
+                            ]
+                        ]
+                    ]
+                ]
+
         viewCardSelect name msg card cards =
             View.select
                 { eq = Card.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
-                , current = card.card
+                , current = card
                 , options = cards
                 , toHtml = \c -> text <| Card.toString c
                 , name = name
                 , isValid = True
                 }
 
+        cheapHeroCard isOn =
+            if isOn then
+                Card.cheapHero
+
+            else
+                Card.none
+
         viewCards side combatSide =
-            [ viewCardSelect "Weapon" (SelectWeapon side) combatSide.weapon (Card.unknown :: Card.weapons)
-            , viewCardSelect "Defense" (SelectDefense side) combatSide.defense (Card.unknown :: Card.defenses)
+            [ viewCardSelectWithDiscard
+                "Weapon"
+                (SelectWeapon side)
+                (ToggleWeaponDiscard side)
+                combatSide.weapon.card
+                (Card.none :: Card.weapons)
+                combatSide.weapon.discard
+            , viewCardSelectWithDiscard
+                "Defense"
+                (SelectDefense side)
+                (ToggleDefenseDiscard side)
+                combatSide.defense.card
+                (Card.none :: Card.defenses)
+                combatSide.defense.discard
+            , viewCardSelect "Cheap hero" (ToggleCheapHero side) (cheapHeroCard combatSide.cheapHero) [ Card.none, Card.cheapHero ]
             ]
 
         viewLeftSide =

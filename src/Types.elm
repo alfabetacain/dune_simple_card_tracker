@@ -59,7 +59,7 @@ type CombatModalMsg
     = SelectFaction Side String
     | SelectWeapon Side String
     | SelectDefense Side String
-    | ToggleCheapHero Side
+    | ToggleCheapHero Side String
     | ToggleWeaponDiscard Side
     | ToggleDefenseDiscard Side
 
