@@ -126,7 +126,7 @@ view model =
         modalTitle =
             "Combat"
 
-        viewFactionSelect faction msg =
+        viewFactionSelect faction otherFaction msg =
             View.select
                 { eq = Faction.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
@@ -135,7 +135,9 @@ view model =
                 , toHtml = \f -> text <| Faction.toString f
                 , toValueString = Faction.toString
                 , name = "Faction"
-                , isValid = not <| Faction.eq faction Faction.unknown
+                , isValid =
+                    not (Faction.eq faction Faction.unknown)
+                        && not (Faction.eq faction otherFaction)
                 }
 
         viewCardSelectWithDiscard name cardSelectMsg checkboxMsg card cards isDiscard =
@@ -207,13 +209,13 @@ view model =
 
         viewLeftSide =
             List.concat
-                [ [ viewFactionSelect model.left.faction (SelectFaction Left) ]
+                [ [ viewFactionSelect model.left.faction model.right.faction (SelectFaction Left) ]
                 , viewCards Left model.left
                 ]
 
         viewRightSide =
             List.concat
-                [ [ viewFactionSelect model.right.faction (SelectFaction Right) ]
+                [ [ viewFactionSelect model.right.faction model.left.faction (SelectFaction Right) ]
                 , viewCards Right model.right
                 ]
 
@@ -227,7 +229,9 @@ view model =
                 ]
 
         isValid =
-            (not <| Faction.eq Faction.unknown model.left.faction) && (not <| Faction.eq Faction.unknown model.right.faction)
+            not (Faction.eq Faction.unknown model.left.faction)
+                && not (Faction.eq Faction.unknown model.right.faction)
+                && not (Faction.eq model.left.faction model.right.faction)
 
         footer =
             div []

@@ -13,6 +13,8 @@ import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
 import Json.Decode
 import List.Extra as ListE
+import Modal.AddCard
+import Modal.Bidding
 import Modal.Combat
 import Monocle.Lens as Lens exposing (Lens)
 import Ports
@@ -202,42 +204,11 @@ updateModal msg modalModel =
                 Just card ->
                     ModalChangeCard { model | selectedCard = card }
 
-        ( AddBid, ModalBidding model ) ->
-            ModalBidding
-                { model | bids = Array.push ( Card.unknown, Faction.unknown ) model.bids }
+        ( BiddingModalMsg biddingMsg, ModalBidding model ) ->
+            ModalBidding <| Modal.Bidding.update biddingMsg model
 
-        ( ResetBids, ModalBidding model ) ->
-            ModalBidding { model | bids = Array.push ( Card.unknown, Faction.unknown ) Array.empty }
-
-        ( SelectBiddingCard index cardString, ModalBidding model ) ->
-            let
-                updateBid card =
-                    case Array.get index model.bids of
-                        Nothing ->
-                            modalModel
-
-                        Just ( _, faction ) ->
-                            ModalBidding { model | bids = Array.set index ( card, faction ) model.bids }
-
-                maybeUpdated =
-                    Maybe.map updateBid (Card.fromString cardString)
-            in
-            Maybe.withDefault modalModel maybeUpdated
-
-        ( SelectBiddingFaction index factionString, ModalBidding model ) ->
-            let
-                updateBid faction =
-                    case Array.get index model.bids of
-                        Nothing ->
-                            modalModel
-
-                        Just ( card, _ ) ->
-                            ModalBidding { model | bids = Array.set index ( card, faction ) model.bids }
-
-                maybeUpdated =
-                    Maybe.map updateBid (Faction.fromString factionString)
-            in
-            Maybe.withDefault modalModel maybeUpdated
+        ( AddCardModalMsg addCardMsg, ModalAddCard model ) ->
+            ModalAddCard <| Modal.AddCard.update addCardMsg model
 
         ( _, _ ) ->
             modalModel
@@ -314,6 +285,13 @@ updateGame msg game =
                             ModalBidding initialState
                     in
                     ( withHistory OpenBiddingPhaseModal { game | modal = Just biddingModal }, True )
+
+                OpenAddCardModal ->
+                    let
+                        initialState =
+                            { card = Card.unknown, faction = Faction.unknown }
+                    in
+                    ( withHistory OpenAddCardModal { game | modal = Just <| ModalAddCard initialState }, True )
 
                 OpenCombatModal ->
                     let
@@ -640,6 +618,13 @@ viewButtons =
         [ div [ class Bulma.levelLeft ] []
         , div [ class Bulma.levelRight ]
             [ button
+                [ Html.Attributes.id "add-card-modal-button"
+                , class Bulma.levelItem
+                , class Bulma.button
+                , onClick <| ViewGameMsg OpenAddCardModal
+                ]
+                [ text "Add card" ]
+            , button
                 [ Html.Attributes.id "bidding-phase-button"
                 , class Bulma.levelItem
                 , class Bulma.button
@@ -716,78 +701,6 @@ viewChangeCardModal model =
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
 
-viewBiddingModal : ModalBiddingModel -> Html Msg
-viewBiddingModal model =
-    let
-        validFactionsSelected =
-            List.all (\bid -> not <| Faction.eq Faction.unknown (Tuple.second bid)) (Array.toList model.bids)
-
-        modalTitle =
-            "Bidding"
-
-        viewCardTypeSelectControl index card =
-            View.select
-                { eq = Card.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| SelectBiddingCard index s
-                , current = card
-                , options = Card.uniqueCardsWithUnknown
-                , toHtml = \c -> text <| Card.toString c
-                , toValueString = Card.toString
-                , name = "Card"
-                , isValid = True
-                }
-
-        viewFactionSelectControl index faction =
-            View.select
-                { eq = Faction.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| SelectBiddingFaction index s
-                , current = faction
-                , options = Faction.factionsWithUnknown
-                , toHtml = \f -> text <| Faction.toString f
-                , toValueString = Faction.toString
-                , name = "Faction"
-                , isValid = not <| Faction.eq faction Faction.unknown
-                }
-
-        viewBid index bid =
-            case bid of
-                ( card, faction ) ->
-                    div [ class Bulma.field, class Bulma.isGrouped ]
-                        [ viewCardTypeSelectControl index card
-                        , viewFactionSelectControl index faction
-                        ]
-
-        bidsList =
-            Array.toList model.bids
-
-        body =
-            div [ class Bulma.container ] <| List.indexedMap viewBid bidsList
-
-        footerChild =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| AssignBiddingPhaseCards bidsList
-                    , disabled (not validFactionsSelected)
-                    ]
-                    [ text "Assign bids" ]
-                , button
-                    [ class Bulma.button
-                    , class Bulma.isInfo
-                    , onClick <| ViewGameMsg <| ModalMsg <| AddBid
-                    ]
-                    [ text "Add bid" ]
-                , button
-                    [ class Bulma.button
-                    , onClick <| ViewGameMsg <| ModalMsg ResetBids
-                    ]
-                    [ text "Reset" ]
-                ]
-    in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
-
-
 viewFooter : Html msg
 viewFooter =
     let
@@ -811,10 +724,13 @@ viewModal _ modal =
             viewChangeCardModal model
 
         ModalBidding model ->
-            viewBiddingModal model
+            Modal.Bidding.view model
 
         ModalCombat model ->
             Modal.Combat.view model
+
+        ModalAddCard model ->
+            Modal.AddCard.view model
 
 
 view : Model -> Html Msg
