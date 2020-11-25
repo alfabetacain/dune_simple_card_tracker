@@ -7332,21 +7332,31 @@ var $author$project$Main$updateGame = F2(
 								});
 						});
 					var rightFaction = rightSide.faction;
-					var rightCards = rightSide.cheapHero ? _List_fromArray(
-						[
-							rightSide.weapon,
-							rightSide.defense,
-							{card: $author$project$Card$cheapHero, discard: true}
-						]) : _List_fromArray(
-						[rightSide.weapon, rightSide.defense]);
+					var rightCards = A2(
+						$elm$core$List$filter,
+						function (c) {
+							return !A2($author$project$Card$eq, c.card, $author$project$Card$none);
+						},
+						rightSide.cheapHero ? _List_fromArray(
+							[
+								rightSide.weapon,
+								rightSide.defense,
+								{card: $author$project$Card$cheapHero, discard: true}
+							]) : _List_fromArray(
+							[rightSide.weapon, rightSide.defense]));
 					var leftFaction = leftSide.faction;
-					var leftCards = leftSide.cheapHero ? _List_fromArray(
-						[
-							leftSide.weapon,
-							leftSide.defense,
-							{card: $author$project$Card$cheapHero, discard: true}
-						]) : _List_fromArray(
-						[leftSide.weapon, leftSide.defense]);
+					var leftCards = A2(
+						$elm$core$List$filter,
+						function (c) {
+							return !A2($author$project$Card$eq, c.card, $author$project$Card$none);
+						},
+						leftSide.cheapHero ? _List_fromArray(
+							[
+								leftSide.weapon,
+								leftSide.defense,
+								{card: $author$project$Card$cheapHero, discard: true}
+							]) : _List_fromArray(
+							[leftSide.weapon, leftSide.defense]));
 					var updatedGame = A3(
 						updatePlayer,
 						rightCards,
