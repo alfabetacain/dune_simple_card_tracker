@@ -13,10 +13,8 @@ import Html.Events exposing (onClick, onInput)
 import Html5.DragDrop as DragDrop
 import Json.Decode
 import List.Extra as ListE
-import Monocle.Common
-import Monocle.Compose
+import Modal.Combat
 import Monocle.Lens as Lens exposing (Lens)
-import Monocle.Optional as Optional exposing (Optional)
 import Ports
 import Types exposing (..)
 import View
@@ -190,120 +188,11 @@ popHistory game =
     { updatedGame | history = tailHistory }
 
 
-selectLeftSide : Lens ModalCombatModel CombatSide
-selectLeftSide =
-    Lens .left (\b a -> { a | left = b })
-
-
-selectRightSide : Lens ModalCombatModel CombatSide
-selectRightSide =
-    Lens .right (\b a -> { a | right = b })
-
-
-sideWeapon : Lens CombatSide CombatCard
-sideWeapon =
-    Lens .weapon (\b a -> { a | weapon = b })
-
-
-sideDefense : Lens CombatSide CombatCard
-sideDefense =
-    Lens .defense (\b a -> { a | defense = b })
-
-
-sideCheapHero : Lens CombatSide Bool
-sideCheapHero =
-    Lens .cheapHero (\b a -> { a | cheapHero = b })
-
-
-sideFaction : Lens CombatSide Faction.Type
-sideFaction =
-    Lens .faction (\b a -> { a | faction = b })
-
-
-chooseSideLens : Side -> Lens ModalCombatModel CombatSide
-chooseSideLens side =
-    case side of
-        Left ->
-            selectLeftSide
-
-        Right ->
-            selectRightSide
-
-
-updateCombatModal : CombatModalMsg -> ModalCombatModel -> ModalCombatModel
-updateCombatModal msg model =
-    case msg of
-        SelectFaction side faction ->
-            case Faction.fromString faction of
-                Just f ->
-                    let
-                        sideLens =
-                            chooseSideLens side
-                    in
-                    Lens.modify (Lens.compose sideLens sideFaction) (\_ -> f) model
-
-                Nothing ->
-                    model
-
-        SelectWeapon side card ->
-            case Card.fromString card of
-                Just c ->
-                    let
-                        sideLens =
-                            chooseSideLens side
-                    in
-                    Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | card = c }) model
-
-                Nothing ->
-                    model
-
-        SelectDefense side card ->
-            case Card.fromString card of
-                Just c ->
-                    let
-                        sideLens =
-                            chooseSideLens side
-                    in
-                    Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | card = c }) model
-
-                Nothing ->
-                    model
-
-        ToggleWeaponDiscard side ->
-            let
-                sideLens =
-                    chooseSideLens side
-            in
-            Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | discard = not cc.discard }) model
-
-        ToggleDefenseDiscard side ->
-            let
-                sideLens =
-                    chooseSideLens side
-            in
-            Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | discard = not cc.discard }) model
-
-        ToggleCheapHero side card ->
-            let
-                isOn =
-                    case Card.fromString card of
-                        Nothing ->
-                            False
-
-                        Just c ->
-                            not <| Card.eq Card.none c
-
-                sideLens =
-                    chooseSideLens side
-            in
-            Lens.modify (Lens.compose sideLens sideCheapHero) (\_ -> isOn) model
-
-
 updateModal : ModalMsg -> Modal -> Modal
 updateModal msg modalModel =
     case ( msg, modalModel ) of
         ( CombatModalMsg combatMsg, ModalCombat model ) ->
-            ModalCombat <| updateCombatModal combatMsg model
+            ModalCombat <| Modal.Combat.update combatMsg model
 
         ( SelectIdentifyCard cardString, ModalChangeCard model ) ->
             case Card.fromString cardString of
@@ -430,8 +319,8 @@ updateGame msg game =
                     let
                         initialSide =
                             { faction = Faction.unknown
-                            , weapon = { card = Card.unknown, discard = False }
-                            , defense = { card = Card.unknown, discard = False }
+                            , weapon = { card = Card.none, discard = False }
+                            , defense = { card = Card.none, discard = False }
                             , cheapHero = False
                             }
 
@@ -452,8 +341,38 @@ updateGame msg game =
                     in
                     ( withHistory (ChangeCardViaModal changeRequest) { game | players = updatedPlayers, modal = Nothing }, True )
 
-                FinishCombat leftFaction leftCards rightFaction rightCards ->
+                FinishCombat leftSide rightSide ->
                     let
+                        leftFaction =
+                            leftSide.faction
+
+                        leftCards =
+                            if leftSide.cheapHero then
+                                [ leftSide.weapon
+                                , leftSide.defense
+                                , { card = Card.cheapHero, discard = True }
+                                ]
+
+                            else
+                                [ leftSide.weapon
+                                , leftSide.defense
+                                ]
+
+                        rightFaction =
+                            rightSide.faction
+
+                        rightCards =
+                            if rightSide.cheapHero then
+                                [ rightSide.weapon
+                                , rightSide.defense
+                                , { card = Card.cheapHero, discard = True }
+                                ]
+
+                            else
+                                [ rightSide.weapon
+                                , rightSide.defense
+                                ]
+
                         updateWithCard card cards =
                             if List.any (\c -> Card.eq card c) cards then
                                 cards
@@ -476,7 +395,7 @@ updateGame msg game =
                         updatedGame =
                             updatePlayer rightCards rightFaction <| updatePlayer leftCards leftFaction game
                     in
-                    ( withHistory (FinishCombat leftFaction leftCards rightFaction rightCards) { updatedGame | modal = Nothing }, True )
+                    ( withHistory (FinishCombat leftSide rightSide) { updatedGame | modal = Nothing }, True )
 
                 AssignBiddingPhaseCards cards ->
                     let
@@ -573,10 +492,14 @@ viewSetup : Setup -> Html Msg
 viewSetup model =
     let
         factionField faction =
+            let
+                idAttribute =
+                    Html.Attributes.id <| String.toLower <| String.replace " " "-" <| Faction.toString faction ++ "-faction-toggle"
+            in
             div [ class Bulma.field ]
                 [ div [ class Bulma.control ]
                     [ label [ class Bulma.checkbox ]
-                        [ input [ type_ "checkbox", checked <| Maybe.withDefault False <| ADict.get faction model.factions, onClick (ViewSetupMsg <| ToggleFaction faction) ] []
+                        [ input [ idAttribute, type_ "checkbox", checked <| Maybe.withDefault False <| ADict.get faction model.factions, onClick (ViewSetupMsg <| ToggleFaction faction) ] []
                         , text (Faction.toString faction)
                         ]
                     ]
@@ -592,11 +515,16 @@ viewSetup model =
         startGameField =
             div [ class Bulma.field ]
                 [ div [ class Bulma.control ]
-                    [ button [ class Bulma.button, class Bulma.isLink, onClick (ViewSetupMsg <| CreateGame currentSelectedFactions) ] [ text "Create game" ]
+                    [ button [ Html.Attributes.id "create-game-button", class Bulma.button, class Bulma.isLink, onClick (ViewSetupMsg <| CreateGame currentSelectedFactions) ] [ text "Create game" ]
                     ]
                 ]
     in
     Html.node "body" [] [ section [ class Bulma.section ] <| List.concat [ fields, [ startGameField ] ] ]
+
+
+toHtmlId : String -> String
+toHtmlId s =
+    String.replace " " "-" <| String.toLower s
 
 
 viewPlayerTiles : List Player -> Html Msg
@@ -619,7 +547,7 @@ viewPlayerTiles players =
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
                     [ div [ class Bulma.container ]
                         [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
-                        , ul [] <| List.map (\card -> viewCard card player.faction) player.hand
+                        , ul [ Html.Attributes.id <| (toHtmlId <| Faction.toString player.faction) ++ "-cards" ] <| List.map (\card -> viewCard card player.faction) player.hand
                         ]
                     ]
                 ]
@@ -710,7 +638,8 @@ viewButtons =
         [ div [ class Bulma.levelLeft ] []
         , div [ class Bulma.levelRight ]
             [ button
-                [ class Bulma.levelItem
+                [ Html.Attributes.id "bidding-phase-button"
+                , class Bulma.levelItem
                 , class Bulma.button
                 , onClick <| ViewGameMsg OpenBiddingPhaseModal
                 ]
@@ -742,12 +671,12 @@ viewNavbar isExpanded =
             [ a [ class Bulma.navbarItem ]
                 [ img [ src "", width 112, height 28 ] []
                 ]
-            , a [ class Bulma.navbarBurger, class "burger", classList [ ( Bulma.isActive, isExpanded ) ], Html.Attributes.attribute "data-target" navbarId, onClick ToggleNavbar ]
+            , a [ Html.Attributes.id "navbar-expand-button", class Bulma.navbarBurger, class "burger", classList [ ( Bulma.isActive, isExpanded ) ], Html.Attributes.attribute "data-target" navbarId, onClick ToggleNavbar ]
                 (List.repeat 3 (span [] []))
             ]
         , div [ class Bulma.navbarMenu, Html.Attributes.id navbarId, classList [ ( Bulma.isActive, isExpanded ) ] ]
             [ div [ class Bulma.navbarStart ]
-                [ a [ class Bulma.navbarItem, onClick ResetGame ] [ text "New game" ]
+                [ a [ Html.Attributes.id "new-game-button", class Bulma.navbarItem, onClick ResetGame ] [ text "New game" ]
                 ]
             ]
         ]
@@ -780,7 +709,7 @@ viewChangeCardModal model =
             View.cardTypeSelect Card.uniqueCardsWithUnknown (\s -> ViewGameMsg <| ModalMsg <| SelectIdentifyCard s) model.selectedCard
 
         footerChild =
-            View.button [ class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
+            View.button [ Html.Attributes.id "identify-card-button", class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
     in
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
@@ -801,6 +730,7 @@ viewBiddingModal model =
                 , current = card
                 , options = Card.uniqueCardsWithUnknown
                 , toHtml = \c -> text <| Card.toString c
+                , toValueString = Card.toString
                 , name = "Card"
                 , isValid = True
                 }
@@ -812,6 +742,7 @@ viewBiddingModal model =
                 , current = faction
                 , options = Faction.factionsWithUnknown
                 , toHtml = \f -> text <| Faction.toString f
+                , toValueString = Faction.toString
                 , name = "Faction"
                 , isValid = not <| Faction.eq faction Faction.unknown
                 }
@@ -855,116 +786,6 @@ viewBiddingModal model =
     View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
 
 
-viewCombatModal : ModalCombatModel -> Html Msg
-viewCombatModal model =
-    let
-        modalTitle =
-            "Combat"
-
-        viewFactionSelect faction msg =
-            View.select
-                { eq = Faction.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
-                , current = faction
-                , options = Faction.factionsWithUnknown
-                , toHtml = \f -> text <| Faction.toString f
-                , name = "Faction"
-                , isValid = not <| Faction.eq faction Faction.unknown
-                }
-
-        viewCardSelectWithDiscard name cardSelectMsg checkboxMsg card cards isDiscard =
-            let
-                ( buttonText, buttonType ) =
-                    if isDiscard then
-                        ( "Discard", class Bulma.isDanger )
-
-                    else
-                        ( "Keep", class Bulma.isSuccess )
-            in
-            div [ class Bulma.field, class Bulma.hasAddons ]
-                [ Html.label [ class Bulma.label ]
-                    [ text name ]
-                , Html.p [ class Bulma.control ]
-                    [ div [ class Bulma.field, class Bulma.hasAddons ]
-                        [ View.selectControl
-                            { eq = Card.eq
-                            , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| cardSelectMsg s
-                            , current = card
-                            , options = cards
-                            , toHtml = \c -> text <| Card.toString c
-                            , name = name
-                            , isValid = True
-                            }
-                        , div [ class Bulma.control ]
-                            [ button [ class Bulma.button, buttonType, onClick (ViewGameMsg <| ModalMsg <| CombatModalMsg checkboxMsg) ] [ text buttonText ]
-                            ]
-                        ]
-                    ]
-                ]
-
-        viewCardSelect name msg card cards =
-            View.select
-                { eq = Card.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
-                , current = card
-                , options = cards
-                , toHtml = \c -> text <| Card.toString c
-                , name = name
-                , isValid = True
-                }
-
-        cheapHeroCard isOn =
-            if isOn then
-                Card.cheapHero
-
-            else
-                Card.none
-
-        viewCards side combatSide =
-            [ viewCardSelectWithDiscard
-                "Weapon"
-                (SelectWeapon side)
-                (ToggleWeaponDiscard side)
-                combatSide.weapon.card
-                (Card.none :: Card.weapons)
-                combatSide.weapon.discard
-            , viewCardSelectWithDiscard
-                "Defense"
-                (SelectDefense side)
-                (ToggleDefenseDiscard side)
-                combatSide.defense.card
-                (Card.none :: Card.defenses)
-                combatSide.defense.discard
-            , viewCardSelect "Cheap hero" (ToggleCheapHero side) (cheapHeroCard combatSide.cheapHero) [ Card.none, Card.cheapHero ]
-            ]
-
-        viewLeftSide =
-            List.concat
-                [ [ viewFactionSelect model.left.faction (SelectFaction Left) ]
-                , viewCards Left model.left
-                ]
-
-        viewRightSide =
-            List.concat
-                [ [ viewFactionSelect model.right.faction (SelectFaction Right) ]
-                , viewCards Right model.right
-                ]
-
-        body =
-            div [ class Bulma.columns ]
-                [ div [ class Bulma.column, class Bulma.hasTextLeft, class Bulma.isTwoFifths ]
-                    viewLeftSide
-                , div [ class Bulma.column, class Bulma.hasTextCentered, class Bulma.isOneFifth ] [ text "VS" ]
-                , div [ class Bulma.column, class Bulma.hasTextRight, class Bulma.isTwoFifths ]
-                    viewRightSide
-                ]
-
-        footer =
-            div [] []
-    in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footer
-
-
 viewFooter : Html msg
 viewFooter =
     let
@@ -991,7 +812,7 @@ viewModal _ modal =
             viewBiddingModal model
 
         ModalCombat model ->
-            viewCombatModal model
+            Modal.Combat.view model
 
 
 view : Model -> Html Msg

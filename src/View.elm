@@ -1,4 +1,4 @@
-module View exposing (SelectConfig, button, cardTypeSelect, modal, select, selectControl)
+module View exposing (SelectConfig, SelectWithButtonConfig, button, cardTypeSelect, modal, select, selectControl, selectWithButton)
 
 import Bulma.Classes as Bulma
 import Card
@@ -15,7 +15,16 @@ type alias SelectConfig a msg =
     , options : List a
     , name : String
     , toHtml : a -> Html msg
+    , toValueString : a -> String
     , isValid : Bool
+    }
+
+
+type alias SelectWithButtonConfig a msg =
+    { selectConfig : SelectConfig a msg
+    , onButtonClick : msg
+    , buttonClass : Html.Attribute msg
+    , buttonText : String
     }
 
 
@@ -23,7 +32,7 @@ selectControl : SelectConfig a msg -> Html msg
 selectControl config =
     div [ class Bulma.control ]
         [ div [ class Bulma.select, classList [ ( Bulma.isDanger, not config.isValid ) ] ]
-            [ Html.select [ onInput config.onSelect ] <| List.map (\x -> option [ Html.Attributes.selected (config.eq x config.current) ] [ config.toHtml x ]) config.options
+            [ Html.select [ onInput config.onSelect ] <| List.map (\x -> option [ Html.Attributes.value (config.toValueString x), Html.Attributes.selected (config.eq x config.current) ] [ config.toHtml x ]) config.options
             ]
         ]
 
@@ -36,6 +45,22 @@ select config =
         ]
 
 
+selectWithButton : SelectWithButtonConfig a msg -> Html msg
+selectWithButton config =
+    div [ class Bulma.field ]
+        [ Html.label [ class Bulma.label ]
+            [ text config.selectConfig.name ]
+        , Html.div [ class Bulma.control ]
+            [ div [ class Bulma.field, class Bulma.hasAddons ]
+                [ selectControl config.selectConfig
+                , div [ class Bulma.control ]
+                    [ Html.button [ class Bulma.button, config.buttonClass, onClick config.onButtonClick ] [ text config.buttonText ]
+                    ]
+                ]
+            ]
+        ]
+
+
 cardTypeSelect : List Card.Type -> (String -> msg) -> Card.Type -> Html msg
 cardTypeSelect cards onSelect selectedCard =
     select
@@ -44,6 +69,7 @@ cardTypeSelect cards onSelect selectedCard =
         , current = selectedCard
         , options = cards
         , toHtml = \c -> text <| Card.toString c
+        , toValueString = Card.toString
         , name = "Card"
         , isValid = True
         }

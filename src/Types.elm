@@ -127,7 +127,7 @@ type GameMsg
     | AssignBiddingPhaseCards (List ( Card.Type, Faction.Type ))
     | ModalMsg ModalMsg
     | CloseModal
-    | FinishCombat Faction.Type (List CombatCard) Faction.Type (List CombatCard)
+    | FinishCombat CombatSide CombatSide
     | OpenCombatModal
 
 

@@ -130,7 +130,7 @@ encodeGameMsg msg =
         DragDropCardToFaction _ ->
             E.null
 
-        FinishCombat _ _ _ _ ->
+        FinishCombat _ _ ->
             E.null
 
         OpenCombatModal ->
