@@ -5997,9 +5997,9 @@ var $author$project$Main$initSetup = function (_v0) {
 	};
 	return _Utils_Tuple2(model, $author$project$Ports$clearState);
 };
-var $author$project$Types$FinishCombat = F4(
-	function (a, b, c, d) {
-		return {$: 'FinishCombat', a: a, b: b, c: c, d: d};
+var $author$project$Types$FinishCombat = F2(
+	function (a, b) {
+		return {$: 'FinishCombat', a: a, b: b};
 	});
 var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
@@ -6751,7 +6751,7 @@ var $arturopala$elm_monocle$Monocle$Lens$Lens = F2(
 	function (get, set) {
 		return {get: get, set: set};
 	});
-var $author$project$Main$selectLeftSide = A2(
+var $author$project$Modal$Combat$selectLeftSide = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.left;
@@ -6762,7 +6762,7 @@ var $author$project$Main$selectLeftSide = A2(
 				a,
 				{left: b});
 		}));
-var $author$project$Main$selectRightSide = A2(
+var $author$project$Modal$Combat$selectRightSide = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.right;
@@ -6773,11 +6773,11 @@ var $author$project$Main$selectRightSide = A2(
 				a,
 				{right: b});
 		}));
-var $author$project$Main$chooseSideLens = function (side) {
+var $author$project$Modal$Combat$chooseSideLens = function (side) {
 	if (side.$ === 'Left') {
-		return $author$project$Main$selectLeftSide;
+		return $author$project$Modal$Combat$selectLeftSide;
 	} else {
-		return $author$project$Main$selectRightSide;
+		return $author$project$Modal$Combat$selectRightSide;
 	}
 };
 var $elm$core$Basics$composeR = F3(
@@ -6813,7 +6813,7 @@ var $arturopala$elm_monocle$Monocle$Lens$modify = F2(
 		};
 		return mf;
 	});
-var $author$project$Main$sideCheapHero = A2(
+var $author$project$Modal$Combat$sideCheapHero = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.cheapHero;
@@ -6824,7 +6824,7 @@ var $author$project$Main$sideCheapHero = A2(
 				a,
 				{cheapHero: b});
 		}));
-var $author$project$Main$sideDefense = A2(
+var $author$project$Modal$Combat$sideDefense = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.defense;
@@ -6835,7 +6835,7 @@ var $author$project$Main$sideDefense = A2(
 				a,
 				{defense: b});
 		}));
-var $author$project$Main$sideFaction = A2(
+var $author$project$Modal$Combat$sideFaction = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.faction;
@@ -6846,7 +6846,7 @@ var $author$project$Main$sideFaction = A2(
 				a,
 				{faction: b});
 		}));
-var $author$project$Main$sideWeapon = A2(
+var $author$project$Modal$Combat$sideWeapon = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.weapon;
@@ -6857,7 +6857,7 @@ var $author$project$Main$sideWeapon = A2(
 				a,
 				{weapon: b});
 		}));
-var $author$project$Main$updateCombatModal = F2(
+var $author$project$Modal$Combat$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'SelectFaction':
@@ -6866,10 +6866,10 @@ var $author$project$Main$updateCombatModal = F2(
 				var _v1 = $author$project$Faction$fromString(faction);
 				if (_v1.$ === 'Just') {
 					var f = _v1.a;
-					var sideLens = $author$project$Main$chooseSideLens(side);
+					var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 					return A3(
 						$arturopala$elm_monocle$Monocle$Lens$modify,
-						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideFaction),
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideFaction),
 						function (_v2) {
 							return f;
 						},
@@ -6883,10 +6883,10 @@ var $author$project$Main$updateCombatModal = F2(
 				var _v3 = $author$project$Card$fromString(card);
 				if (_v3.$ === 'Just') {
 					var c = _v3.a;
-					var sideLens = $author$project$Main$chooseSideLens(side);
+					var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 					return A3(
 						$arturopala$elm_monocle$Monocle$Lens$modify,
-						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideWeapon),
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideWeapon),
 						function (cc) {
 							return _Utils_update(
 								cc,
@@ -6902,10 +6902,10 @@ var $author$project$Main$updateCombatModal = F2(
 				var _v4 = $author$project$Card$fromString(card);
 				if (_v4.$ === 'Just') {
 					var c = _v4.a;
-					var sideLens = $author$project$Main$chooseSideLens(side);
+					var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 					return A3(
 						$arturopala$elm_monocle$Monocle$Lens$modify,
-						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideDefense),
+						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideDefense),
 						function (cc) {
 							return _Utils_update(
 								cc,
@@ -6917,10 +6917,10 @@ var $author$project$Main$updateCombatModal = F2(
 				}
 			case 'ToggleWeaponDiscard':
 				var side = msg.a;
-				var sideLens = $author$project$Main$chooseSideLens(side);
+				var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 				return A3(
 					$arturopala$elm_monocle$Monocle$Lens$modify,
-					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideWeapon),
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideWeapon),
 					function (cc) {
 						return _Utils_update(
 							cc,
@@ -6929,10 +6929,10 @@ var $author$project$Main$updateCombatModal = F2(
 					model);
 			case 'ToggleDefenseDiscard':
 				var side = msg.a;
-				var sideLens = $author$project$Main$chooseSideLens(side);
+				var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 				return A3(
 					$arturopala$elm_monocle$Monocle$Lens$modify,
-					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideDefense),
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideDefense),
 					function (cc) {
 						return _Utils_update(
 							cc,
@@ -6942,7 +6942,7 @@ var $author$project$Main$updateCombatModal = F2(
 			default:
 				var side = msg.a;
 				var card = msg.b;
-				var sideLens = $author$project$Main$chooseSideLens(side);
+				var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
 				var isOn = function () {
 					var _v6 = $author$project$Card$fromString(card);
 					if (_v6.$ === 'Nothing') {
@@ -6954,7 +6954,7 @@ var $author$project$Main$updateCombatModal = F2(
 				}();
 				return A3(
 					$arturopala$elm_monocle$Monocle$Lens$modify,
-					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Main$sideCheapHero),
+					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideCheapHero),
 					function (_v5) {
 						return isOn;
 					},
@@ -6972,7 +6972,7 @@ var $author$project$Main$updateModal = F2(
 						var combatMsg = _v0.a.a;
 						var model = _v0.b.a;
 						return $author$project$Types$ModalCombat(
-							A2($author$project$Main$updateCombatModal, combatMsg, model));
+							A2($author$project$Modal$Combat$update, combatMsg, model));
 					} else {
 						break _v0$6;
 					}
@@ -7238,9 +7238,9 @@ var $author$project$Main$updateGame = F2(
 				case 'OpenCombatModal':
 					var initialSide = {
 						cheapHero: false,
-						defense: {card: $author$project$Card$unknown, discard: false},
+						defense: {card: $author$project$Card$none, discard: false},
 						faction: $author$project$Faction$unknown,
-						weapon: {card: $author$project$Card$unknown, discard: false}
+						weapon: {card: $author$project$Card$none, discard: false}
 					};
 					var initialState = {left: initialSide, right: initialSide};
 					return _Utils_Tuple2(
@@ -7291,10 +7291,8 @@ var $author$project$Main$updateGame = F2(
 								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers})),
 						true);
 				case 'FinishCombat':
-					var leftFaction = msg.a;
-					var leftCards = msg.b;
-					var rightFaction = msg.c;
-					var rightCards = msg.d;
+					var leftSide = msg.a;
+					var rightSide = msg.b;
 					var updateWithCard = F2(
 						function (card, cards) {
 							return A2(
@@ -7333,6 +7331,22 @@ var $author$project$Main$updateGame = F2(
 										game_.players)
 								});
 						});
+					var rightFaction = rightSide.faction;
+					var rightCards = rightSide.cheapHero ? _List_fromArray(
+						[
+							rightSide.weapon,
+							rightSide.defense,
+							{card: $author$project$Card$cheapHero, discard: true}
+						]) : _List_fromArray(
+						[rightSide.weapon, rightSide.defense]);
+					var leftFaction = leftSide.faction;
+					var leftCards = leftSide.cheapHero ? _List_fromArray(
+						[
+							leftSide.weapon,
+							leftSide.defense,
+							{card: $author$project$Card$cheapHero, discard: true}
+						]) : _List_fromArray(
+						[leftSide.weapon, leftSide.defense]);
 					var updatedGame = A3(
 						updatePlayer,
 						rightCards,
@@ -7341,7 +7355,7 @@ var $author$project$Main$updateGame = F2(
 					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
-							A4($author$project$Types$FinishCombat, leftFaction, leftCards, rightFaction, rightCards),
+							A2($author$project$Types$FinishCombat, leftSide, rightSide),
 							_Utils_update(
 								updatedGame,
 								{modal: $elm$core$Maybe$Nothing})),
@@ -7648,6 +7662,7 @@ var $author$project$Types$ViewGameMsg = function (a) {
 };
 var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $ahstro$elm_bulma_classes$Bulma$Classes$level = 'level';
 var $ahstro$elm_bulma_classes$Bulma$Classes$levelItem = 'level-item';
 var $ahstro$elm_bulma_classes$Bulma$Classes$levelLeft = 'level-left';
@@ -7697,6 +7712,7 @@ var $author$project$Main$viewButtons = A2(
 					$elm$html$Html$button,
 					_List_fromArray(
 						[
+							$elm$html$Html$Attributes$id('bidding-phase-button'),
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 							$elm$html$Html$Events$onClick(
@@ -8341,24 +8357,35 @@ var $author$project$Main$viewDeck = function (cardsInPlay) {
 		_List_fromArray(
 			[weaponTile, defenseTile, specialTile, uselessTile]));
 };
-var $author$project$Types$AddBid = {$: 'AddBid'};
-var $author$project$Types$ResetBids = {$: 'ResetBids'};
-var $author$project$Types$SelectBiddingCard = F2(
+var $author$project$Types$CombatModalMsg = function (a) {
+	return {$: 'CombatModalMsg', a: a};
+};
+var $author$project$Types$Left = {$: 'Left'};
+var $author$project$Types$Right = {$: 'Right'};
+var $author$project$Types$SelectDefense = F2(
 	function (a, b) {
-		return {$: 'SelectBiddingCard', a: a, b: b};
+		return {$: 'SelectDefense', a: a, b: b};
 	});
-var $author$project$Types$SelectBiddingFaction = F2(
+var $author$project$Types$SelectFaction = F2(
 	function (a, b) {
-		return {$: 'SelectBiddingFaction', a: a, b: b};
+		return {$: 'SelectFaction', a: a, b: b};
 	});
-var $elm$core$List$all = F2(
-	function (isOkay, list) {
-		return !A2(
-			$elm$core$List$any,
-			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
-			list);
+var $author$project$Types$SelectWeapon = F2(
+	function (a, b) {
+		return {$: 'SelectWeapon', a: a, b: b};
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$container = 'container';
+var $author$project$Types$ToggleCheapHero = F2(
+	function (a, b) {
+		return {$: 'ToggleCheapHero', a: a, b: b};
+	});
+var $author$project$Types$ToggleDefenseDiscard = function (a) {
+	return {$: 'ToggleDefenseDiscard', a: a};
+};
+var $author$project$Types$ToggleWeaponDiscard = function (a) {
+	return {$: 'ToggleWeaponDiscard', a: a};
+};
+var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
+var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -8367,9 +8394,11 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
-var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths = 'is-two-fifths';
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
 var $elm$html$Html$header = _VirtualDom_node('header');
 var $elm$html$Html$i = _VirtualDom_node('i');
@@ -8474,12 +8503,13 @@ var $author$project$View$modal = F4(
 						]))
 				]));
 	});
+var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
+var $ahstro$elm_bulma_classes$Bulma$Classes$label = 'label';
+var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
 };
-var $ahstro$elm_bulma_classes$Bulma$Classes$label = 'label';
-var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$html$Html$Attributes$classList = function (classes) {
 	return $elm$html$Html$Attributes$class(
 		A2(
@@ -8526,6 +8556,7 @@ var $elm$html$Html$option = _VirtualDom_node('option');
 var $ahstro$elm_bulma_classes$Bulma$Classes$select = 'select';
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$View$selectControl = function (config) {
 	return A2(
 		$elm$html$Html$div,
@@ -8561,6 +8592,8 @@ var $author$project$View$selectControl = function (config) {
 									$elm$html$Html$option,
 									_List_fromArray(
 										[
+											$elm$html$Html$Attributes$value(
+											config.toValueString(x)),
 											$elm$html$Html$Attributes$selected(
 											A2(config.eq, x, config.current))
 										]),
@@ -8595,6 +8628,301 @@ var $author$project$View$select = function (config) {
 				$author$project$View$selectControl(config)
 			]));
 };
+var $ahstro$elm_bulma_classes$Bulma$Classes$hasAddons = 'has-addons';
+var $author$project$View$selectWithButton = function (config) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(config.selectConfig.name)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
+							]),
+						_List_fromArray(
+							[
+								$author$project$View$selectControl(config.selectConfig),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+												config.buttonClass,
+												$elm$html$Html$Events$onClick(config.onButtonClick)
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text(config.buttonText)
+											]))
+									]))
+							]))
+					]))
+			]));
+};
+var $author$project$Modal$Combat$view = function (model) {
+	var viewFactionSelect = F2(
+		function (faction, msg) {
+			return $author$project$View$select(
+				{
+					current: faction,
+					eq: $author$project$Faction$eq,
+					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
+					name: 'Faction',
+					onSelect: function (s) {
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								$author$project$Types$CombatModalMsg(
+									msg(s))));
+					},
+					options: $author$project$Faction$factionsWithUnknown,
+					toHtml: function (f) {
+						return $elm$html$Html$text(
+							$author$project$Faction$toString(f));
+					},
+					toValueString: $author$project$Faction$toString
+				});
+		});
+	var viewCardSelectWithDiscard = F6(
+		function (name, cardSelectMsg, checkboxMsg, card, cards, isDiscard) {
+			var selectConfig = {
+				current: card,
+				eq: $author$project$Card$eq,
+				isValid: !A2($author$project$Card$eq, card, $author$project$Card$unknown),
+				name: name,
+				onSelect: function (s) {
+					return $author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$CombatModalMsg(
+								cardSelectMsg(s))));
+				},
+				options: cards,
+				toHtml: function (c) {
+					return $elm$html$Html$text(
+						$author$project$Card$toString(c));
+				},
+				toValueString: $author$project$Card$toString
+			};
+			var selectConfigWithButton = isDiscard ? {
+				buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDanger),
+				buttonText: 'Discard',
+				onButtonClick: $author$project$Types$ViewGameMsg(
+					$author$project$Types$ModalMsg(
+						$author$project$Types$CombatModalMsg(checkboxMsg))),
+				selectConfig: selectConfig
+			} : {
+				buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+				buttonText: 'Keep',
+				onButtonClick: $author$project$Types$ViewGameMsg(
+					$author$project$Types$ModalMsg(
+						$author$project$Types$CombatModalMsg(checkboxMsg))),
+				selectConfig: selectConfig
+			};
+			return $author$project$View$selectWithButton(selectConfigWithButton);
+		});
+	var viewCardSelect = F4(
+		function (name, msg, card, cards) {
+			return $author$project$View$select(
+				{
+					current: card,
+					eq: $author$project$Card$eq,
+					isValid: true,
+					name: name,
+					onSelect: function (s) {
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								$author$project$Types$CombatModalMsg(
+									msg(s))));
+					},
+					options: cards,
+					toHtml: function (c) {
+						return $elm$html$Html$text(
+							$author$project$Card$toString(c));
+					},
+					toValueString: $author$project$Card$toString
+				});
+		});
+	var modalTitle = 'Combat';
+	var isValid = (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.left.faction)) && (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.right.faction));
+	var footer = A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+						$elm$html$Html$Events$onClick(
+						$author$project$Types$ViewGameMsg(
+							A2($author$project$Types$FinishCombat, model.left, model.right))),
+						$elm$html$Html$Attributes$disabled(!isValid)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Finish')
+					]))
+			]));
+	var cheapHeroCard = function (isOn) {
+		return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
+	};
+	var viewCards = F2(
+		function (side, combatSide) {
+			return _List_fromArray(
+				[
+					A6(
+					viewCardSelectWithDiscard,
+					'Weapon',
+					$author$project$Types$SelectWeapon(side),
+					$author$project$Types$ToggleWeaponDiscard(side),
+					combatSide.weapon.card,
+					A2(
+						$elm$core$List$cons,
+						$author$project$Card$none,
+						A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$weapons)),
+					combatSide.weapon.discard),
+					A6(
+					viewCardSelectWithDiscard,
+					'Defense',
+					$author$project$Types$SelectDefense(side),
+					$author$project$Types$ToggleDefenseDiscard(side),
+					combatSide.defense.card,
+					A2(
+						$elm$core$List$cons,
+						$author$project$Card$none,
+						A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$defenses)),
+					combatSide.defense.discard),
+					A4(
+					viewCardSelect,
+					'Cheap hero',
+					$author$project$Types$ToggleCheapHero(side),
+					cheapHeroCard(combatSide.cheapHero),
+					_List_fromArray(
+						[$author$project$Card$none, $author$project$Card$cheapHero]))
+				]);
+		});
+	var viewLeftSide = $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					A2(
+					viewFactionSelect,
+					model.left.faction,
+					$author$project$Types$SelectFaction($author$project$Types$Left))
+				]),
+				A2(viewCards, $author$project$Types$Left, model.left)
+			]));
+	var viewRightSide = $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					A2(
+					viewFactionSelect,
+					model.right.faction,
+					$author$project$Types$SelectFaction($author$project$Types$Right))
+				]),
+				A2(viewCards, $author$project$Types$Right, model.right)
+			]));
+	var body = A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+					]),
+				viewLeftSide),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('VS')
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+					]),
+				viewRightSide)
+			]));
+	return A4(
+		$author$project$View$modal,
+		modalTitle,
+		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+		body,
+		footer);
+};
+var $author$project$Types$AddBid = {$: 'AddBid'};
+var $author$project$Types$ResetBids = {$: 'ResetBids'};
+var $author$project$Types$SelectBiddingCard = F2(
+	function (a, b) {
+		return {$: 'SelectBiddingCard', a: a, b: b};
+	});
+var $author$project$Types$SelectBiddingFaction = F2(
+	function (a, b) {
+		return {$: 'SelectBiddingFaction', a: a, b: b};
+	});
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $ahstro$elm_bulma_classes$Bulma$Classes$container = 'container';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $author$project$Card$uniqueCardsWithUnknown = A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards);
 var $author$project$Main$viewBiddingModal = function (model) {
 	var viewFactionSelectControl = F2(
@@ -8614,7 +8942,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 					toHtml: function (f) {
 						return $elm$html$Html$text(
 							$author$project$Faction$toString(f));
-					}
+					},
+					toValueString: $author$project$Faction$toString
 				});
 		});
 	var viewCardTypeSelectControl = F2(
@@ -8634,7 +8963,8 @@ var $author$project$Main$viewBiddingModal = function (model) {
 					toHtml: function (c) {
 						return $elm$html$Html$text(
 							$author$project$Card$toString(c));
-					}
+					},
+					toValueString: $author$project$Card$toString
 				});
 		});
 	var viewBid = F2(
@@ -8758,7 +9088,8 @@ var $author$project$View$cardTypeSelect = F3(
 				toHtml: function (c) {
 					return $elm$html$Html$text(
 						$author$project$Card$toString(c));
-				}
+				},
+				toValueString: $author$project$Card$toString
 			});
 	});
 var $author$project$Main$viewChangeCardModal = function (model) {
@@ -8767,6 +9098,7 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		$author$project$View$button,
 		_List_fromArray(
 			[
+				$elm$html$Html$Attributes$id('identify-card-button'),
 				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess)
 			]),
 		$author$project$Types$ViewGameMsg(
@@ -8789,278 +9121,6 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		body,
 		footerChild);
 };
-var $author$project$Types$CombatModalMsg = function (a) {
-	return {$: 'CombatModalMsg', a: a};
-};
-var $author$project$Types$Left = {$: 'Left'};
-var $author$project$Types$Right = {$: 'Right'};
-var $author$project$Types$SelectDefense = F2(
-	function (a, b) {
-		return {$: 'SelectDefense', a: a, b: b};
-	});
-var $author$project$Types$SelectFaction = F2(
-	function (a, b) {
-		return {$: 'SelectFaction', a: a, b: b};
-	});
-var $author$project$Types$SelectWeapon = F2(
-	function (a, b) {
-		return {$: 'SelectWeapon', a: a, b: b};
-	});
-var $author$project$Types$ToggleCheapHero = F2(
-	function (a, b) {
-		return {$: 'ToggleCheapHero', a: a, b: b};
-	});
-var $author$project$Types$ToggleDefenseDiscard = function (a) {
-	return {$: 'ToggleDefenseDiscard', a: a};
-};
-var $author$project$Types$ToggleWeaponDiscard = function (a) {
-	return {$: 'ToggleWeaponDiscard', a: a};
-};
-var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
-var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
-var $ahstro$elm_bulma_classes$Bulma$Classes$hasAddons = 'has-addons';
-var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
-var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths = 'is-two-fifths';
-var $author$project$Main$viewCombatModal = function (model) {
-	var viewFactionSelect = F2(
-		function (faction, msg) {
-			return $author$project$View$select(
-				{
-					current: faction,
-					eq: $author$project$Faction$eq,
-					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
-					name: 'Faction',
-					onSelect: function (s) {
-						return $author$project$Types$ViewGameMsg(
-							$author$project$Types$ModalMsg(
-								$author$project$Types$CombatModalMsg(
-									msg(s))));
-					},
-					options: $author$project$Faction$factionsWithUnknown,
-					toHtml: function (f) {
-						return $elm$html$Html$text(
-							$author$project$Faction$toString(f));
-					}
-				});
-		});
-	var viewCardSelectWithDiscard = F6(
-		function (name, cardSelectMsg, checkboxMsg, card, cards, isDiscard) {
-			var _v0 = isDiscard ? _Utils_Tuple2(
-				'Discard',
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDanger)) : _Utils_Tuple2(
-				'Keep',
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess));
-			var buttonText = _v0.a;
-			var buttonType = _v0.b;
-			return A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text(name)
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
-										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
-									]),
-								_List_fromArray(
-									[
-										$author$project$View$selectControl(
-										{
-											current: card,
-											eq: $author$project$Card$eq,
-											isValid: true,
-											name: name,
-											onSelect: function (s) {
-												return $author$project$Types$ViewGameMsg(
-													$author$project$Types$ModalMsg(
-														$author$project$Types$CombatModalMsg(
-															cardSelectMsg(s))));
-											},
-											options: cards,
-											toHtml: function (c) {
-												return $elm$html$Html$text(
-													$author$project$Card$toString(c));
-											}
-										}),
-										A2(
-										$elm$html$Html$div,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$button,
-												_List_fromArray(
-													[
-														$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-														buttonType,
-														$elm$html$Html$Events$onClick(
-														$author$project$Types$ViewGameMsg(
-															$author$project$Types$ModalMsg(
-																$author$project$Types$CombatModalMsg(checkboxMsg))))
-													]),
-												_List_fromArray(
-													[
-														$elm$html$Html$text(buttonText)
-													]))
-											]))
-									]))
-							]))
-					]));
-		});
-	var viewCardSelect = F4(
-		function (name, msg, card, cards) {
-			return $author$project$View$select(
-				{
-					current: card,
-					eq: $author$project$Card$eq,
-					isValid: true,
-					name: name,
-					onSelect: function (s) {
-						return $author$project$Types$ViewGameMsg(
-							$author$project$Types$ModalMsg(
-								$author$project$Types$CombatModalMsg(
-									msg(s))));
-					},
-					options: cards,
-					toHtml: function (c) {
-						return $elm$html$Html$text(
-							$author$project$Card$toString(c));
-					}
-				});
-		});
-	var modalTitle = 'Combat';
-	var footer = A2($elm$html$Html$div, _List_Nil, _List_Nil);
-	var cheapHeroCard = function (isOn) {
-		return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
-	};
-	var viewCards = F2(
-		function (side, combatSide) {
-			return _List_fromArray(
-				[
-					A6(
-					viewCardSelectWithDiscard,
-					'Weapon',
-					$author$project$Types$SelectWeapon(side),
-					$author$project$Types$ToggleWeaponDiscard(side),
-					combatSide.weapon.card,
-					A2($elm$core$List$cons, $author$project$Card$none, $author$project$Card$weapons),
-					combatSide.weapon.discard),
-					A6(
-					viewCardSelectWithDiscard,
-					'Defense',
-					$author$project$Types$SelectDefense(side),
-					$author$project$Types$ToggleDefenseDiscard(side),
-					combatSide.defense.card,
-					A2($elm$core$List$cons, $author$project$Card$none, $author$project$Card$defenses),
-					combatSide.defense.discard),
-					A4(
-					viewCardSelect,
-					'Cheap hero',
-					$author$project$Types$ToggleCheapHero(side),
-					cheapHeroCard(combatSide.cheapHero),
-					_List_fromArray(
-						[$author$project$Card$none, $author$project$Card$cheapHero]))
-				]);
-		});
-	var viewLeftSide = $elm$core$List$concat(
-		_List_fromArray(
-			[
-				_List_fromArray(
-				[
-					A2(
-					viewFactionSelect,
-					model.left.faction,
-					$author$project$Types$SelectFaction($author$project$Types$Left))
-				]),
-				A2(viewCards, $author$project$Types$Left, model.left)
-			]));
-	var viewRightSide = $elm$core$List$concat(
-		_List_fromArray(
-			[
-				_List_fromArray(
-				[
-					A2(
-					viewFactionSelect,
-					model.right.faction,
-					$author$project$Types$SelectFaction($author$project$Types$Right))
-				]),
-				A2(viewCards, $author$project$Types$Right, model.right)
-			]));
-	var body = A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
-					]),
-				viewLeftSide),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('VS')
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
-					]),
-				viewRightSide)
-			]));
-	return A4(
-		$author$project$View$modal,
-		modalTitle,
-		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
-		body,
-		footer);
-};
 var $author$project$Main$viewModal = F2(
 	function (_v0, modal) {
 		switch (modal.$) {
@@ -9072,7 +9132,7 @@ var $author$project$Main$viewModal = F2(
 				return $author$project$Main$viewBiddingModal(model);
 			default:
 				var model = modal.a;
-				return $author$project$Main$viewCombatModal(model);
+				return $author$project$Modal$Combat$view(model);
 		}
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
@@ -9179,6 +9239,21 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 			]);
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
+var $elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			$elm$core$String$join,
+			after,
+			A2($elm$core$String$split, before, string));
+	});
+var $elm$core$String$toLower = _String_toLower;
+var $author$project$Main$toHtmlId = function (s) {
+	return A3(
+		$elm$core$String$replace,
+		' ',
+		'-',
+		$elm$core$String$toLower(s));
+};
 var $author$project$Main$viewPlayerTiles = function (players) {
 	var playerTile = function (player) {
 		var discardIcon = F2(
@@ -9274,7 +9349,12 @@ var $author$project$Main$viewPlayerTiles = function (players) {
 										])),
 									A2(
 									$elm$html$Html$ul,
-									_List_Nil,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$id(
+											$author$project$Main$toHtmlId(
+												$author$project$Faction$toString(player.faction)) + '-cards')
+										]),
 									A2(
 										$elm$core$List$map,
 										function (card) {
@@ -9340,7 +9420,6 @@ var $elm$html$Html$Attributes$height = function (n) {
 		'height',
 		$elm$core$String$fromInt(n));
 };
-var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$img = _VirtualDom_node('img');
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbar = 'navbar';
 var $ahstro$elm_bulma_classes$Bulma$Classes$navbarBrand = 'navbar-brand';
@@ -9421,6 +9500,7 @@ var $author$project$Main$viewNavbar = function (isExpanded) {
 						$elm$html$Html$a,
 						_List_fromArray(
 							[
+								$elm$html$Html$Attributes$id('navbar-expand-button'),
 								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarBurger),
 								$elm$html$Html$Attributes$class('burger'),
 								$elm$html$Html$Attributes$classList(
@@ -9462,6 +9542,7 @@ var $author$project$Main$viewNavbar = function (isExpanded) {
 								$elm$html$Html$a,
 								_List_fromArray(
 									[
+										$elm$html$Html$Attributes$id('new-game-button'),
 										$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$navbarItem),
 										$elm$html$Html$Events$onClick($author$project$Types$ResetGame)
 									]),
@@ -9506,6 +9587,13 @@ var $pzp1997$assoc_list$AssocList$keys = function (_v0) {
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$viewSetup = function (model) {
 	var factionField = function (faction) {
+		var idAttribute = $elm$html$Html$Attributes$id(
+			$elm$core$String$toLower(
+				A3(
+					$elm$core$String$replace,
+					' ',
+					'-',
+					$author$project$Faction$toString(faction) + '-faction-toggle')));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -9534,6 +9622,7 @@ var $author$project$Main$viewSetup = function (model) {
 									$elm$html$Html$input,
 									_List_fromArray(
 										[
+											idAttribute,
 											$elm$html$Html$Attributes$type_('checkbox'),
 											$elm$html$Html$Attributes$checked(
 											A2(
@@ -9583,6 +9672,7 @@ var $author$project$Main$viewSetup = function (model) {
 						$elm$html$Html$button,
 						_List_fromArray(
 							[
+								$elm$html$Html$Attributes$id('create-game-button'),
 								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
 								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isLink),
 								$elm$html$Html$Events$onClick(
