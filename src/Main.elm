@@ -347,31 +347,33 @@ updateGame msg game =
                             leftSide.faction
 
                         leftCards =
-                            if leftSide.cheapHero then
-                                [ leftSide.weapon
-                                , leftSide.defense
-                                , { card = Card.cheapHero, discard = True }
-                                ]
+                            List.filter (\c -> not (Card.eq c.card Card.none)) <|
+                                if leftSide.cheapHero then
+                                    [ leftSide.weapon
+                                    , leftSide.defense
+                                    , { card = Card.cheapHero, discard = True }
+                                    ]
 
-                            else
-                                [ leftSide.weapon
-                                , leftSide.defense
-                                ]
+                                else
+                                    [ leftSide.weapon
+                                    , leftSide.defense
+                                    ]
 
                         rightFaction =
                             rightSide.faction
 
                         rightCards =
-                            if rightSide.cheapHero then
-                                [ rightSide.weapon
-                                , rightSide.defense
-                                , { card = Card.cheapHero, discard = True }
-                                ]
+                            List.filter (\c -> not (Card.eq c.card Card.none)) <|
+                                if rightSide.cheapHero then
+                                    [ rightSide.weapon
+                                    , rightSide.defense
+                                    , { card = Card.cheapHero, discard = True }
+                                    ]
 
-                            else
-                                [ rightSide.weapon
-                                , rightSide.defense
-                                ]
+                                else
+                                    [ rightSide.weapon
+                                    , rightSide.defense
+                                    ]
 
                         updateWithCard card cards =
                             if List.any (\c -> Card.eq card c) cards then
