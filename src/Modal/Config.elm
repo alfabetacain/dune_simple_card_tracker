@@ -2,7 +2,7 @@ module Modal.Config exposing (update, view)
 
 import Bulma.Classes as Bulma
 import Html exposing (Html, button, div, input, label, text)
-import Html.Attributes exposing (class, disabled, selected, type_)
+import Html.Attributes exposing (checked, class, disabled, type_)
 import Html.Events exposing (onClick)
 import Types exposing (..)
 import View
@@ -27,7 +27,7 @@ view model =
                     [ label [ class Bulma.checkbox ]
                         [ input
                             [ type_ "checkbox"
-                            , selected currentValue
+                            , checked currentValue
                             , onClick (ViewGameMsg <| ModalMsg <| ConfigModalMsg <| msg)
                             ]
                             []
