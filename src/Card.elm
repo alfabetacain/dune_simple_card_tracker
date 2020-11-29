@@ -92,72 +92,72 @@ cardLimit typ =
 
 weaponPoison : Type
 weaponPoison =
-    Card "Weapon - Poison" ""
+    Card "Weapon - Poison" "W - Poison"
 
 
 weaponProjectile : Type
 weaponProjectile =
-    Card "Weapon - Projectile" ""
+    Card "Weapon - Projectile" "W - Projectile"
 
 
 weaponLasgun : Type
 weaponLasgun =
-    Card "Weapon - Lasgun" ""
+    Card "Weapon - Lasgun" "W - Lasgun"
 
 
 defensePoison : Type
 defensePoison =
-    Card "Defense - Poison" ""
+    Card "Defense - Poison" "D - Poison"
 
 
 defenseProjectile : Type
 defenseProjectile =
-    Card "Defense - Projectile" ""
+    Card "Defense - Projectile" "D - Projectile"
 
 
 cheapHero : Type
 cheapHero =
-    Card "Cheap Hero" ""
+    Card "Cheap Hero" "Hero"
 
 
 familyAtomics : Type
 familyAtomics =
-    Card "Family Atomics" ""
+    Card "Family Atomics" "Atomics"
 
 
 hajr : Type
 hajr =
-    Card "Hajr" ""
+    Card "Hajr" "Hajr"
 
 
 karama : Type
 karama =
-    Card "Karama" ""
+    Card "Karama" "Karama"
 
 
 ghola : Type
 ghola =
-    Card "Tleilaxu Ghola" ""
+    Card "Tleilaxu Ghola" "Ghola"
 
 
 truthTrance : Type
 truthTrance =
-    Card "Truthtrance" ""
+    Card "Truthtrance" "Trance"
 
 
 weatherControl : Type
 weatherControl =
-    Card "Weather Control" ""
+    Card "Weather Control" "Weather"
 
 
 useless : Type
 useless =
-    Card "Useless" ""
+    Card "Useless" "Useless"
 
 
 unknown : Type
 unknown =
-    Card "Unknown" ""
+    Card "Unknown" "Unknown"
 
 
 
@@ -166,7 +166,7 @@ unknown =
 
 none : Type
 none =
-    Card "None" ""
+    Card "None" "None"
 
 
 
