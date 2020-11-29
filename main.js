@@ -5233,7 +5233,7 @@ var $author$project$Main$createGame = function (factions) {
 		$elm$core$List$map,
 		$author$project$Main$createPlayer,
 		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
-	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing};
+	return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing, savedCombatModalModel: $elm$core$Maybe$Nothing};
 };
 var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
 var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
@@ -6033,6 +6033,7 @@ var $author$project$Ports$decodeModal = function () {
 	return decoder;
 }();
 var $author$project$Ports$decodeSavedBiddingPhaseModalModel = $author$project$Ports$decodeModalBidding;
+var $author$project$Ports$decodeSavedCombatModalModel = $author$project$Ports$decodeModalCombat;
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$nullable = function (decoder) {
@@ -6146,9 +6147,9 @@ var $author$project$Ports$playerBicoder = function () {
 			$elm$json$Json$Decode$succeed($author$project$Types$Player)));
 	return {decode: decoder, encode: encoder};
 }();
-var $author$project$Ports$smallGame = F4(
-	function (players, maybeModal, maybeSavedBiddingModel, history) {
-		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel};
+var $author$project$Ports$smallGame = F5(
+	function (players, maybeModal, maybeSavedBiddingModel, maybeSavedCombatModel, history) {
+		return {dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel, savedCombatModalModel: maybeSavedCombatModel};
 	});
 var $author$project$Ports$decodeGame = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -6156,19 +6157,24 @@ var $author$project$Ports$decodeGame = A3(
 	$elm$json$Json$Decode$list($author$project$Ports$decodeGameMsg),
 	A4(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-		'savedBiddingPhaseModalModel',
-		$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedBiddingPhaseModalModel),
+		'savedCombatModalModel',
+		$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedCombatModalModel),
 		$elm$core$Maybe$Nothing,
 		A4(
 			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-			'modal',
-			$elm$json$Json$Decode$nullable($author$project$Ports$decodeModal),
+			'savedBiddingPhaseModalModel',
+			$elm$json$Json$Decode$nullable($author$project$Ports$decodeSavedBiddingPhaseModalModel),
 			$elm$core$Maybe$Nothing,
-			A3(
-				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'players',
-				$elm$json$Json$Decode$list($author$project$Ports$playerBicoder.decode),
-				$elm$json$Json$Decode$succeed($author$project$Ports$smallGame)))));
+			A4(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+				'modal',
+				$elm$json$Json$Decode$nullable($author$project$Ports$decodeModal),
+				$elm$core$Maybe$Nothing,
+				A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'players',
+					$elm$json$Json$Decode$list($author$project$Ports$playerBicoder.decode),
+					$elm$json$Json$Decode$succeed($author$project$Ports$smallGame))))));
 var $author$project$Ports$parseGame = function (input) {
 	return A2($elm$json$Json$Decode$decodeValue, $author$project$Ports$decodeGame, input);
 };
@@ -7409,13 +7415,14 @@ var $author$project$Modal$Combat$update = F2(
 				if (_v3.$ === 'Just') {
 					var c = _v3.a;
 					var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
+					var discardStatus = A2($author$project$Card$eq, $author$project$Card$useless, c);
 					return A3(
 						$arturopala$elm_monocle$Monocle$Lens$modify,
 						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideWeapon),
 						function (cc) {
 							return _Utils_update(
 								cc,
-								{card: c});
+								{card: c, discard: discardStatus});
 						},
 						model);
 				} else {
@@ -7428,13 +7435,14 @@ var $author$project$Modal$Combat$update = F2(
 				if (_v4.$ === 'Just') {
 					var c = _v4.a;
 					var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
+					var discardStatus = A2($author$project$Card$eq, $author$project$Card$useless, c);
 					return A3(
 						$arturopala$elm_monocle$Monocle$Lens$modify,
 						A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideDefense),
 						function (cc) {
 							return _Utils_update(
 								cc,
-								{card: c});
+								{card: c, discard: discardStatus});
 						},
 						model);
 				} else {
@@ -7540,23 +7548,13 @@ var $author$project$Main$updateModal = F2(
 		}
 		return modalModel;
 	});
-var $author$project$Main$isSignificant = function (msg) {
-	switch (msg.$) {
-		case 'AddCard':
-			return true;
-		case 'DiscardCard':
-			return true;
-		default:
-			return true;
-	}
-};
 var $author$project$Main$withHistory = F2(
 	function (msg, model) {
-		return $author$project$Main$isSignificant(msg) ? _Utils_update(
+		return _Utils_update(
 			model,
 			{
 				history: A2($elm$core$List$cons, msg, model.history)
-			}) : model;
+			});
 	});
 var $author$project$Main$popHistory = function (game) {
 	var tailHistory = A2(
@@ -7565,8 +7563,8 @@ var $author$project$Main$popHistory = function (game) {
 		$elm$core$List$tail(game.history));
 	var folder = F2(
 		function (msg, model) {
-			var _v9 = A2($author$project$Main$updateGame, msg, model);
-			var updatedModel = _v9.a;
+			var _v11 = A2($author$project$Main$updateGame, msg, model);
+			var updatedModel = _v11.a;
 			if (updatedModel.$ === 'ViewGame') {
 				var g = updatedModel.a;
 				return g;
@@ -7600,9 +7598,20 @@ var $author$project$Main$updateGame = F2(
 				case 'AddCard':
 					var card = msg.a;
 					var faction = msg.b;
+					var updatedModal = function () {
+						var _v2 = game.modal;
+						if ((_v2.$ === 'Just') && (_v2.a.$ === 'ModalAddCard')) {
+							var m = _v2.a.a;
+							return $elm$core$Maybe$Nothing;
+						} else {
+							var x = _v2;
+							return x;
+						}
+					}();
 					var updatedGame = _Utils_update(
 						game,
 						{
+							modal: updatedModal,
 							players: A3($author$project$Main$addCardToPlayer, card, faction, game.players)
 						});
 					return _Utils_Tuple2(
@@ -7636,9 +7645,9 @@ var $author$project$Main$updateGame = F2(
 						true);
 				case 'DragDropCardToFaction':
 					var msg_ = msg.a;
-					var _v2 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
-					var model_ = _v2.a;
-					var result = _v2.b;
+					var _v3 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
+					var model_ = _v3.a;
+					var result = _v3.b;
 					if (result.$ === 'Nothing') {
 						return _Utils_Tuple2(
 							_Utils_update(
@@ -7646,9 +7655,9 @@ var $author$project$Main$updateGame = F2(
 								{dragDrop: model_}),
 							false);
 					} else {
-						var _v4 = result.a;
-						var card = _v4.a;
-						var faction = _v4.b;
+						var _v5 = result.a;
+						var card = _v5.a;
+						var faction = _v5.b;
 						var updatedPlayers = A3($author$project$Main$addCardToPlayer, card, faction, game.players);
 						return _Utils_Tuple2(
 							A2(
@@ -7661,8 +7670,8 @@ var $author$project$Main$updateGame = F2(
 					}
 				case 'OpenBiddingPhaseModal':
 					var initialState = function () {
-						var _v5 = game.savedBiddingPhaseModalModel;
-						if (_v5.$ === 'Nothing') {
+						var _v6 = game.savedBiddingPhaseModalModel;
+						if (_v6.$ === 'Nothing') {
 							return {
 								bids: A2(
 									$elm$core$Array$push,
@@ -7676,7 +7685,7 @@ var $author$project$Main$updateGame = F2(
 									game.players)
 							};
 						} else {
-							var saved = _v5.a;
+							var saved = _v6.a;
 							return saved;
 						}
 					}();
@@ -7705,13 +7714,21 @@ var $author$project$Main$updateGame = F2(
 								})),
 						true);
 				case 'OpenCombatModal':
-					var initialSide = {
-						cheapHero: false,
-						defense: {card: $author$project$Card$none, discard: false},
-						faction: $author$project$Faction$unknown,
-						weapon: {card: $author$project$Card$none, discard: false}
-					};
-					var initialState = {left: initialSide, right: initialSide};
+					var initialState = function () {
+						var _v7 = game.savedCombatModalModel;
+						if (_v7.$ === 'Nothing') {
+							var initialSide = {
+								cheapHero: false,
+								defense: {card: $author$project$Card$none, discard: false},
+								faction: $author$project$Faction$unknown,
+								weapon: {card: $author$project$Card$none, discard: false}
+							};
+							return {left: initialSide, right: initialSide};
+						} else {
+							var previous = _v7.a;
+							return previous;
+						}
+					}();
 					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$withHistory,
@@ -7837,7 +7854,7 @@ var $author$project$Main$updateGame = F2(
 							A2($author$project$Types$FinishCombat, leftSide, rightSide),
 							_Utils_update(
 								updatedGame,
-								{modal: $elm$core$Maybe$Nothing})),
+								{modal: $elm$core$Maybe$Nothing, savedCombatModalModel: $elm$core$Maybe$Nothing})),
 						true);
 				case 'AssignBiddingPhaseCards':
 					var cards = msg.a;
@@ -7857,38 +7874,60 @@ var $author$project$Main$updateGame = F2(
 								{modal: $elm$core$Maybe$Nothing, players: updatedPlayers, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing})),
 						true);
 				case 'CloseModal':
-					var _v7 = game.modal;
-					if ((_v7.$ === 'Just') && (_v7.a.$ === 'ModalBidding')) {
-						var biddingModel = _v7.a.a;
-						return _Utils_Tuple2(
-							A2(
-								$author$project$Main$withHistory,
-								$author$project$Types$CloseModal,
-								_Utils_update(
-									game,
-									{
-										modal: $elm$core$Maybe$Nothing,
-										savedBiddingPhaseModalModel: $elm$core$Maybe$Just(biddingModel)
-									})),
-							true);
-					} else {
-						return _Utils_Tuple2(
-							A2(
-								$author$project$Main$withHistory,
-								$author$project$Types$CloseModal,
-								_Utils_update(
-									game,
-									{modal: $elm$core$Maybe$Nothing})),
-							true);
+					var _v9 = game.modal;
+					_v9$2:
+					while (true) {
+						if (_v9.$ === 'Just') {
+							switch (_v9.a.$) {
+								case 'ModalBidding':
+									var biddingModel = _v9.a.a;
+									return _Utils_Tuple2(
+										A2(
+											$author$project$Main$withHistory,
+											$author$project$Types$CloseModal,
+											_Utils_update(
+												game,
+												{
+													modal: $elm$core$Maybe$Nothing,
+													savedBiddingPhaseModalModel: $elm$core$Maybe$Just(biddingModel)
+												})),
+										true);
+								case 'ModalCombat':
+									var combatModel = _v9.a.a;
+									return _Utils_Tuple2(
+										A2(
+											$author$project$Main$withHistory,
+											$author$project$Types$CloseModal,
+											_Utils_update(
+												game,
+												{
+													modal: $elm$core$Maybe$Nothing,
+													savedCombatModalModel: $elm$core$Maybe$Just(combatModel)
+												})),
+										true);
+								default:
+									break _v9$2;
+							}
+						} else {
+							break _v9$2;
+						}
 					}
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Types$CloseModal,
+							_Utils_update(
+								game,
+								{modal: $elm$core$Maybe$Nothing})),
+						true);
 				default:
 					var modalMsg = msg.a;
 					var newModalModel = function () {
-						var _v8 = game.modal;
-						if (_v8.$ === 'Nothing') {
+						var _v10 = game.modal;
+						if (_v10.$ === 'Nothing') {
 							return $elm$core$Maybe$Nothing;
 						} else {
-							var modalModel = _v8.a;
+							var modalModel = _v10.a;
 							return $elm$core$Maybe$Just(
 								A2($author$project$Main$updateModal, modalMsg, modalModel));
 						}
