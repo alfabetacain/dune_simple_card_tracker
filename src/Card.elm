@@ -1,4 +1,4 @@
-module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Dict
 import Json.Decode as D
@@ -6,7 +6,7 @@ import Json.Encode as E
 
 
 type Type
-    = Card String
+    = Card String String
 
 
 
@@ -16,14 +16,21 @@ type Type
 eq : Type -> Type -> Bool
 eq card1 card2 =
     case ( card1, card2 ) of
-        ( Card s1, Card s2 ) ->
+        ( Card s1 _, Card s2 _ ) ->
             s1 == s2
 
 
 toString : Type -> String
 toString card =
     case card of
-        Card s ->
+        Card s _ ->
+            s
+
+
+toShortString : Type -> String
+toShortString card =
+    case card of
+        Card _ s ->
             s
 
 
@@ -35,7 +42,7 @@ fromString s =
 encode : Type -> E.Value
 encode card =
     case card of
-        Card s ->
+        Card s _ ->
             E.string s
 
 
@@ -75,7 +82,7 @@ cardLimitDict =
 cardLimit : Type -> Int
 cardLimit typ =
     case typ of
-        Card s ->
+        Card s _ ->
             Maybe.withDefault 0 <| Dict.get s cardLimitDict
 
 
@@ -83,60 +90,74 @@ cardLimit typ =
 -- builtin cards
 
 
+weaponPoison : Type
 weaponPoison =
-    Card "Weapon - Poison"
+    Card "Weapon - Poison" ""
 
 
+weaponProjectile : Type
 weaponProjectile =
-    Card "Weapon - Projectile"
+    Card "Weapon - Projectile" ""
 
 
+weaponLasgun : Type
 weaponLasgun =
-    Card "Weapon - Lasgun"
+    Card "Weapon - Lasgun" ""
 
 
+defensePoison : Type
 defensePoison =
-    Card "Defense - Poison"
+    Card "Defense - Poison" ""
 
 
+defenseProjectile : Type
 defenseProjectile =
-    Card "Defense - Projectile"
+    Card "Defense - Projectile" ""
 
 
+cheapHero : Type
 cheapHero =
-    Card "Cheap Hero"
+    Card "Cheap Hero" ""
 
 
+familyAtomics : Type
 familyAtomics =
-    Card "Family Atomics"
+    Card "Family Atomics" ""
 
 
+hajr : Type
 hajr =
-    Card "Hajr"
+    Card "Hajr" ""
 
 
+karama : Type
 karama =
-    Card "Karama"
+    Card "Karama" ""
 
 
+ghola : Type
 ghola =
-    Card "Tleilaxu Ghola"
+    Card "Tleilaxu Ghola" ""
 
 
+truthTrance : Type
 truthTrance =
-    Card "Truthtrance"
+    Card "Truthtrance" ""
 
 
+weatherControl : Type
 weatherControl =
-    Card "Weather Control"
+    Card "Weather Control" ""
 
 
+useless : Type
 useless =
-    Card "Useless"
+    Card "Useless" ""
 
 
+unknown : Type
 unknown =
-    Card "Unknown"
+    Card "Unknown" ""
 
 
 
@@ -145,7 +166,7 @@ unknown =
 
 none : Type
 none =
-    Card "None"
+    Card "None" ""
 
 
 

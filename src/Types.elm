@@ -7,6 +7,10 @@ import Faction
 import Html5.DragDrop as DragDrop
 
 
+type alias Config =
+    { cardShortNames : Bool }
+
+
 type alias ModalChangeCardModel =
     { faction : Faction.Type
     , selectedCard : Card.Type
@@ -56,6 +60,7 @@ type Modal
     | ModalBidding ModalBiddingModel
     | ModalCombat ModalCombatModel
     | ModalAddCard ModalAddCardModel
+    | ModalConfig Config
 
 
 type alias Index =
@@ -78,6 +83,10 @@ type BiddingModalMsg
     | ResetBids
 
 
+type ConfigModalMsg
+    = ToggleCardShortNames
+
+
 type AddCardModalMsg
     = SelectAddCardCard String
     | SelectAddCardFaction String
@@ -88,6 +97,7 @@ type ModalMsg
     | CombatModalMsg CombatModalMsg
     | BiddingModalMsg BiddingModalMsg
     | AddCardModalMsg AddCardModalMsg
+    | ConfigModalMsg ConfigModalMsg
 
 
 type alias Game =
@@ -98,6 +108,7 @@ type alias Game =
     , savedBiddingPhaseModalModel : Maybe ModalBiddingModel
     , savedCombatModalModel : Maybe ModalCombatModel
     , navbarExpanded : Bool
+    , config : Config
     }
 
 
@@ -148,6 +159,8 @@ type GameMsg
     | FinishCombat CombatSide CombatSide
     | OpenCombatModal
     | OpenAddCardModal
+    | OpenConfigModal
+    | FinishConfigModal
 
 
 type Msg

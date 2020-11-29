@@ -30,6 +30,22 @@ encodeGame game =
         , ( "history", E.list encodeGameMsg game.history )
         , ( "modal", Maybe.withDefault E.null <| Maybe.map encodeModal game.modal )
         , ( "savedBiddingPhaseModalModel", Maybe.withDefault E.null <| Maybe.map encodeModalBiddingModel game.savedBiddingPhaseModalModel )
+        , ( "savedCombatModalModel", Maybe.withDefault E.null <| Maybe.map encodeCombatModalModel game.savedCombatModalModel )
+        , ( "config", encodeConfig game.config )
+        ]
+
+
+encodeConfig : Config -> E.Value
+encodeConfig config =
+    E.object
+        [ ( "cardShortNames", E.bool config.cardShortNames ) ]
+
+
+encodeCombatModalModel : ModalCombatModel -> E.Value
+encodeCombatModalModel model =
+    E.object
+        [ ( "left", encodeCombatSide model.left )
+        , ( "right", encodeCombatSide model.right )
         ]
 
 
@@ -136,6 +152,9 @@ encodeModalMsg msg =
         CombatModalMsg m ->
             encodeType "CombatModalMsg" [ encodeCombatModalMsg m ]
 
+        _ ->
+            E.null
+
 
 encodeGameMsg : GameMsg -> E.Value
 encodeGameMsg msg =
@@ -190,6 +209,9 @@ encodeGameMsg msg =
 
         OpenAddCardModal ->
             encodeType "OpenAddCardModal" []
+
+        _ ->
+            E.null
 
 
 encodeChangeCardModal : ModalChangeCardModel -> E.Value
@@ -261,6 +283,9 @@ encodeModal modal =
                 , ( "value", encodeAddCardModel model )
                 ]
 
+        _ ->
+            E.null
+
 
 type alias BiCoder a =
     { encode : a -> E.Value
@@ -308,8 +333,8 @@ encodeModalBiddingModel model =
         ]
 
 
-smallGame : List Player -> Maybe Modal -> Maybe ModalBiddingModel -> Maybe ModalCombatModel -> List GameMsg -> Game
-smallGame players maybeModal maybeSavedBiddingModel maybeSavedCombatModel history =
+smallGame : List Player -> Maybe Modal -> Maybe ModalBiddingModel -> Maybe ModalCombatModel -> Config -> List GameMsg -> Game
+smallGame players maybeModal maybeSavedBiddingModel maybeSavedCombatModel config history =
     { players = players
     , modal = maybeModal
     , savedBiddingPhaseModalModel = maybeSavedBiddingModel
@@ -317,6 +342,7 @@ smallGame players maybeModal maybeSavedBiddingModel maybeSavedCombatModel histor
     , history = history
     , dragDrop = DragDrop.init
     , navbarExpanded = False
+    , config = config
     }
 
 
@@ -332,7 +358,14 @@ decodeGame =
         |> optional "modal" (D.nullable decodeModal) Nothing
         |> optional "savedBiddingPhaseModalModel" (D.nullable decodeSavedBiddingPhaseModalModel) Nothing
         |> optional "savedCombatModalModel" (D.nullable decodeSavedCombatModalModel) Nothing
+        |> required "config" decodeConfig
         |> required "history" (D.list decodeGameMsg)
+
+
+decodeConfig : Decoder Config
+decodeConfig =
+    D.succeed Config
+        |> required "cardShortNames" D.bool
 
 
 decodeSavedCombatModalModel : Decoder ModalCombatModel

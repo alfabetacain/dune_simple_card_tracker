@@ -7,16 +7,16 @@ import Bulma.Classes as Bulma
 import Card
 import Dict
 import Faction
-import Html exposing (Html, a, button, div, footer, header, i, img, input, label, li, nav, option, p, section, select, span, text, ul)
-import Html.Attributes exposing (checked, class, classList, disabled, height, src, type_, width)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, a, button, div, footer, i, img, input, label, li, nav, p, section, span, text, ul)
+import Html.Attributes exposing (checked, class, classList, height, src, type_, width)
+import Html.Events exposing (onClick)
 import Html5.DragDrop as DragDrop
 import Json.Decode
 import List.Extra as ListE
 import Modal.AddCard
 import Modal.Bidding
 import Modal.Combat
-import Monocle.Lens as Lens exposing (Lens)
+import Modal.Config
 import Ports
 import Types exposing (..)
 import View
@@ -102,6 +102,11 @@ createPlayer faction =
     { faction = faction, hand = [ Card.useless, Card.weaponPoison ] }
 
 
+initConfig : Config
+initConfig =
+    { cardShortNames = False }
+
+
 createGame : List Faction.Type -> Game
 createGame factions =
     let
@@ -118,6 +123,7 @@ createGame factions =
     , savedBiddingPhaseModalModel = Nothing
     , savedCombatModalModel = Nothing
     , navbarExpanded = False
+    , config = initConfig
     }
 
 
@@ -193,6 +199,9 @@ updateModal msg modalModel =
 
         ( AddCardModalMsg addCardMsg, ModalAddCard model ) ->
             ModalAddCard <| Modal.AddCard.update addCardMsg model
+
+        ( ConfigModalMsg configMsg, ModalConfig model ) ->
+            ModalConfig <| Modal.Config.update configMsg model
 
         ( _, _ ) ->
             modalModel
@@ -390,6 +399,17 @@ updateGame msg game =
                     in
                     ( withHistory (AssignBiddingPhaseCards cards) { game | players = updatedPlayers, modal = Nothing, savedBiddingPhaseModalModel = Nothing }, True )
 
+                OpenConfigModal ->
+                    ( withHistory OpenConfigModal { game | modal = Just <| ModalConfig game.config }, True )
+
+                FinishConfigModal ->
+                    case game.modal of
+                        Just (ModalConfig config) ->
+                            ( withHistory FinishConfigModal { game | modal = Nothing, config = config }, True )
+
+                        _ ->
+                            ( game, False )
+
                 CloseModal ->
                     case game.modal of
                         Just (ModalBidding biddingModel) ->
@@ -511,8 +531,8 @@ toHtmlId s =
     String.replace " " "-" <| String.toLower s
 
 
-viewPlayerTiles : List Player -> Html Msg
-viewPlayerTiles players =
+viewPlayerTiles : List Player -> Config -> Html Msg
+viewPlayerTiles players config =
     let
         playerTile player =
             let
@@ -520,12 +540,19 @@ viewPlayerTiles players =
                     span [ class Bulma.icon, onClick <| ViewGameMsg <| DiscardCard card faction ]
                         [ i [ class "fas", class "fa-times-circle" ] [] ]
 
+                viewCardName card =
+                    if config.cardShortNames then
+                        Card.toShortString card
+
+                    else
+                        Card.toString card
+
                 viewCard card faction =
                     let
                         attr =
                             [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card ]
                     in
-                    li [] [ span attr [ text <| Card.toString card ], discardIcon card faction ]
+                    li [] [ span attr [ text <| viewCardName card ], discardIcon card faction ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
@@ -644,6 +671,12 @@ viewButtons =
             , button
                 [ class Bulma.levelItem
                 , class Bulma.button
+                , onClick <| ViewGameMsg OpenConfigModal
+                ]
+                [ text "Config" ]
+            , button
+                [ class Bulma.levelItem
+                , class Bulma.button
                 , onClick (ViewGameMsg Undo)
                 ]
                 [ text "Undo" ]
@@ -684,7 +717,7 @@ viewGame game =
         [ section [ class Bulma.section ]
             [ viewButtons
             , viewDeck <| List.concatMap (\player -> player.hand) game.players
-            , viewPlayerTiles game.players
+            , viewPlayerTiles game.players game.config
             ]
         , modal
         ]
@@ -735,6 +768,9 @@ viewModal _ modal =
 
         ModalAddCard model ->
             Modal.AddCard.view model
+
+        ModalConfig model ->
+            Modal.Config.view model
 
 
 view : Model -> Html Msg

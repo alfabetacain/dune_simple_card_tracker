@@ -1,0 +1,54 @@
+module Modal.Config exposing (update, view)
+
+import Bulma.Classes as Bulma
+import Html exposing (Html, button, div, input, label, text)
+import Html.Attributes exposing (class, disabled, selected, type_)
+import Html.Events exposing (onClick)
+import Types exposing (..)
+import View
+
+
+update : ConfigModalMsg -> Config -> Config
+update msg model =
+    case msg of
+        ToggleCardShortNames ->
+            { model | cardShortNames = not model.cardShortNames }
+
+
+view : Config -> Html Msg
+view model =
+    let
+        title =
+            "Config"
+
+        toggleField msg description currentValue =
+            div [ class Bulma.field ]
+                [ div [ class Bulma.control ]
+                    [ label [ class Bulma.checkbox ]
+                        [ input
+                            [ type_ "checkbox"
+                            , selected currentValue
+                            , onClick (ViewGameMsg <| ModalMsg <| ConfigModalMsg <| msg)
+                            ]
+                            []
+                        , text description
+                        ]
+                    ]
+                ]
+
+        body =
+            div [ class Bulma.container ]
+                [ toggleField ToggleCardShortNames "Show short names for cards" model.cardShortNames
+                ]
+
+        footer =
+            div []
+                [ button
+                    [ class Bulma.button
+                    , class Bulma.isSuccess
+                    , onClick <| ViewGameMsg <| FinishConfigModal
+                    ]
+                    [ text "Apply" ]
+                ]
+    in
+    View.modal title (ViewGameMsg CloseModal) body footer
