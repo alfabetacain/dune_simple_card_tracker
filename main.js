@@ -9772,6 +9772,7 @@ var $author$project$Types$ConfigModalMsg = function (a) {
 };
 var $author$project$Types$ToggleCardShortNames = {$: 'ToggleCardShortNames'};
 var $ahstro$elm_bulma_classes$Bulma$Classes$checkbox = 'checkbox';
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Modal$Config$view = function (model) {
@@ -9806,7 +9807,7 @@ var $author$project$Modal$Config$view = function (model) {
 										_List_fromArray(
 											[
 												$elm$html$Html$Attributes$type_('checkbox'),
-												$elm$html$Html$Attributes$selected(currentValue),
+												$elm$html$Html$Attributes$checked(currentValue),
 												$elm$html$Html$Events$onClick(
 												$author$project$Types$ViewGameMsg(
 													$author$project$Types$ModalMsg(
@@ -10376,7 +10377,6 @@ var $author$project$Types$ToggleFaction = function (a) {
 var $author$project$Types$ViewSetupMsg = function (a) {
 	return {$: 'ViewSetupMsg', a: a};
 };
-var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $pzp1997$assoc_list$AssocList$filter = F2(
 	function (isGood, _v0) {
 		var alist = _v0.a;
