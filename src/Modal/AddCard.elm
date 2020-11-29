@@ -16,9 +16,6 @@ view model =
         validFactionSelected =
             not <| Faction.eq Faction.unknown model.faction
 
-        validCardSelected =
-            not <| Card.eq Card.unknown model.card
-
         modalTitle =
             "Add Card"
 
@@ -31,7 +28,7 @@ view model =
                 , toHtml = \c -> text <| Card.toString c
                 , toValueString = Card.toString
                 , name = "Card"
-                , isValid = not <| Card.eq Card.unknown card
+                , isValid = True
                 }
 
         viewFactionSelectControl faction =
@@ -60,7 +57,7 @@ view model =
                     [ class Bulma.button
                     , class Bulma.isSuccess
                     , onClick <| ViewGameMsg <| AddCard model.card model.faction
-                    , disabled (not (validFactionSelected && validCardSelected))
+                    , disabled (not validFactionSelected)
                     ]
                     [ text "Assign card" ]
                 ]

@@ -530,7 +530,7 @@ viewPlayerTiles players =
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
                     [ div [ class Bulma.container ]
-                        [ p [ class Bulma.title ] [ text <| Faction.toString player.faction ]
+                        [ p [ class Bulma.isSize5, class Bulma.hasTextWeightBold ] [ text <| Faction.toString player.faction ]
                         , ul [ Html.Attributes.id <| (toHtmlId <| Faction.toString player.faction) ++ "-cards" ] <| List.map (\card -> viewCard card player.faction) player.hand
                         ]
                     ]
