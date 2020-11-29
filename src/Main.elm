@@ -116,6 +116,7 @@ createGame factions =
     , history = []
     , modal = Nothing
     , savedBiddingPhaseModalModel = Nothing
+    , savedCombatModalModel = Nothing
     , navbarExpanded = False
     }
 
@@ -144,26 +145,9 @@ addCardToPlayer card faction players =
     updateFaction (\player -> { player | hand = card :: player.hand }) faction players
 
 
-isSignificant : GameMsg -> Bool
-isSignificant msg =
-    case msg of
-        AddCard _ _ ->
-            True
-
-        DiscardCard _ _ ->
-            True
-
-        _ ->
-            True
-
-
 withHistory : GameMsg -> Game -> Game
 withHistory msg model =
-    if isSignificant msg then
-        { model | history = msg :: model.history }
-
-    else
-        model
+    { model | history = msg :: model.history }
 
 
 popHistory : Game -> Game
@@ -238,8 +222,19 @@ updateGame msg game =
 
                 AddCard card faction ->
                     let
+                        updatedModal =
+                            case game.modal of
+                                Just (ModalAddCard m) ->
+                                    Nothing
+
+                                x ->
+                                    x
+
                         updatedGame =
-                            { game | players = addCardToPlayer card faction game.players }
+                            { game
+                                | players = addCardToPlayer card faction game.players
+                                , modal = updatedModal
+                            }
                     in
                     ( withHistory (AddCard card faction) updatedGame, True )
 
@@ -295,17 +290,23 @@ updateGame msg game =
 
                 OpenCombatModal ->
                     let
-                        initialSide =
-                            { faction = Faction.unknown
-                            , weapon = { card = Card.none, discard = False }
-                            , defense = { card = Card.none, discard = False }
-                            , cheapHero = False
-                            }
-
                         initialState =
-                            { left = initialSide
-                            , right = initialSide
-                            }
+                            case game.savedCombatModalModel of
+                                Nothing ->
+                                    let
+                                        initialSide =
+                                            { faction = Faction.unknown
+                                            , weapon = { card = Card.none, discard = False }
+                                            , defense = { card = Card.none, discard = False }
+                                            , cheapHero = False
+                                            }
+                                    in
+                                    { left = initialSide
+                                    , right = initialSide
+                                    }
+
+                                Just previous ->
+                                    previous
                     in
                     ( withHistory OpenCombatModal { game | modal = Just <| ModalCombat initialState }, True )
 
@@ -375,7 +376,7 @@ updateGame msg game =
                         updatedGame =
                             updatePlayer rightCards rightFaction <| updatePlayer leftCards leftFaction game
                     in
-                    ( withHistory (FinishCombat leftSide rightSide) { updatedGame | modal = Nothing }, True )
+                    ( withHistory (FinishCombat leftSide rightSide) { updatedGame | modal = Nothing, savedCombatModalModel = Nothing }, True )
 
                 AssignBiddingPhaseCards cards ->
                     let
@@ -393,6 +394,9 @@ updateGame msg game =
                     case game.modal of
                         Just (ModalBidding biddingModel) ->
                             ( withHistory CloseModal { game | modal = Nothing, savedBiddingPhaseModalModel = Just biddingModel }, True )
+
+                        Just (ModalCombat combatModel) ->
+                            ( withHistory CloseModal { game | modal = Nothing, savedCombatModalModel = Just combatModel }, True )
 
                         _ ->
                             ( withHistory CloseModal { game | modal = Nothing }, True )

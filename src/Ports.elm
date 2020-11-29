@@ -308,11 +308,12 @@ encodeModalBiddingModel model =
         ]
 
 
-smallGame : List Player -> Maybe Modal -> Maybe ModalBiddingModel -> List GameMsg -> Game
-smallGame players maybeModal maybeSavedBiddingModel history =
+smallGame : List Player -> Maybe Modal -> Maybe ModalBiddingModel -> Maybe ModalCombatModel -> List GameMsg -> Game
+smallGame players maybeModal maybeSavedBiddingModel maybeSavedCombatModel history =
     { players = players
     , modal = maybeModal
     , savedBiddingPhaseModalModel = maybeSavedBiddingModel
+    , savedCombatModalModel = maybeSavedCombatModel
     , history = history
     , dragDrop = DragDrop.init
     , navbarExpanded = False
@@ -330,7 +331,13 @@ decodeGame =
         |> required "players" (D.list playerBicoder.decode)
         |> optional "modal" (D.nullable decodeModal) Nothing
         |> optional "savedBiddingPhaseModalModel" (D.nullable decodeSavedBiddingPhaseModalModel) Nothing
+        |> optional "savedCombatModalModel" (D.nullable decodeSavedCombatModalModel) Nothing
         |> required "history" (D.list decodeGameMsg)
+
+
+decodeSavedCombatModalModel : Decoder ModalCombatModel
+decodeSavedCombatModalModel =
+    decodeModalCombat
 
 
 decodeBiddingModalMsg : Decoder BiddingModalMsg

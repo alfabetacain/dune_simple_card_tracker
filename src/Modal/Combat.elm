@@ -72,8 +72,11 @@ update msg model =
                     let
                         sideLens =
                             chooseSideLens side
+
+                        discardStatus =
+                            Card.eq Card.useless c
                     in
-                    Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | card = c }) model
+                    Lens.modify (Lens.compose sideLens sideWeapon) (\cc -> { cc | card = c, discard = discardStatus }) model
 
                 Nothing ->
                     model
@@ -84,8 +87,11 @@ update msg model =
                     let
                         sideLens =
                             chooseSideLens side
+
+                        discardStatus =
+                            Card.eq Card.useless c
                     in
-                    Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | card = c }) model
+                    Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | card = c, discard = discardStatus }) model
 
                 Nothing ->
                     model

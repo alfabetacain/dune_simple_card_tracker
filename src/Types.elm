@@ -96,6 +96,7 @@ type alias Game =
     , history : List GameMsg
     , modal : Maybe Modal
     , savedBiddingPhaseModalModel : Maybe ModalBiddingModel
+    , savedCombatModalModel : Maybe ModalCombatModel
     , navbarExpanded : Bool
     }
 
