@@ -5193,8 +5193,8 @@ var $author$project$Card$Card = F2(
 	function (a, b) {
 		return {$: 'Card', a: a, b: b};
 	});
-var $author$project$Card$useless = A2($author$project$Card$Card, 'Useless', '');
-var $author$project$Card$weaponPoison = A2($author$project$Card$Card, 'Weapon - Poison', '');
+var $author$project$Card$useless = A2($author$project$Card$Card, 'Useless', 'Useless');
+var $author$project$Card$weaponPoison = A2($author$project$Card$Card, 'Weapon - Poison', 'W - Poison');
 var $author$project$Main$createPlayer = function (faction) {
 	return {
 		faction: faction,
@@ -5425,25 +5425,25 @@ var $elm$core$Dict$fromList = function (assocs) {
 		$elm$core$Dict$empty,
 		assocs);
 };
-var $author$project$Card$none = A2($author$project$Card$Card, 'None', '');
+var $author$project$Card$none = A2($author$project$Card$Card, 'None', 'None');
 var $author$project$Card$toString = function (card) {
 	var s = card.a;
 	return s;
 };
-var $author$project$Card$cheapHero = A2($author$project$Card$Card, 'Cheap Hero', '');
-var $author$project$Card$defensePoison = A2($author$project$Card$Card, 'Defense - Poison', '');
-var $author$project$Card$defenseProjectile = A2($author$project$Card$Card, 'Defense - Projectile', '');
-var $author$project$Card$familyAtomics = A2($author$project$Card$Card, 'Family Atomics', '');
-var $author$project$Card$ghola = A2($author$project$Card$Card, 'Tleilaxu Ghola', '');
-var $author$project$Card$hajr = A2($author$project$Card$Card, 'Hajr', '');
-var $author$project$Card$karama = A2($author$project$Card$Card, 'Karama', '');
-var $author$project$Card$truthTrance = A2($author$project$Card$Card, 'Truthtrance', '');
-var $author$project$Card$weaponLasgun = A2($author$project$Card$Card, 'Weapon - Lasgun', '');
-var $author$project$Card$weaponProjectile = A2($author$project$Card$Card, 'Weapon - Projectile', '');
-var $author$project$Card$weatherControl = A2($author$project$Card$Card, 'Weather Control', '');
+var $author$project$Card$cheapHero = A2($author$project$Card$Card, 'Cheap Hero', 'Hero');
+var $author$project$Card$defensePoison = A2($author$project$Card$Card, 'Defense - Poison', 'D - Poison');
+var $author$project$Card$defenseProjectile = A2($author$project$Card$Card, 'Defense - Projectile', 'D - Projectile');
+var $author$project$Card$familyAtomics = A2($author$project$Card$Card, 'Family Atomics', 'Atomics');
+var $author$project$Card$ghola = A2($author$project$Card$Card, 'Tleilaxu Ghola', 'Ghola');
+var $author$project$Card$hajr = A2($author$project$Card$Card, 'Hajr', 'Hajr');
+var $author$project$Card$karama = A2($author$project$Card$Card, 'Karama', 'Karama');
+var $author$project$Card$truthTrance = A2($author$project$Card$Card, 'Truthtrance', 'Trance');
+var $author$project$Card$weaponLasgun = A2($author$project$Card$Card, 'Weapon - Lasgun', 'W - Lasgun');
+var $author$project$Card$weaponProjectile = A2($author$project$Card$Card, 'Weapon - Projectile', 'W - Projectile');
+var $author$project$Card$weatherControl = A2($author$project$Card$Card, 'Weather Control', 'Weather');
 var $author$project$Card$uniqueCards = _List_fromArray(
 	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun, $author$project$Card$defensePoison, $author$project$Card$defenseProjectile, $author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl, $author$project$Card$useless]);
-var $author$project$Card$unknown = A2($author$project$Card$Card, 'Unknown', '');
+var $author$project$Card$unknown = A2($author$project$Card$Card, 'Unknown', 'Unknown');
 var $author$project$Card$cardsDict = $elm$core$Dict$fromList(
 	A2(
 		$elm$core$List$map,
