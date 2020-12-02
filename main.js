@@ -10413,16 +10413,6 @@ var $author$project$Main$viewModal = F3(
 		}
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isLight = 'is-light';
-var $author$project$Card$bulmaClass = function (card) {
-	var containsCard = function (list) {
-		return A2(
-			$elm$core$List$any,
-			$author$project$Card$eq(card),
-			list);
-	};
-	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isLight : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : '')));
-};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
 	return {$: 'DragEnter', a: a};
 };
@@ -10525,8 +10515,39 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 			]);
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextWeightBold = 'has-text-weight-bold';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isSize5 = 'is-size-5';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isLight = 'is-light';
+var $author$project$Card$bulmaClass = function (card) {
+	var containsCard = function (list) {
+		return A2(
+			$elm$core$List$any,
+			$author$project$Card$eq(card),
+			list);
+	};
+	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isLight : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : '')));
+};
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSmall = 'is-small';
+var $author$project$Card$html = F3(
+	function (config, attrs, card) {
+		var name = config.cardShortNames ? $author$project$Card$toShortString(card) : $author$project$Card$toString(card);
+		return A2(
+			$elm$html$Html$button,
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class(
+						$author$project$Card$bulmaClass(card)),
+					A2(
+						$elm$core$List$cons,
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSmall),
+						attrs))),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(name)
+				]));
+	});
+var $ahstro$elm_bulma_classes$Bulma$Classes$isSize5 = 'is-size-5';
 var $elm$core$String$replace = F3(
 	function (before, after, string) {
 		return A2(
@@ -10577,25 +10598,14 @@ var $author$project$Main$viewPlayerTiles = F2(
 						[
 							$elm$html$Html$Events$onClick(
 							$author$project$Types$ViewGameMsg(
-								A2($author$project$Types$OpenChangeCardModal, faction, card))),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class(
-							$author$project$Card$bulmaClass(card)),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSmall)
+								A2($author$project$Types$OpenChangeCardModal, faction, card)))
 						]);
 					return A2(
 						$elm$html$Html$li,
 						_List_Nil,
 						_List_fromArray(
 							[
-								A2(
-								$elm$html$Html$a,
-								attr,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(
-										viewCardName(card))
-									])),
+								A3($author$project$Card$html, config, attr, card),
 								A2(discardIcon, card, faction)
 							]));
 				});
