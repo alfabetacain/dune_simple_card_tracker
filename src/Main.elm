@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Array exposing (Array)
 import AssocList as ADict
+import View.History
 import Browser
 import Bulma.Classes as Bulma
 import Card
@@ -229,6 +230,12 @@ updateGame msg game =
             case msg of
                 Undo ->
                     ( popHistory game, True )
+
+                OpenHistoryModal m ->
+                  if View.History.supportsModal m then
+                    ( withHistory (OpenHistoryModal m) { game | modal = Just <| ModalHistory m }, True )
+                  else
+                    (game, False)
 
                 AddCard card faction ->
                     let
@@ -714,82 +721,11 @@ viewNavbar isExpanded =
         ]
 
 
-viewGameMsg : Config -> GameMsg -> Maybe (Html Msg)
-viewGameMsg config msg =
-    let
-        cardName card =
-            if config.cardShortNames then
-                Card.toShortString card
-
-            else
-                Card.toString card
-
-        item txt =
-            Just <| li [] [ text txt ]
-    in
-    case msg of
-        AddCard card faction ->
-            item <| "Added " ++ cardName card ++ " to " ++ Faction.toString faction
-
-        DiscardCard card faction ->
-            item <| "Discarded " ++ cardName card ++ " from " ++ Faction.toString faction
-
-        DragDropCardToFaction _ ->
-            Nothing
-
-        Undo ->
-            Nothing
-
-        OpenChangeCardModal _ _ ->
-            Nothing
-
-        ChangeCardViaModal change ->
-            item <| "Changed " ++ cardName change.current ++ " to " ++ cardName change.new ++ " for " ++ Faction.toString change.faction
-
-        OpenBiddingPhaseModal ->
-            Nothing
-
-        AssignBiddingPhaseCards _ ->
-            item "this"
-
-        ModalMsg m ->
-            Nothing
-
-        CloseModal ->
-            Nothing
-
-        FinishCombat left right ->
-            item "combat"
-
-        OpenCombatModal ->
-            Nothing
-
-        OpenAddCardModal ->
-            Nothing
-
-        OpenConfigModal ->
-            Nothing
-
-        FinishConfigModal ->
-            Nothing
-
-
-viewHistory : Config -> List GameMsg -> Html Msg
-viewHistory config history =
-    div [ class Bulma.tile, class Bulma.isAncestor ]
-        [ div [ class Bulma.tile, class Bulma.isParent ]
-            [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered ]
-                [ ol [] <| List.filterMap (viewGameMsg config) history
-                ]
-            ]
-        ]
-
-
 viewGame : Game -> Html Msg
 viewGame game =
     let
         modal =
-            Maybe.withDefault (div [] []) <| Maybe.map (\m -> viewModal [] m) game.modal
+            Maybe.withDefault (div [] []) <| Maybe.map (\m -> viewModal game.config [] m) game.modal
     in
     Html.node "body"
         []
@@ -797,7 +733,7 @@ viewGame game =
             [ viewButtons
             , viewDeck game.config <| List.concatMap (\player -> player.hand) game.players
             , viewPlayerTiles game.players game.config
-            , Html.Lazy.lazy2 viewHistory game.config game.history
+            , Html.Lazy.lazy2 View.History.list game.config game.history
             ]
         , modal
         ]
@@ -834,8 +770,8 @@ viewFooter =
         ]
 
 
-viewModal : List Card.Type -> Modal -> Html Msg
-viewModal _ modal =
+viewModal : Config -> List Card.Type -> Modal -> Html Msg
+viewModal config _ modal =
     case modal of
         ModalChangeCard model ->
             viewChangeCardModal model
@@ -851,6 +787,8 @@ viewModal _ modal =
 
         ModalConfig model ->
             Modal.Config.view model
+        ModalHistory msg ->
+          View.History.modal config msg
 
 
 view : Model -> Html Msg

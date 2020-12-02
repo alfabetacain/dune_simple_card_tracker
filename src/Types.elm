@@ -61,6 +61,7 @@ type Modal
     | ModalCombat ModalCombatModel
     | ModalAddCard ModalAddCardModel
     | ModalConfig Config
+    | ModalHistory GameMsg
 
 
 type alias Index =
@@ -161,6 +162,7 @@ type GameMsg
     | OpenAddCardModal
     | OpenConfigModal
     | FinishConfigModal
+    | OpenHistoryModal GameMsg
 
 
 type Msg

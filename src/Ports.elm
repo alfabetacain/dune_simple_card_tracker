@@ -192,6 +192,9 @@ encodeGameMsg msg =
         OpenBiddingPhaseModal ->
             encodeType "OpenBiddingPhaseModal" []
 
+        OpenHistoryModal m ->
+            encodeType "OpenHistoryModal" [ encodeGameMsg m ]
+
         AssignBiddingPhaseCards assignments ->
             let
                 encodeAssignment ( card, faction ) =
@@ -298,6 +301,10 @@ encodeModal modal =
                 [ ( "type", E.string "ModalConfig" )
                 , ( "value", encodeConfig model )
                 ]
+        ModalHistory model ->
+          E.object
+            [ ("type", E.string "ModalHistory")
+            , ("value", encodeGameMsg model)]
 
 
 type alias BiCoder a =
@@ -592,6 +599,12 @@ decodeGameMsg =
                             |> custom (index 1 decodeCombatSide)
                         )
 
+                "OpenHistoryModal" ->
+                    D.field "values"
+                        (D.succeed OpenHistoryModal
+                            |> custom (index 0 decodeGameMsg)
+                        )
+
                 _ ->
                     D.fail <| "Unknown type for GameMsg \"" ++ typ ++ "\""
 
@@ -694,6 +707,9 @@ decodeModal =
 
                 "ModalConfig" ->
                     D.map ModalConfig (D.field "value" decodeConfig)
+                "ModalHistory" ->
+                    D.map ModalHistory (D.field "value" decodeGameMsg)
+
 
                 _ ->
                     D.fail <| "Unknown modal type " ++ s
