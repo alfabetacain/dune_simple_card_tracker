@@ -8,7 +8,9 @@ import Html5.DragDrop as DragDrop
 
 
 type alias Config =
-    { cardShortNames : Bool }
+    { cardShortNames : Bool
+    , handLimits : Bool
+    }
 
 
 type alias ModalChangeCardModel =
@@ -86,6 +88,7 @@ type BiddingModalMsg
 
 type ConfigModalMsg
     = ToggleCardShortNames
+    | ToggleHandLimits
 
 
 type AddCardModalMsg

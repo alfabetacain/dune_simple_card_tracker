@@ -2,7 +2,7 @@ module Modal.Config exposing (update, view)
 
 import Bulma.Classes as Bulma
 import Html exposing (Html, button, div, input, label, text)
-import Html.Attributes exposing (checked, class, disabled, type_)
+import Html.Attributes exposing (checked, class, type_)
 import Html.Events exposing (onClick)
 import Types exposing (..)
 import View
@@ -13,6 +13,9 @@ update msg model =
     case msg of
         ToggleCardShortNames ->
             { model | cardShortNames = not model.cardShortNames }
+
+        ToggleHandLimits ->
+            { model | handLimits = not model.handLimits }
 
 
 view : Config -> Html Msg
@@ -39,6 +42,7 @@ view model =
         body =
             div [ class Bulma.container ]
                 [ toggleField ToggleCardShortNames "Show short names for cards" model.cardShortNames
+                , toggleField ToggleHandLimits "Enforce hand limits" model.handLimits
                 ]
 
         footer =

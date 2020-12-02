@@ -38,7 +38,9 @@ encodeGame game =
 encodeConfig : Config -> E.Value
 encodeConfig config =
     E.object
-        [ ( "cardShortNames", E.bool config.cardShortNames ) ]
+        [ ( "cardShortNames", E.bool config.cardShortNames )
+        , ( "handLimits", E.bool config.handLimits )
+        ]
 
 
 encodeCombatModalModel : ModalCombatModel -> E.Value
@@ -142,6 +144,9 @@ encodeConfigModalMsg msg =
     case msg of
         ToggleCardShortNames ->
             encodeType "ToggleCardShortNames" []
+
+        ToggleHandLimits ->
+            encodeType "ToggleHandLimits" []
 
 
 encodeModalMsg : ModalMsg -> E.Value
@@ -301,10 +306,12 @@ encodeModal modal =
                 [ ( "type", E.string "ModalConfig" )
                 , ( "value", encodeConfig model )
                 ]
+
         ModalHistory model ->
-          E.object
-            [ ("type", E.string "ModalHistory")
-            , ("value", encodeGameMsg model)]
+            E.object
+                [ ( "type", E.string "ModalHistory" )
+                , ( "value", encodeGameMsg model )
+                ]
 
 
 type alias BiCoder a =
@@ -374,6 +381,7 @@ decodeConfig : Decoder Config
 decodeConfig =
     D.succeed Config
         |> required "cardShortNames" D.bool
+        |> required "handLimits" D.bool
 
 
 decodeSavedCombatModalModel : Decoder ModalCombatModel
@@ -488,6 +496,9 @@ decodeConfigModalMsg =
             case typ of
                 "ToggleCardShortNames" ->
                     D.succeed ToggleCardShortNames
+
+                "ToggleHandLimits" ->
+                    D.succeed ToggleHandLimits
 
                 _ ->
                     D.fail <| "Unknown ConfigModalMsg " ++ typ
@@ -707,9 +718,9 @@ decodeModal =
 
                 "ModalConfig" ->
                     D.map ModalConfig (D.field "value" decodeConfig)
+
                 "ModalHistory" ->
                     D.map ModalHistory (D.field "value" decodeGameMsg)
-
 
                 _ ->
                     D.fail <| "Unknown modal type " ++ s

@@ -1,5 +1,6 @@
-module Card exposing (Type, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, bulmaClass, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
+import Bulma.Classes as Bulma
 import Dict
 import Json.Decode as D
 import Json.Encode as E
@@ -11,6 +12,28 @@ type Type
 
 
 -- functions
+
+
+bulmaClass : Type -> String
+bulmaClass card =
+    let
+        containsCard list =
+            List.any (eq card) list
+    in
+    if containsCard weapons then
+        Bulma.isDanger
+
+    else if containsCard defenses then
+        Bulma.isInfo
+
+    else if containsCard special then
+        Bulma.isLight
+
+    else if eq useless card then
+        Bulma.isWarning
+
+    else
+        ""
 
 
 eq : Type -> Type -> Bool

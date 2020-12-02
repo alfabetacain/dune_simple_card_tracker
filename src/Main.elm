@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Array exposing (Array)
 import AssocList as ADict
-import View.History
 import Browser
 import Bulma.Classes as Bulma
 import Card
@@ -22,6 +21,7 @@ import Modal.Config
 import Ports
 import Types exposing (..)
 import View
+import View.History
 
 
 main =
@@ -106,7 +106,9 @@ createPlayer faction =
 
 initConfig : Config
 initConfig =
-    { cardShortNames = False }
+    { cardShortNames = False
+    , handLimits = False
+    }
 
 
 createGame : List Faction.Type -> Game
@@ -148,9 +150,26 @@ changeCard current new cards =
                 head :: changeCard current new tail
 
 
-addCardToPlayer : Card.Type -> Faction.Type -> List Player -> List Player
-addCardToPlayer card faction players =
-    updateFaction (\player -> { player | hand = card :: player.hand }) faction players
+handLimit : Faction.Type -> Int
+handLimit faction =
+    if Faction.eq Faction.harkonnen faction then
+        8
+
+    else
+        4
+
+
+addCardToPlayer : Config -> Card.Type -> Faction.Type -> List Player -> List Player
+addCardToPlayer config card faction players =
+    let
+        add player =
+            if config.handLimits && List.length player.hand >= handLimit player.faction then
+                player
+
+            else
+                { player | hand = card :: player.hand }
+    in
+    updateFaction add faction players
 
 
 withHistory : GameMsg -> Game -> Game
@@ -232,10 +251,11 @@ updateGame msg game =
                     ( popHistory game, True )
 
                 OpenHistoryModal m ->
-                  if View.History.supportsModal m then
-                    ( withHistory (OpenHistoryModal m) { game | modal = Just <| ModalHistory m }, True )
-                  else
-                    (game, False)
+                    if View.History.supportsModal m then
+                        ( withHistory (OpenHistoryModal m) { game | modal = Just <| ModalHistory m }, True )
+
+                    else
+                        ( game, False )
 
                 AddCard card faction ->
                     let
@@ -249,7 +269,7 @@ updateGame msg game =
 
                         updatedGame =
                             { game
-                                | players = addCardToPlayer card faction game.players
+                                | players = addCardToPlayer game.config card faction game.players
                                 , modal = updatedModal
                             }
                     in
@@ -277,7 +297,7 @@ updateGame msg game =
                         Just ( card, faction, _ ) ->
                             let
                                 updatedPlayers =
-                                    addCardToPlayer card faction game.players
+                                    addCardToPlayer game.config card faction game.players
                             in
                             ( withHistory (AddCard card faction) { game | players = updatedPlayers, dragDrop = model_ }, True )
 
@@ -400,7 +420,7 @@ updateGame msg game =
                         assignCard entry players =
                             case entry of
                                 ( card, faction ) ->
-                                    addCardToPlayer card faction players
+                                    addCardToPlayer game.config card faction players
 
                         updatedPlayers =
                             List.foldl assignCard game.players cards
@@ -558,9 +578,9 @@ viewPlayerTiles players config =
                 viewCard card faction =
                     let
                         attr =
-                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card ]
+                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card, class Bulma.button, class <| Card.bulmaClass card, class Bulma.isSmall ]
                     in
-                    li [] [ span attr [ text <| viewCardName card ], discardIcon card faction ]
+                    li [] [ a attr [ text <| viewCardName card ], discardIcon card faction ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
@@ -787,8 +807,9 @@ viewModal config _ modal =
 
         ModalConfig model ->
             Modal.Config.view model
+
         ModalHistory msg ->
-          View.History.modal config msg
+            View.History.modal config msg
 
 
 view : Model -> Html Msg
