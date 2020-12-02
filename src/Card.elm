@@ -1,7 +1,9 @@
-module Card exposing (Type, bulmaClass, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, bulmaClass, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, html, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Bulma.Classes as Bulma
 import Dict
+import Html exposing (Attribute, Html, button, text)
+import Html.Attributes exposing (class)
 import Json.Decode as D
 import Json.Encode as E
 
@@ -12,6 +14,19 @@ type Type
 
 
 -- functions
+
+
+html : { a | cardShortNames : Bool } -> List (Attribute msg) -> Type -> Html msg
+html config attrs card =
+    let
+        name =
+            if config.cardShortNames then
+                toShortString card
+
+            else
+                toString card
+    in
+    button (class Bulma.button :: class (bulmaClass card) :: class Bulma.isSmall :: attrs) [ text name ]
 
 
 bulmaClass : Type -> String

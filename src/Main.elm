@@ -578,9 +578,9 @@ viewPlayerTiles players config =
                 viewCard card faction =
                     let
                         attr =
-                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card, class Bulma.button, class <| Card.bulmaClass card, class Bulma.isSmall ]
+                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card ]
                     in
-                    li [] [ a attr [ text <| viewCardName card ], discardIcon card faction ]
+                    li [] [ Card.html config attr card, discardIcon card faction ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))
