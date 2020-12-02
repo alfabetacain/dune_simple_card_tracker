@@ -7,9 +7,10 @@ import Bulma.Classes as Bulma
 import Card
 import Dict
 import Faction
-import Html exposing (Html, a, button, div, footer, i, img, input, label, li, nav, p, section, span, text, ul)
+import Html exposing (Html, a, button, div, footer, i, img, input, label, li, nav, ol, p, section, span, text, ul)
 import Html.Attributes exposing (checked, class, classList, height, src, type_, width)
 import Html.Events exposing (onClick)
+import Html.Lazy
 import Html5.DragDrop as DragDrop
 import Json.Decode
 import List.Extra as ListE
@@ -586,9 +587,16 @@ countCards cards =
     List.foldl folder Dict.empty cards
 
 
-viewDeckCard : Dict.Dict String Int -> Card.Type -> Html Msg
-viewDeckCard counts card =
+viewDeckCard : Dict.Dict String Int -> Config -> Card.Type -> Html Msg
+viewDeckCard counts config card =
     let
+        cardName =
+            if config.cardShortNames then
+                Card.toShortString card
+
+            else
+                Card.toString card
+
         cardCount =
             String.fromInt <| Maybe.withDefault 0 <| Dict.get (Card.toString card) counts
 
@@ -605,17 +613,17 @@ viewDeckCard counts card =
         countString =
             "(" ++ cardCount ++ "/" ++ stringLimit ++ ")"
     in
-    li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| Card.toString card ++ " " ++ countString ]
+    li (DragDrop.draggable (ViewGameMsg << DragDropCardToFaction) card) [ text <| cardName ++ " " ++ countString ]
 
 
-viewDeck : List Card.Type -> Html Msg
-viewDeck cardsInPlay =
+viewDeck : Config -> List Card.Type -> Html Msg
+viewDeck config cardsInPlay =
     let
         cardCounts =
             countCards cardsInPlay
 
         viewCards cards =
-            ul [] (List.map (viewDeckCard cardCounts) cards)
+            ul [] (List.map (viewDeckCard cardCounts config) cards)
 
         tileEmUp cards colorClass =
             div [ class Bulma.tile, class Bulma.isParent ]
@@ -706,6 +714,77 @@ viewNavbar isExpanded =
         ]
 
 
+viewGameMsg : Config -> GameMsg -> Maybe (Html Msg)
+viewGameMsg config msg =
+    let
+        cardName card =
+            if config.cardShortNames then
+                Card.toShortString card
+
+            else
+                Card.toString card
+
+        item txt =
+            Just <| li [] [ text txt ]
+    in
+    case msg of
+        AddCard card faction ->
+            item <| "Added " ++ cardName card ++ " to " ++ Faction.toString faction
+
+        DiscardCard card faction ->
+            item <| "Discarded " ++ cardName card ++ " from " ++ Faction.toString faction
+
+        DragDropCardToFaction _ ->
+            Nothing
+
+        Undo ->
+            Nothing
+
+        OpenChangeCardModal _ _ ->
+            Nothing
+
+        ChangeCardViaModal change ->
+            item <| "Changed " ++ cardName change.current ++ " to " ++ cardName change.new ++ " for " ++ Faction.toString change.faction
+
+        OpenBiddingPhaseModal ->
+            Nothing
+
+        AssignBiddingPhaseCards _ ->
+            item "this"
+
+        ModalMsg m ->
+            Nothing
+
+        CloseModal ->
+            Nothing
+
+        FinishCombat left right ->
+            item "combat"
+
+        OpenCombatModal ->
+            Nothing
+
+        OpenAddCardModal ->
+            Nothing
+
+        OpenConfigModal ->
+            Nothing
+
+        FinishConfigModal ->
+            Nothing
+
+
+viewHistory : Config -> List GameMsg -> Html Msg
+viewHistory config history =
+    div [ class Bulma.tile, class Bulma.isAncestor ]
+        [ div [ class Bulma.tile, class Bulma.isParent ]
+            [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered ]
+                [ ol [] <| List.filterMap (viewGameMsg config) history
+                ]
+            ]
+        ]
+
+
 viewGame : Game -> Html Msg
 viewGame game =
     let
@@ -716,8 +795,9 @@ viewGame game =
         []
         [ section [ class Bulma.section ]
             [ viewButtons
-            , viewDeck <| List.concatMap (\player -> player.hand) game.players
+            , viewDeck game.config <| List.concatMap (\player -> player.hand) game.players
             , viewPlayerTiles game.players game.config
+            , Html.Lazy.lazy2 viewHistory game.config game.history
             ]
         , modal
         ]

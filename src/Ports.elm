@@ -137,6 +137,13 @@ encodeCombatModalMsg msg =
             encodeType "ToggleDefenseDiscard" [ encodeSide side ]
 
 
+encodeConfigModalMsg : ConfigModalMsg -> E.Value
+encodeConfigModalMsg msg =
+    case msg of
+        ToggleCardShortNames ->
+            encodeType "ToggleCardShortNames" []
+
+
 encodeModalMsg : ModalMsg -> E.Value
 encodeModalMsg msg =
     case msg of
@@ -152,8 +159,8 @@ encodeModalMsg msg =
         CombatModalMsg m ->
             encodeType "CombatModalMsg" [ encodeCombatModalMsg m ]
 
-        _ ->
-            E.null
+        ConfigModalMsg m ->
+            encodeType "ConfigModalMsg" [ encodeConfigModalMsg m ]
 
 
 encodeGameMsg : GameMsg -> E.Value
@@ -201,8 +208,8 @@ encodeGameMsg msg =
         DragDropCardToFaction _ ->
             E.null
 
-        FinishCombat _ _ ->
-            E.null
+        FinishCombat left right ->
+            encodeType "FinishCombat" [ encodeCombatSide left, encodeCombatSide right ]
 
         OpenCombatModal ->
             encodeType "OpenCombatModal" []
@@ -210,8 +217,11 @@ encodeGameMsg msg =
         OpenAddCardModal ->
             encodeType "OpenAddCardModal" []
 
-        _ ->
-            E.null
+        OpenConfigModal ->
+            encodeType "OpenConfigModal" []
+
+        FinishConfigModal ->
+            encodeType "FinishConfigModal" []
 
 
 encodeChangeCardModal : ModalChangeCardModel -> E.Value
@@ -283,8 +293,11 @@ encodeModal modal =
                 , ( "value", encodeAddCardModel model )
                 ]
 
-        _ ->
-            E.null
+        ModalConfig model ->
+            E.object
+                [ ( "type", E.string "ModalConfig" )
+                , ( "value", encodeConfig model )
+                ]
 
 
 type alias BiCoder a =
@@ -311,18 +324,6 @@ bidBicoder =
 encodeBid : ( Card.Type, Faction.Type ) -> E.Value
 encodeBid ( card, faction ) =
     encodeType "tuple" [ Card.encode card, Faction.encode faction ]
-
-
-modalBiddingModelBiCoder : BiCoder ModalBiddingModel
-modalBiddingModelBiCoder =
-    let
-        encode a =
-            E.null
-
-        decode =
-            D.fail "haha"
-    in
-    { encode = encode, decode = decode }
 
 
 encodeModalBiddingModel : ModalBiddingModel -> E.Value
@@ -473,6 +474,20 @@ decodeCombatModalMsg =
     D.andThen chooseDecoder (D.field "type" D.string)
 
 
+decodeConfigModalMsg : Decoder ConfigModalMsg
+decodeConfigModalMsg =
+    let
+        chooseDecoder typ =
+            case typ of
+                "ToggleCardShortNames" ->
+                    D.succeed ToggleCardShortNames
+
+                _ ->
+                    D.fail <| "Unknown ConfigModalMsg " ++ typ
+    in
+    D.andThen chooseDecoder (D.field "type" D.string)
+
+
 decodeModalMsg : Decoder ModalMsg
 decodeModalMsg =
     let
@@ -489,6 +504,9 @@ decodeModalMsg =
 
                 "CombatModalMsg" ->
                     D.field "values" (D.map CombatModalMsg <| index 0 decodeCombatModalMsg)
+
+                "ConfigModalMsg" ->
+                    D.field "values" (D.map ConfigModalMsg <| index 0 decodeConfigModalMsg)
 
                 _ ->
                     D.fail <| "Unknown ModalMsg \"" ++ typ ++ "\""
@@ -537,7 +555,10 @@ decodeGameMsg =
                                 |> required "current" Card.decode
                                 |> required "new" Card.decode
                     in
-                    D.field "values" (D.map ChangeCardViaModal requestDecoder)
+                    D.field "values"
+                        (D.succeed ChangeCardViaModal
+                            |> custom (index 0 requestDecoder)
+                        )
 
                 "OpenBiddingPhaseModal" ->
                     D.succeed OpenBiddingPhaseModal
@@ -557,6 +578,19 @@ decodeGameMsg =
 
                 "OpenAddCardModal" ->
                     D.succeed OpenAddCardModal
+
+                "OpenConfigModal" ->
+                    D.succeed OpenConfigModal
+
+                "FinishConfigModal" ->
+                    D.succeed FinishConfigModal
+
+                "FinishCombat" ->
+                    D.field "values"
+                        (D.succeed FinishCombat
+                            |> custom (index 0 decodeCombatSide)
+                            |> custom (index 1 decodeCombatSide)
+                        )
 
                 _ ->
                     D.fail <| "Unknown type for GameMsg \"" ++ typ ++ "\""
@@ -657,6 +691,9 @@ decodeModal =
 
                 "ModalAddCard" ->
                     D.map ModalAddCard (D.field "value" decodeModalAddCard)
+
+                "ModalConfig" ->
+                    D.map ModalConfig (D.field "value" decodeConfig)
 
                 _ ->
                     D.fail <| "Unknown modal type " ++ s
