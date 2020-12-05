@@ -5184,31 +5184,21 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Types$ViewGame = function (a) {
 	return {$: 'ViewGame', a: a};
 };
+var $author$project$Types$ViewSetup = function (a) {
+	return {$: 'ViewSetup', a: a};
+};
 var $author$project$Faction$Faction = function (a) {
 	return {$: 'Faction', a: a};
 };
 var $author$project$Faction$beneGesserit = $author$project$Faction$Faction('Bene Gesserit');
-var $author$project$Faction$atreides = $author$project$Faction$Faction('Atreides');
-var $author$project$Card$Card = F2(
-	function (a, b) {
-		return {$: 'Card', a: a, b: b};
-	});
-var $author$project$Card$useless = A2($author$project$Card$Card, 'Useless', 'Useless');
-var $author$project$Card$weaponPoison = A2($author$project$Card$Card, 'Weapon - Poison', 'W - Poison');
-var $author$project$Main$createPlayer = function (faction) {
-	return {
-		faction: faction,
-		hand: _List_fromArray(
-			[$author$project$Card$useless, $author$project$Card$weaponPoison])
-	};
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Ports$saveState = _Platform_outgoingPort('saveState', $elm$core$Basics$identity);
+var $author$project$Ports$clearState = $author$project$Ports$saveState($elm$json$Json$Encode$null);
+var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
+var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
+var $pzp1997$assoc_list$AssocList$D = function (a) {
+	return {$: 'D', a: a};
 };
-var $author$project$Faction$eq = F2(
-	function (fac1, fac2) {
-		var _v0 = _Utils_Tuple2(fac1, fac2);
-		var s1 = _v0.a.a;
-		var s2 = _v0.b.a;
-		return _Utils_eq(s1, s2);
-	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5220,26 +5210,60 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
-var $author$project$Main$initConfig = {cardShortNames: false, handLimits: false};
-var $elm$core$Basics$not = _Basics_not;
-var $author$project$Main$createGame = function (factions) {
-	var withoutAtreides = A2(
-		$elm$core$List$filter,
-		function (f) {
-			return !A2($author$project$Faction$eq, $author$project$Faction$atreides, f);
-		},
-		factions);
-	var players = A2(
-		$elm$core$List$map,
-		$author$project$Main$createPlayer,
-		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
-	return {config: $author$project$Main$initConfig, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing, savedCombatModalModel: $elm$core$Maybe$Nothing};
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $pzp1997$assoc_list$AssocList$remove = F2(
+	function (targetKey, _v0) {
+		var alist = _v0.a;
+		return $pzp1997$assoc_list$AssocList$D(
+			A2(
+				$elm$core$List$filter,
+				function (_v1) {
+					var key = _v1.a;
+					return !_Utils_eq(key, targetKey);
+				},
+				alist));
+	});
+var $pzp1997$assoc_list$AssocList$insert = F3(
+	function (key, value, dict) {
+		var _v0 = A2($pzp1997$assoc_list$AssocList$remove, key, dict);
+		var alteredAlist = _v0.a;
+		return $pzp1997$assoc_list$AssocList$D(
+			A2(
+				$elm$core$List$cons,
+				_Utils_Tuple2(key, value),
+				alteredAlist));
+	});
+var $pzp1997$assoc_list$AssocList$fromList = function (alist) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, result) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($pzp1997$assoc_list$AssocList$insert, key, value, result);
+			}),
+		$pzp1997$assoc_list$AssocList$D(_List_Nil),
+		alist);
 };
-var $author$project$Faction$emperor = $author$project$Faction$Faction('Emperor');
-var $author$project$Faction$fremen = $author$project$Faction$Faction('Fremen');
 var $author$project$Faction$harkonnen = $author$project$Faction$Faction('Harkonnen');
+var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
+var $author$project$Main$initSetup = function (_v0) {
+	var factions = _List_fromArray(
+		[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
+	var factionDict = $pzp1997$assoc_list$AssocList$fromList(
+		A2(
+			$elm$core$List$map,
+			function (faction) {
+				return _Utils_Tuple2(faction, false);
+			},
+			factions));
+	var model = {
+		navbarExpanded: false,
+		page: $author$project$Types$ViewSetup(
+			{factions: factionDict})
+	};
+	return _Utils_Tuple2(model, $author$project$Ports$clearState);
+};
 var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
@@ -5439,6 +5463,10 @@ var $elm$core$Dict$fromList = function (assocs) {
 		$elm$core$Dict$empty,
 		assocs);
 };
+var $author$project$Card$Card = F2(
+	function (a, b) {
+		return {$: 'Card', a: a, b: b};
+	});
 var $author$project$Card$none = A2($author$project$Card$Card, 'None', 'None');
 var $author$project$Card$toString = function (card) {
 	var s = card.a;
@@ -5452,7 +5480,9 @@ var $author$project$Card$ghola = A2($author$project$Card$Card, 'Tleilaxu Ghola',
 var $author$project$Card$hajr = A2($author$project$Card$Card, 'Hajr', 'Hajr');
 var $author$project$Card$karama = A2($author$project$Card$Card, 'Karama', 'Karama');
 var $author$project$Card$truthTrance = A2($author$project$Card$Card, 'Truthtrance', 'Trance');
+var $author$project$Card$useless = A2($author$project$Card$Card, 'Useless', 'Useless');
 var $author$project$Card$weaponLasgun = A2($author$project$Card$Card, 'Weapon - Lasgun', 'W - Lasgun');
+var $author$project$Card$weaponPoison = A2($author$project$Card$Card, 'Weapon - Poison', 'W - Poison');
 var $author$project$Card$weaponProjectile = A2($author$project$Card$Card, 'Weapon - Projectile', 'W - Projectile');
 var $author$project$Card$weatherControl = A2($author$project$Card$Card, 'Weather Control', 'Weather');
 var $author$project$Card$uniqueCards = _List_fromArray(
@@ -5525,7 +5555,7 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
-var $author$project$Faction$spacingGuild = $author$project$Faction$Faction('Spacing Guild');
+var $author$project$Faction$atreides = $author$project$Faction$Faction('Atreides');
 var $author$project$Faction$factions = _List_fromArray(
 	[$author$project$Faction$atreides, $author$project$Faction$emperor, $author$project$Faction$fremen, $author$project$Faction$harkonnen, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
 var $author$project$Faction$unknown = $author$project$Faction$Faction('Unknown');
@@ -6252,6 +6282,8 @@ var $author$project$Ports$playerBicoder = function () {
 			$elm$json$Json$Decode$succeed($author$project$Types$Player)));
 	return {decode: decoder, encode: encoder};
 }();
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Ports$smallGame = F6(
 	function (players, maybeModal, maybeSavedBiddingModel, maybeSavedCombatModel, config, history) {
 		return {config: config, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: history, modal: maybeModal, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: maybeSavedBiddingModel, savedCombatModalModel: maybeSavedCombatModel};
@@ -6307,15 +6339,7 @@ var $author$project$Main$init = function (appState) {
 			},
 			$elm$core$Platform$Cmd$none);
 	} else {
-		var factions = _List_fromArray(
-			[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-		var game = $author$project$Main$createGame(factions);
-		return _Utils_Tuple2(
-			{
-				navbarExpanded: false,
-				page: $author$project$Types$ViewGame(game)
-			},
-			$elm$core$Platform$Cmd$none);
+		return $author$project$Main$initSetup(_Utils_Tuple0);
 	}
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -6323,68 +6347,15 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
-var $author$project$Types$ViewSetup = function (a) {
-	return {$: 'ViewSetup', a: a};
-};
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Ports$saveState = _Platform_outgoingPort('saveState', $elm$core$Basics$identity);
-var $author$project$Ports$clearState = $author$project$Ports$saveState($elm$json$Json$Encode$null);
-var $pzp1997$assoc_list$AssocList$D = function (a) {
-	return {$: 'D', a: a};
-};
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $pzp1997$assoc_list$AssocList$remove = F2(
-	function (targetKey, _v0) {
-		var alist = _v0.a;
-		return $pzp1997$assoc_list$AssocList$D(
-			A2(
-				$elm$core$List$filter,
-				function (_v1) {
-					var key = _v1.a;
-					return !_Utils_eq(key, targetKey);
-				},
-				alist));
-	});
-var $pzp1997$assoc_list$AssocList$insert = F3(
-	function (key, value, dict) {
-		var _v0 = A2($pzp1997$assoc_list$AssocList$remove, key, dict);
-		var alteredAlist = _v0.a;
-		return $pzp1997$assoc_list$AssocList$D(
-			A2(
-				$elm$core$List$cons,
-				_Utils_Tuple2(key, value),
-				alteredAlist));
-	});
-var $pzp1997$assoc_list$AssocList$fromList = function (alist) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, result) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($pzp1997$assoc_list$AssocList$insert, key, value, result);
-			}),
-		$pzp1997$assoc_list$AssocList$D(_List_Nil),
-		alist);
-};
-var $author$project$Main$initSetup = function (_v0) {
-	var factions = _List_fromArray(
-		[$author$project$Faction$harkonnen, $author$project$Faction$fremen, $author$project$Faction$emperor, $author$project$Faction$spacingGuild, $author$project$Faction$beneGesserit]);
-	var factionDict = $pzp1997$assoc_list$AssocList$fromList(
-		A2(
-			$elm$core$List$map,
-			function (faction) {
-				return _Utils_Tuple2(faction, false);
-			},
-			factions));
-	var model = {
-		navbarExpanded: false,
-		page: $author$project$Types$ViewSetup(
-			{factions: factionDict})
-	};
-	return _Utils_Tuple2(model, $author$project$Ports$clearState);
-};
+var $elm$core$Basics$not = _Basics_not;
 var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Faction$eq = F2(
+	function (fac1, fac2) {
+		var _v0 = _Utils_Tuple2(fac1, fac2);
+		var s1 = _v0.a.a;
+		var s2 = _v0.b.a;
+		return _Utils_eq(s1, s2);
+	});
 var $author$project$Main$handLimit = function (faction) {
 	return A2($author$project$Faction$eq, $author$project$Faction$harkonnen, faction) ? 8 : 4;
 };
@@ -6451,6 +6422,27 @@ var $author$project$Main$changeCard = F3(
 				A3($author$project$Main$changeCard, current, _new, tail));
 		}
 	});
+var $author$project$Main$createPlayer = function (faction) {
+	return {
+		faction: faction,
+		hand: _List_fromArray(
+			[$author$project$Card$useless, $author$project$Card$weaponPoison])
+	};
+};
+var $author$project$Main$initConfig = {cardShortNames: false, handLimits: false};
+var $author$project$Main$createGame = function (factions) {
+	var withoutAtreides = A2(
+		$elm$core$List$filter,
+		function (f) {
+			return !A2($author$project$Faction$eq, $author$project$Faction$atreides, f);
+		},
+		factions);
+	var players = A2(
+		$elm$core$List$map,
+		$author$project$Main$createPlayer,
+		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
+	return {config: $author$project$Main$initConfig, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing, savedCombatModalModel: $elm$core$Maybe$Nothing};
+};
 var $elm$core$Elm$JsArray$push = _JsArray_push;
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
