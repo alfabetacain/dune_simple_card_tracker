@@ -62,14 +62,17 @@ init appState =
             ( { navbarExpanded = False, page = ViewGame game }, Cmd.none )
 
         _ ->
-            let
-                factions =
-                    [ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
+            initSetup ()
 
-                game =
-                    createGame factions
-            in
-            ( { navbarExpanded = False, page = ViewGame game }, Cmd.none )
+
+
+--let
+--factions =
+--[ Faction.harkonnen, Faction.fremen, Faction.emperor, Faction.spacingGuild, Faction.beneGesserit ]
+--game =
+--createGame factions
+--in
+--( { navbarExpanded = False, page = ViewGame game }, Cmd.none )
 
 
 updateFaction : (Player -> Player) -> Faction.Type -> List Player -> List Player
