@@ -96,7 +96,7 @@ factionsDict =
 
 factions : List Type
 factions =
-    [ atreides, harkonnen, fremen, emperor, spacingGuild, beneGesserit ]
+    [ atreides, emperor, fremen, harkonnen, spacingGuild, beneGesserit ]
 
 
 factionsWithUnknown : List Type

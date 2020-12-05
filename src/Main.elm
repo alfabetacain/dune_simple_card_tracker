@@ -592,9 +592,14 @@ viewPlayerTiles players config =
                 ]
 
         playerTiles =
-            div [ class Bulma.tile, class Bulma.isAncestor ] <| List.map playerTile players
+            List.map playerTile players
     in
-    playerTiles
+    div [ class Bulma.tile, class Bulma.isAncestor ]
+        [ div [ class Bulma.tile, class Bulma.isVertical ]
+            [ div [ class Bulma.tile ] (List.take 3 playerTiles)
+            , div [ class Bulma.tile ] (List.drop 3 playerTiles)
+            ]
+        ]
 
 
 countCards : List Card.Type -> Dict.Dict String Int
