@@ -104,7 +104,18 @@ removeFirst card cards =
 
 createPlayer : Faction.Type -> Player
 createPlayer faction =
-    { faction = faction, hand = [ Card.useless, Card.weaponPoison ] }
+    let
+        cards =
+            if Faction.eq Faction.harkonnen faction then
+                [ Card.unknown, Card.unknown ]
+
+            else if Faction.eq Faction.atreides faction then
+                []
+
+            else
+                [ Card.unknown ]
+    in
+    { faction = faction, hand = cards }
 
 
 initConfig : Config
