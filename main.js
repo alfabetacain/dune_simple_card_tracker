@@ -6435,7 +6435,7 @@ var $author$project$Main$createPlayer = function (faction) {
 		[$author$project$Card$unknown]));
 	return {faction: faction, hand: cards};
 };
-var $author$project$Main$initConfig = {cardShortNames: false, doubleAddToHarkonnen: true, handLimits: false};
+var $author$project$Main$initConfig = {cardShortNames: false, doubleAddToHarkonnen: true, handLimits: true};
 var $author$project$Main$createGame = function (factions) {
 	var withoutAtreides = A2(
 		$elm$core$List$filter,
@@ -8489,6 +8489,49 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$tile = 'tile';
 var $author$project$Types$ViewGameMsg = function (a) {
 	return {$: 'ViewGameMsg', a: a};
 };
+var $author$project$Card$defenses = _List_fromArray(
+	[$author$project$Card$defensePoison, $author$project$Card$defenseProjectile]);
+var $ahstro$elm_bulma_classes$Bulma$Classes$isDanger = 'is-danger';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isInfo = 'is-info';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isLight = 'is-light';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isWarning = 'is-warning';
+var $author$project$Card$special = _List_fromArray(
+	[$author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl]);
+var $author$project$Card$weapons = _List_fromArray(
+	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun]);
+var $author$project$Card$bulmaClass = function (card) {
+	var containsCard = function (list) {
+		return A2(
+			$elm$core$List$any,
+			$author$project$Card$eq(card),
+			list);
+	};
+	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isLight : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : '')));
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $ahstro$elm_bulma_classes$Bulma$Classes$tag = 'tag';
+var $author$project$Card$toShortString = function (card) {
+	var s = card.b;
+	return s;
+};
+var $author$project$Card$html = F3(
+	function (config, attrs, card) {
+		var name = config.cardShortNames ? $author$project$Card$toShortString(card) : $author$project$Card$toString(card);
+		return A2(
+			$elm$html$Html$span,
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tag),
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class(
+						$author$project$Card$bulmaClass(card)),
+					attrs)),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(name)
+				]));
+	});
 var $elm$html$Html$li = _VirtualDom_node('li');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -8507,21 +8550,11 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Card$toShortString = function (card) {
-	var s = card.b;
-	return s;
-};
 var $author$project$View$History$viewGameMsg = F2(
 	function (config, msg) {
-		var item = function (txt) {
+		var item = function (children) {
 			return $elm$core$Maybe$Just(
-				A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(txt)
-						])));
+				A2($elm$html$Html$li, _List_Nil, children));
 		};
 		var interactiveItem = F2(
 			function (onClickMsg, txt) {
@@ -8546,12 +8579,24 @@ var $author$project$View$History$viewGameMsg = F2(
 				var card = msg.a;
 				var faction = msg.b;
 				return item(
-					'Added ' + (cardName(card) + (' to ' + $author$project$Faction$toString(faction))));
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Added '),
+							A3($author$project$Card$html, config, _List_Nil, card),
+							$elm$html$Html$text(
+							' to ' + $author$project$Faction$toString(faction))
+						]));
 			case 'DiscardCard':
 				var card = msg.a;
 				var faction = msg.b;
 				return item(
-					'Discarded ' + (cardName(card) + (' from ' + $author$project$Faction$toString(faction))));
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Discarded '),
+							A3($author$project$Card$html, config, _List_Nil, card),
+							$elm$html$Html$text(
+							' from ' + $author$project$Faction$toString(faction))
+						]));
 			case 'DragDropCardToFaction':
 				return $elm$core$Maybe$Nothing;
 			case 'Undo':
@@ -8561,7 +8606,13 @@ var $author$project$View$History$viewGameMsg = F2(
 			case 'ChangeCardViaModal':
 				var change = msg.a;
 				return item(
-					'Changed ' + (cardName(change.current) + (' to ' + (cardName(change._new) + (' for ' + $author$project$Faction$toString(change.faction))))));
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Changed '),
+							A3($author$project$Card$html, config, _List_Nil, change.current),
+							$elm$html$Html$text(
+							' to ' + (cardName(change._new) + (' for ' + $author$project$Faction$toString(change.faction))))
+						]));
 			case 'OpenBiddingPhaseModal':
 				return $elm$core$Maybe$Nothing;
 			case 'AssignBiddingPhaseCards':
@@ -9134,14 +9185,7 @@ var $author$project$Main$countCards = function (cards) {
 		});
 	return A3($elm$core$List$foldl, folder, $elm$core$Dict$empty, cards);
 };
-var $author$project$Card$defenses = _List_fromArray(
-	[$author$project$Card$defensePoison, $author$project$Card$defenseProjectile]);
-var $ahstro$elm_bulma_classes$Bulma$Classes$isDanger = 'is-danger';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isInfo = 'is-info';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isWarning = 'is-warning';
 var $ahstro$elm_bulma_classes$Bulma$Classes$notification = 'notification';
-var $author$project$Card$special = _List_fromArray(
-	[$author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl]);
 var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Types$DragDropCardToFaction = function (a) {
 	return {$: 'DragDropCardToFaction', a: a};
@@ -9287,8 +9331,6 @@ var $author$project$Main$viewDeckCard = F3(
 					$elm$html$Html$text(cardName + (' ' + countString))
 				]));
 	});
-var $author$project$Card$weapons = _List_fromArray(
-	[$author$project$Card$weaponPoison, $author$project$Card$weaponProjectile, $author$project$Card$weaponLasgun]);
 var $author$project$Main$viewDeck = F2(
 	function (config, cardsInPlay) {
 		var cardCounts = $author$project$Main$countCards(cardsInPlay);
@@ -9358,7 +9400,6 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$View$modal = F4(
 	function (title, onClose, bodyChild, footerChild) {
 		return A2(
@@ -9467,8 +9508,9 @@ var $author$project$View$History$modal = F2(
 						_List_Nil,
 						_List_fromArray(
 							[
+								A3($author$project$Card$html, config, _List_Nil, card),
 								$elm$html$Html$text(
-								cardName(card) + (' -> ' + $author$project$Faction$toString(faction)))
+								' -> ' + $author$project$Faction$toString(faction))
 							]));
 				};
 				var modalTitle = 'Bidding phase';
@@ -9518,10 +9560,8 @@ var $author$project$View$History$modal = F2(
 							_List_Nil,
 							_List_fromArray(
 								[
-									$elm$html$Html$text(
-									_Utils_ap(
-										cardName(cc.card),
-										discardSuffix))
+									A3($author$project$Card$html, config, _List_Nil, cc.card),
+									$elm$html$Html$text(discardSuffix)
 								])));
 				};
 				var viewCombatSide = function (side) {
@@ -10551,36 +10591,29 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 			]);
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextWeightBold = 'has-text-weight-bold';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isLight = 'is-light';
-var $author$project$Card$bulmaClass = function (card) {
-	var containsCard = function (list) {
+var $ahstro$elm_bulma_classes$Bulma$Classes$isDelete = 'is-delete';
+var $ahstro$elm_bulma_classes$Bulma$Classes$tags = 'tags';
+var $author$project$Card$htmlWithDiscard = F4(
+	function (config, attrs, deleteMsg, card) {
 		return A2(
-			$elm$core$List$any,
-			$author$project$Card$eq(card),
-			list);
-	};
-	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isLight : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : '')));
-};
-var $ahstro$elm_bulma_classes$Bulma$Classes$isSmall = 'is-small';
-var $author$project$Card$html = F3(
-	function (config, attrs, card) {
-		var name = config.cardShortNames ? $author$project$Card$toShortString(card) : $author$project$Card$toString(card);
-		return A2(
-			$elm$html$Html$button,
-			A2(
-				$elm$core$List$cons,
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-				A2(
-					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class(
-						$author$project$Card$bulmaClass(card)),
-					A2(
-						$elm$core$List$cons,
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSmall),
-						attrs))),
+			$elm$html$Html$span,
 			_List_fromArray(
 				[
-					$elm$html$Html$text(name)
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tags),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasAddons)
+				]),
+			_List_fromArray(
+				[
+					A3($author$project$Card$html, config, attrs, card),
+					A2(
+					$elm$html$Html$a,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tag),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDelete),
+							$elm$html$Html$Events$onClick(deleteMsg)
+						]),
+					_List_Nil)
 				]));
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSize5 = 'is-size-5';
@@ -10732,6 +10765,29 @@ var $author$project$Main$viewPlayerTiles = F2(
 			var viewCardName = function (card) {
 				return config.cardShortNames ? $author$project$Card$toShortString(card) : $author$project$Card$toString(card);
 			};
+			var viewCard = F2(
+				function (card, faction) {
+					var attr = _List_fromArray(
+						[
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								A2($author$project$Types$OpenChangeCardModal, faction, card))),
+							$elm$html$Html$Attributes$class('is-clickable')
+						]);
+					return A2(
+						$elm$html$Html$li,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A4(
+								$author$project$Card$htmlWithDiscard,
+								config,
+								attr,
+								$author$project$Types$ViewGameMsg(
+									A2($author$project$Types$DiscardCard, card, faction)),
+								card)
+							]));
+				});
 			var discardIcon = F2(
 				function (card, faction) {
 					return A2(
@@ -10753,23 +10809,6 @@ var $author$project$Main$viewPlayerTiles = F2(
 										$elm$html$Html$Attributes$class('fa-times-circle')
 									]),
 								_List_Nil)
-							]));
-				});
-			var viewCard = F2(
-				function (card, faction) {
-					var attr = _List_fromArray(
-						[
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								A2($author$project$Types$OpenChangeCardModal, faction, card)))
-						]);
-					return A2(
-						$elm$html$Html$li,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A3($author$project$Card$html, config, attr, card),
-								A2(discardIcon, card, faction)
 							]));
 				});
 			return A2(
