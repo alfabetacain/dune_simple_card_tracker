@@ -5277,9 +5277,9 @@ var $elm$core$Maybe$map = F2(
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Types$Config = F2(
-	function (cardShortNames, handLimits) {
-		return {cardShortNames: cardShortNames, handLimits: handLimits};
+var $author$project$Types$Config = F3(
+	function (cardShortNames, handLimits, doubleAddToHarkonnen) {
+		return {cardShortNames: cardShortNames, doubleAddToHarkonnen: doubleAddToHarkonnen, handLimits: handLimits};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -5293,13 +5293,17 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	});
 var $author$project$Ports$decodeConfig = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'handLimits',
+	'doubleAddToHarkonnen',
 	$elm$json$Json$Decode$bool,
 	A3(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'cardShortNames',
+		'handLimits',
 		$elm$json$Json$Decode$bool,
-		$elm$json$Json$Decode$succeed($author$project$Types$Config)));
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'cardShortNames',
+			$elm$json$Json$Decode$bool,
+			$elm$json$Json$Decode$succeed($author$project$Types$Config))));
 var $author$project$Types$AddCard = F2(
 	function (a, b) {
 		return {$: 'AddCard', a: a, b: b};
@@ -5858,6 +5862,7 @@ var $author$project$Ports$decodeCombatModalMsg = function () {
 		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
 }();
 var $author$project$Types$ToggleCardShortNames = {$: 'ToggleCardShortNames'};
+var $author$project$Types$ToggleDoubleAddToHarkonnen = {$: 'ToggleDoubleAddToHarkonnen'};
 var $author$project$Types$ToggleHandLimits = {$: 'ToggleHandLimits'};
 var $author$project$Ports$decodeConfigModalMsg = function () {
 	var chooseDecoder = function (typ) {
@@ -5866,6 +5871,8 @@ var $author$project$Ports$decodeConfigModalMsg = function () {
 				return $elm$json$Json$Decode$succeed($author$project$Types$ToggleCardShortNames);
 			case 'ToggleHandLimits':
 				return $elm$json$Json$Decode$succeed($author$project$Types$ToggleHandLimits);
+			case 'ToggleDoubleAddToHarkonnen':
+				return $elm$json$Json$Decode$succeed($author$project$Types$ToggleDoubleAddToHarkonnen);
 			default:
 				return $elm$json$Json$Decode$fail('Unknown ConfigModalMsg ' + typ);
 		}
@@ -6428,7 +6435,7 @@ var $author$project$Main$createPlayer = function (faction) {
 		[$author$project$Card$unknown]));
 	return {faction: faction, hand: cards};
 };
-var $author$project$Main$initConfig = {cardShortNames: false, handLimits: false};
+var $author$project$Main$initConfig = {cardShortNames: false, doubleAddToHarkonnen: true, handLimits: false};
 var $author$project$Main$createGame = function (factions) {
 	var withoutAtreides = A2(
 		$elm$core$List$filter,
@@ -6618,7 +6625,10 @@ var $author$project$Ports$encodeConfig = function (config) {
 				$elm$json$Json$Encode$bool(config.cardShortNames)),
 				_Utils_Tuple2(
 				'handLimits',
-				$elm$json$Json$Encode$bool(config.handLimits))
+				$elm$json$Json$Encode$bool(config.handLimits)),
+				_Utils_Tuple2(
+				'doubleAddToHarkonnen',
+				$elm$json$Json$Encode$bool(config.doubleAddToHarkonnen))
 			]));
 };
 var $author$project$Ports$encodeType = F2(
@@ -6776,10 +6786,13 @@ var $author$project$Ports$encodeCombatModalMsg = function (msg) {
 	}
 };
 var $author$project$Ports$encodeConfigModalMsg = function (msg) {
-	if (msg.$ === 'ToggleCardShortNames') {
-		return A2($author$project$Ports$encodeType, 'ToggleCardShortNames', _List_Nil);
-	} else {
-		return A2($author$project$Ports$encodeType, 'ToggleHandLimits', _List_Nil);
+	switch (msg.$) {
+		case 'ToggleCardShortNames':
+			return A2($author$project$Ports$encodeType, 'ToggleCardShortNames', _List_Nil);
+		case 'ToggleHandLimits':
+			return A2($author$project$Ports$encodeType, 'ToggleHandLimits', _List_Nil);
+		default:
+			return A2($author$project$Ports$encodeType, 'ToggleDoubleAddToHarkonnen', _List_Nil);
 	}
 };
 var $author$project$Ports$encodeModalMsg = function (msg) {
@@ -7701,14 +7714,19 @@ var $author$project$Modal$Combat$update = F2(
 	});
 var $author$project$Modal$Config$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'ToggleCardShortNames') {
-			return _Utils_update(
-				model,
-				{cardShortNames: !model.cardShortNames});
-		} else {
-			return _Utils_update(
-				model,
-				{handLimits: !model.handLimits});
+		switch (msg.$) {
+			case 'ToggleCardShortNames':
+				return _Utils_update(
+					model,
+					{cardShortNames: !model.cardShortNames});
+			case 'ToggleHandLimits':
+				return _Utils_update(
+					model,
+					{handLimits: !model.handLimits});
+			default:
+				return _Utils_update(
+					model,
+					{doubleAddToHarkonnen: !model.doubleAddToHarkonnen});
 		}
 	});
 var $author$project$Main$updateModal = F2(
@@ -8101,7 +8119,12 @@ var $author$project$Main$updateGame = F2(
 						function (entry, players) {
 							var card = entry.a;
 							var faction = entry.b;
-							return A4($author$project$Main$addCardToPlayer, game.config, card, faction, players);
+							return (A2($author$project$Faction$eq, $author$project$Faction$harkonnen, faction) && game.config.doubleAddToHarkonnen) ? A4(
+								$author$project$Main$addCardToPlayer,
+								game.config,
+								$author$project$Card$unknown,
+								faction,
+								A4($author$project$Main$addCardToPlayer, game.config, card, faction, players)) : A4($author$project$Main$addCardToPlayer, game.config, card, faction, players);
 						});
 					var updatedPlayers = A3($elm$core$List$foldl, assignCard, game.players, cards);
 					return _Utils_Tuple2(
@@ -10307,7 +10330,8 @@ var $author$project$Modal$Config$view = function (model) {
 		_List_fromArray(
 			[
 				A3(toggleField, $author$project$Types$ToggleCardShortNames, 'Show short names for cards', model.cardShortNames),
-				A3(toggleField, $author$project$Types$ToggleHandLimits, 'Enforce hand limits', model.handLimits)
+				A3(toggleField, $author$project$Types$ToggleHandLimits, 'Enforce hand limits', model.handLimits),
+				A3(toggleField, $author$project$Types$ToggleDoubleAddToHarkonnen, 'Add unknown card to harkonnen automatically during bidding', model.doubleAddToHarkonnen)
 			]));
 	return A4(
 		$author$project$View$modal,
