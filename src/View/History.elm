@@ -12,14 +12,6 @@ import View
 
 modal : Config -> GameMsg -> Html Msg
 modal config msg =
-    let
-        cardName c =
-            if config.cardShortNames then
-                Card.toShortString c
-
-            else
-                Card.toString c
-    in
     case msg of
         AssignBiddingPhaseCards assignments ->
             let
@@ -150,7 +142,7 @@ viewGameMsg config msg =
             Nothing
 
         ChangeCardViaModal change ->
-            item [ text "Changed ", Card.html config [] change.current, text <| " to " ++ cardName change.new ++ " for " ++ Faction.toString change.faction ]
+            item [ text "Changed ", Card.html config [] change.current, text " to ", Card.html config [] change.new, text <| " for " ++ Faction.toString change.faction ]
 
         OpenBiddingPhaseModal ->
             Nothing

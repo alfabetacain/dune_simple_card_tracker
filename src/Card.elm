@@ -55,10 +55,13 @@ bulmaClass card =
         Bulma.isInfo
 
     else if containsCard special then
-        Bulma.isLight
+        Bulma.isSuccess
 
     else if eq useless card then
         Bulma.isWarning
+
+    else if eq unknown card then
+        Bulma.isBlack
 
     else
         ""

@@ -691,10 +691,10 @@ viewDeck config cardsInPlay =
             tileEmUp Card.defenses Bulma.isInfo
 
         specialTile =
-            tileEmUp Card.special ""
+            tileEmUp Card.special Bulma.isSuccess
 
         uselessTile =
-            tileEmUp [ Card.useless, Card.unknown ] Bulma.isWarning
+            tileEmUp [ Card.useless ] Bulma.isWarning
     in
     div [ class Bulma.tile, class Bulma.isAncestor ]
         [ weaponTile
