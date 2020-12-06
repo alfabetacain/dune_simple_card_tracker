@@ -121,7 +121,7 @@ createPlayer faction =
 initConfig : Config
 initConfig =
     { cardShortNames = False
-    , handLimits = False
+    , handLimits = True
     , doubleAddToHarkonnen = True
     }
 
@@ -597,9 +597,11 @@ viewPlayerTiles players config =
                 viewCard card faction =
                     let
                         attr =
-                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card ]
+                            [ onClick <| ViewGameMsg <| OpenChangeCardModal faction card
+                            , class "is-clickable"
+                            ]
                     in
-                    li [] [ Card.html config attr card, discardIcon card faction ]
+                    li [] [ Card.htmlWithDiscard config attr (ViewGameMsg <| DiscardCard card faction) card ]
             in
             div [ class Bulma.tile, class Bulma.isParent ]
                 [ div (List.append [ class Bulma.tile, class Bulma.isChild, class Bulma.box ] (DragDrop.droppable (ViewGameMsg << DragDropCardToFaction) player.faction))

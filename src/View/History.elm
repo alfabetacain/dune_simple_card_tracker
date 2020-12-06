@@ -28,7 +28,7 @@ modal config msg =
                         ( card, faction ) =
                             tuple
                     in
-                    li [] [ text <| cardName card ++ " -> " ++ Faction.toString faction ]
+                    li [] [ Card.html config [] card, text <| " -> " ++ Faction.toString faction ]
 
                 modalTitle =
                     "Bidding phase"
@@ -63,7 +63,7 @@ modal config msg =
                         Nothing
 
                     else
-                        Just <| li [] [ text <| cardName cc.card ++ discardSuffix ]
+                        Just <| li [] [ Card.html config [] cc.card, text discardSuffix ]
 
                 viewCombatSide side =
                     let
@@ -127,18 +127,18 @@ viewGameMsg config msg =
             else
                 Card.toString card
 
-        item txt =
-            Just <| li [] [ text txt ]
+        item children =
+            Just <| li [] children
 
         interactiveItem onClickMsg txt =
             Just <| li [ onClick onClickMsg, class "is-clickable" ] [ text txt ]
     in
     case msg of
         AddCard card faction ->
-            item <| "Added " ++ cardName card ++ " to " ++ Faction.toString faction
+            item [ text "Added ", Card.html config [] card, text <| " to " ++ Faction.toString faction ]
 
         DiscardCard card faction ->
-            item <| "Discarded " ++ cardName card ++ " from " ++ Faction.toString faction
+            item [ text "Discarded ", Card.html config [] card, text <| " from " ++ Faction.toString faction ]
 
         DragDropCardToFaction _ ->
             Nothing
@@ -150,7 +150,7 @@ viewGameMsg config msg =
             Nothing
 
         ChangeCardViaModal change ->
-            item <| "Changed " ++ cardName change.current ++ " to " ++ cardName change.new ++ " for " ++ Faction.toString change.faction
+            item [ text "Changed ", Card.html config [] change.current, text <| " to " ++ cardName change.new ++ " for " ++ Faction.toString change.faction ]
 
         OpenBiddingPhaseModal ->
             Nothing

@@ -1,9 +1,10 @@
-module Card exposing (Type, bulmaClass, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, html, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
+module Card exposing (Type, bulmaClass, cardLimit, cheapHero, deck, decode, defensePoison, defenseProjectile, defenses, encode, eq, familyAtomics, fromString, ghola, hajr, html, htmlWithDiscard, karama, none, special, toShortString, toString, truthTrance, uniqueCards, uniqueCardsWithUnknown, unknown, useless, weaponLasgun, weaponPoison, weaponProjectile, weapons, weatherControl)
 
 import Bulma.Classes as Bulma
 import Dict
-import Html exposing (Attribute, Html, button, text)
+import Html exposing (Attribute, Html, a, button, div, span, text)
 import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Json.Decode as D
 import Json.Encode as E
 
@@ -26,7 +27,19 @@ html config attrs card =
             else
                 toString card
     in
-    button (class Bulma.button :: class (bulmaClass card) :: class Bulma.isSmall :: attrs) [ text name ]
+    span (class Bulma.tag :: class (bulmaClass card) :: attrs) [ text name ]
+
+
+htmlWithDiscard : { a | cardShortNames : Bool } -> List (Attribute msg) -> msg -> Type -> Html msg
+htmlWithDiscard config attrs deleteMsg card =
+    span [ class Bulma.tags, class Bulma.hasAddons ]
+        [ html config attrs card
+        , a [ class Bulma.tag, class Bulma.isDelete, onClick deleteMsg ] []
+        ]
+
+
+
+--button (class Bulma.button :: class (bulmaClass card) :: class Bulma.isSmall :: attrs) [ text name ]
 
 
 bulmaClass : Type -> String
