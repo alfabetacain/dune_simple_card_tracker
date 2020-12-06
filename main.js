@@ -8491,9 +8491,10 @@ var $author$project$Types$ViewGameMsg = function (a) {
 };
 var $author$project$Card$defenses = _List_fromArray(
 	[$author$project$Card$defensePoison, $author$project$Card$defenseProjectile]);
+var $ahstro$elm_bulma_classes$Bulma$Classes$isBlack = 'is-black';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isDanger = 'is-danger';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isInfo = 'is-info';
-var $ahstro$elm_bulma_classes$Bulma$Classes$isLight = 'is-light';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isWarning = 'is-warning';
 var $author$project$Card$special = _List_fromArray(
 	[$author$project$Card$cheapHero, $author$project$Card$familyAtomics, $author$project$Card$hajr, $author$project$Card$karama, $author$project$Card$ghola, $author$project$Card$truthTrance, $author$project$Card$weatherControl]);
@@ -8506,7 +8507,7 @@ var $author$project$Card$bulmaClass = function (card) {
 			$author$project$Card$eq(card),
 			list);
 	};
-	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isLight : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : '')));
+	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : (A2($author$project$Card$eq, $author$project$Card$unknown, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isBlack : ''))));
 };
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $ahstro$elm_bulma_classes$Bulma$Classes$tag = 'tag';
@@ -8610,8 +8611,10 @@ var $author$project$View$History$viewGameMsg = F2(
 						[
 							$elm$html$Html$text('Changed '),
 							A3($author$project$Card$html, config, _List_Nil, change.current),
+							$elm$html$Html$text(' to '),
+							A3($author$project$Card$html, config, _List_Nil, change._new),
 							$elm$html$Html$text(
-							' to ' + (cardName(change._new) + (' for ' + $author$project$Faction$toString(change.faction))))
+							' for ' + $author$project$Faction$toString(change.faction))
 						]));
 			case 'OpenBiddingPhaseModal':
 				return $elm$core$Maybe$Nothing;
@@ -9370,11 +9373,11 @@ var $author$project$Main$viewDeck = F2(
 						]));
 			});
 		var defenseTile = A2(tileEmUp, $author$project$Card$defenses, $ahstro$elm_bulma_classes$Bulma$Classes$isInfo);
-		var specialTile = A2(tileEmUp, $author$project$Card$special, '');
+		var specialTile = A2(tileEmUp, $author$project$Card$special, $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess);
 		var uselessTile = A2(
 			tileEmUp,
 			_List_fromArray(
-				[$author$project$Card$useless, $author$project$Card$unknown]),
+				[$author$project$Card$useless]),
 			$ahstro$elm_bulma_classes$Bulma$Classes$isWarning);
 		var weaponTile = A2(tileEmUp, $author$project$Card$weapons, $ahstro$elm_bulma_classes$Bulma$Classes$isDanger);
 		return A2(
@@ -9387,7 +9390,6 @@ var $author$project$Main$viewDeck = F2(
 			_List_fromArray(
 				[weaponTile, defenseTile, specialTile, uselessTile]));
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess = 'is-success';
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
 var $elm$html$Html$header = _VirtualDom_node('header');
 var $elm$html$Html$i = _VirtualDom_node('i');
@@ -9493,9 +9495,6 @@ var $author$project$View$modal = F4(
 	});
 var $author$project$View$History$modal = F2(
 	function (config, msg) {
-		var cardName = function (c) {
-			return config.cardShortNames ? $author$project$Card$toShortString(c) : $author$project$Card$toString(c);
-		};
 		switch (msg.$) {
 			case 'AssignBiddingPhaseCards':
 				var assignments = msg.a;
