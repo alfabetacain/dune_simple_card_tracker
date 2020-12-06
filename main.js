@@ -6423,11 +6423,10 @@ var $author$project$Main$changeCard = F3(
 		}
 	});
 var $author$project$Main$createPlayer = function (faction) {
-	return {
-		faction: faction,
-		hand: _List_fromArray(
-			[$author$project$Card$useless, $author$project$Card$weaponPoison])
-	};
+	var cards = A2($author$project$Faction$eq, $author$project$Faction$harkonnen, faction) ? _List_fromArray(
+		[$author$project$Card$unknown, $author$project$Card$unknown]) : (A2($author$project$Faction$eq, $author$project$Faction$atreides, faction) ? _List_Nil : _List_fromArray(
+		[$author$project$Card$unknown]));
+	return {faction: faction, hand: cards};
 };
 var $author$project$Main$initConfig = {cardShortNames: false, handLimits: false};
 var $author$project$Main$createGame = function (factions) {
