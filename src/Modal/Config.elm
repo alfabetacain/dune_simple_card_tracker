@@ -17,6 +17,9 @@ update msg model =
         ToggleHandLimits ->
             { model | handLimits = not model.handLimits }
 
+        ToggleDoubleAddToHarkonnen ->
+            { model | doubleAddToHarkonnen = not model.doubleAddToHarkonnen }
+
 
 view : Config -> Html Msg
 view model =
@@ -43,6 +46,7 @@ view model =
             div [ class Bulma.container ]
                 [ toggleField ToggleCardShortNames "Show short names for cards" model.cardShortNames
                 , toggleField ToggleHandLimits "Enforce hand limits" model.handLimits
+                , toggleField ToggleDoubleAddToHarkonnen "Add unknown card to harkonnen automatically during bidding" model.doubleAddToHarkonnen
                 ]
 
         footer =

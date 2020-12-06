@@ -40,6 +40,7 @@ encodeConfig config =
     E.object
         [ ( "cardShortNames", E.bool config.cardShortNames )
         , ( "handLimits", E.bool config.handLimits )
+        , ( "doubleAddToHarkonnen", E.bool config.doubleAddToHarkonnen )
         ]
 
 
@@ -147,6 +148,9 @@ encodeConfigModalMsg msg =
 
         ToggleHandLimits ->
             encodeType "ToggleHandLimits" []
+
+        ToggleDoubleAddToHarkonnen ->
+            encodeType "ToggleDoubleAddToHarkonnen" []
 
 
 encodeModalMsg : ModalMsg -> E.Value
@@ -382,6 +386,7 @@ decodeConfig =
     D.succeed Config
         |> required "cardShortNames" D.bool
         |> required "handLimits" D.bool
+        |> required "doubleAddToHarkonnen" D.bool
 
 
 decodeSavedCombatModalModel : Decoder ModalCombatModel
@@ -499,6 +504,9 @@ decodeConfigModalMsg =
 
                 "ToggleHandLimits" ->
                     D.succeed ToggleHandLimits
+
+                "ToggleDoubleAddToHarkonnen" ->
+                    D.succeed ToggleDoubleAddToHarkonnen
 
                 _ ->
                     D.fail <| "Unknown ConfigModalMsg " ++ typ

@@ -122,6 +122,7 @@ initConfig : Config
 initConfig =
     { cardShortNames = False
     , handLimits = False
+    , doubleAddToHarkonnen = True
     }
 
 
@@ -434,7 +435,11 @@ updateGame msg game =
                         assignCard entry players =
                             case entry of
                                 ( card, faction ) ->
-                                    addCardToPlayer game.config card faction players
+                                    if Faction.eq Faction.harkonnen faction && game.config.doubleAddToHarkonnen then
+                                        addCardToPlayer game.config Card.unknown faction <| addCardToPlayer game.config card faction players
+
+                                    else
+                                        addCardToPlayer game.config card faction players
 
                         updatedPlayers =
                             List.foldl assignCard game.players cards
