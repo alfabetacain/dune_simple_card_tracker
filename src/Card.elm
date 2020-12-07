@@ -27,14 +27,14 @@ html config attrs card =
             else
                 toString card
     in
-    span (class Bulma.tag :: class (bulmaClass card) :: attrs) [ text name ]
+    span (class Bulma.tag :: class Bulma.isMedium :: class (bulmaClass card) :: attrs) [ text name ]
 
 
 htmlWithDiscard : { a | cardShortNames : Bool } -> List (Attribute msg) -> msg -> Type -> Html msg
 htmlWithDiscard config attrs deleteMsg card =
     span [ class Bulma.tags, class Bulma.hasAddons ]
         [ html config attrs card
-        , a [ class Bulma.tag, class Bulma.isDelete, onClick deleteMsg ] []
+        , a [ class Bulma.tag, class Bulma.isMedium, class Bulma.isDelete, onClick deleteMsg ] []
         ]
 
 
