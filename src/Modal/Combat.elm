@@ -1,4 +1,4 @@
-module Modal.Combat exposing (update, view)
+module Modal.Combat exposing (init, update, view)
 
 import Bulma.Classes as Bulma
 import Card
@@ -9,6 +9,21 @@ import Html.Events exposing (onClick)
 import Monocle.Lens as Lens exposing (Lens)
 import Types exposing (CombatCard, CombatModalMsg(..), CombatSide, GameMsg(..), ModalCombatModel, ModalMsg(..), Msg(..), Side(..))
 import View
+
+
+init : ModalCombatModel
+init =
+    let
+        initialSide =
+            { faction = Faction.unknown
+            , weapon = { card = Card.none, discard = False }
+            , defense = { card = Card.none, discard = False }
+            , cheapHero = False
+            }
+    in
+    { left = initialSide
+    , right = initialSide
+    }
 
 
 selectLeftSide : Lens ModalCombatModel CombatSide
@@ -65,6 +80,9 @@ update msg model =
 
                 Nothing ->
                     model
+
+        ResetCombatModal ->
+            init
 
         SelectWeapon side card ->
             case Card.fromString card of
@@ -248,6 +266,11 @@ view factions model =
                     , disabled (not isValid)
                     ]
                     [ text "Finish" ]
+                , button
+                    [ class Bulma.button
+                    , onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg ResetCombatModal
+                    ]
+                    [ text "Reset" ]
                 ]
     in
     View.modal modalTitle (ViewGameMsg CloseModal) body footer

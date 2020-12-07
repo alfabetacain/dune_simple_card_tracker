@@ -84,6 +84,7 @@ type CombatModalMsg
     | ToggleCheapHero Side String
     | ToggleWeaponDiscard Side
     | ToggleDefenseDiscard Side
+    | ResetCombatModal
 
 
 type BiddingModalMsg

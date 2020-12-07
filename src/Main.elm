@@ -369,17 +369,7 @@ updateGame msg game =
                         initialState =
                             case game.savedCombatModalModel of
                                 Nothing ->
-                                    let
-                                        initialSide =
-                                            { faction = Faction.unknown
-                                            , weapon = { card = Card.none, discard = False }
-                                            , defense = { card = Card.none, discard = False }
-                                            , cheapHero = False
-                                            }
-                                    in
-                                    { left = initialSide
-                                    , right = initialSide
-                                    }
+                                    Modal.Combat.init
 
                                 Just previous ->
                                     previous

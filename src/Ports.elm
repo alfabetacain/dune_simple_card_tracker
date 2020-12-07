@@ -139,6 +139,9 @@ encodeCombatModalMsg msg =
         ToggleDefenseDiscard side ->
             encodeType "ToggleDefenseDiscard" [ encodeSide side ]
 
+        ResetCombatModal ->
+            encodeType "ResetCombatModal" []
+
 
 encodeConfigModalMsg : ConfigModalMsg -> E.Value
 encodeConfigModalMsg msg =
@@ -514,6 +517,9 @@ decodeCombatModalMsg =
                 "ToggleDefenseDiscard" ->
                     D.succeed ToggleDefenseDiscard
                         |> required "values" (index 0 decodeSide)
+
+                "ResetCombatModal" ->
+                    D.succeed ResetCombatModal
 
                 _ ->
                     D.fail <| "Unknown CombatModalMsg " ++ typ
