@@ -9965,110 +9965,9 @@ var $author$project$View$select = function (config) {
 			]));
 };
 var $author$project$Card$uniqueCardsWithUnknown = A2($elm$core$List$cons, $author$project$Card$unknown, $author$project$Card$uniqueCards);
-var $author$project$Modal$AddCard$view = function (model) {
-	var viewFactionSelectControl = function (faction) {
-		return $author$project$View$select(
-			{
-				current: faction,
-				eq: $author$project$Faction$eq,
-				isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
-				name: 'Faction',
-				onSelect: function (s) {
-					return $author$project$Types$ViewGameMsg(
-						$author$project$Types$ModalMsg(
-							$author$project$Types$AddCardModalMsg(
-								$author$project$Types$SelectAddCardFaction(s))));
-				},
-				options: $author$project$Faction$factionsWithUnknown,
-				toHtml: function (f) {
-					return $elm$html$Html$text(
-						$author$project$Faction$toString(f));
-				},
-				toValueString: $author$project$Faction$toString
-			});
-	};
-	var viewCardTypeSelectControl = function (card) {
-		return $author$project$View$select(
-			{
-				current: card,
-				eq: $author$project$Card$eq,
-				isValid: true,
-				name: 'Card',
-				onSelect: function (s) {
-					return $author$project$Types$ViewGameMsg(
-						$author$project$Types$ModalMsg(
-							$author$project$Types$AddCardModalMsg(
-								$author$project$Types$SelectAddCardCard(s))));
-				},
-				options: $author$project$Card$uniqueCardsWithUnknown,
-				toHtml: function (c) {
-					return $elm$html$Html$text(
-						$author$project$Card$toString(c));
-				},
-				toValueString: $author$project$Card$toString
-			});
-	};
-	var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.faction);
-	var modalTitle = 'Add Card';
-	var footer = A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							A2($author$project$Types$AddCard, model.card, model.faction))),
-						$elm$html$Html$Attributes$disabled(!validFactionSelected)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Assign card')
-					]))
-			]));
-	var body = A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
-					]),
-				_List_fromArray(
-					[
-						viewCardTypeSelectControl(model.card),
-						viewFactionSelectControl(model.faction)
-					]))
-			]));
-	return A4(
-		$author$project$View$modal,
-		modalTitle,
-		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
-		body,
-		footer);
-};
-var $elm$core$List$all = F2(
-	function (isOkay, list) {
-		return !A2(
-			$elm$core$List$any,
-			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
-			list);
-	});
-var $author$project$Modal$Bidding$view = function (model) {
-	var viewFactionSelectControl = F2(
-		function (index, faction) {
+var $author$project$Modal$AddCard$view = F2(
+	function (factions, model) {
+		var viewFactionSelectControl = function (faction) {
 			return $author$project$View$select(
 				{
 					current: faction,
@@ -10078,30 +9977,29 @@ var $author$project$Modal$Bidding$view = function (model) {
 					onSelect: function (s) {
 						return $author$project$Types$ViewGameMsg(
 							$author$project$Types$ModalMsg(
-								$author$project$Types$BiddingModalMsg(
-									A2($author$project$Types$SelectBiddingFaction, index, s))));
+								$author$project$Types$AddCardModalMsg(
+									$author$project$Types$SelectAddCardFaction(s))));
 					},
-					options: $author$project$Faction$factionsWithUnknown,
+					options: A2($elm$core$List$cons, $author$project$Faction$unknown, factions),
 					toHtml: function (f) {
 						return $elm$html$Html$text(
 							$author$project$Faction$toString(f));
 					},
 					toValueString: $author$project$Faction$toString
 				});
-		});
-	var viewCardTypeSelectControl = F2(
-		function (index, card) {
+		};
+		var viewCardTypeSelectControl = function (card) {
 			return $author$project$View$select(
 				{
 					current: card,
 					eq: $author$project$Card$eq,
-					isValid: !A2($author$project$Card$eq, $author$project$Card$unknown, card),
+					isValid: true,
 					name: 'Card',
 					onSelect: function (s) {
 						return $author$project$Types$ViewGameMsg(
 							$author$project$Types$ModalMsg(
-								$author$project$Types$BiddingModalMsg(
-									A2($author$project$Types$SelectBiddingCard, index, s))));
+								$author$project$Types$AddCardModalMsg(
+									$author$project$Types$SelectAddCardCard(s))));
 					},
 					options: $author$project$Card$uniqueCardsWithUnknown,
 					toHtml: function (c) {
@@ -10110,102 +10008,206 @@ var $author$project$Modal$Bidding$view = function (model) {
 					},
 					toValueString: $author$project$Card$toString
 				});
-		});
-	var viewBid = F2(
-		function (index, bid) {
-			var card = bid.a;
-			var faction = bid.b;
-			return A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
-					]),
-				_List_fromArray(
-					[
-						A2(viewCardTypeSelectControl, index, card),
-						A2(viewFactionSelectControl, index, faction)
-					]));
-		});
-	var validFactionsSelected = A2(
-		$elm$core$List$all,
-		function (bid) {
-			return !A2($author$project$Faction$eq, $author$project$Faction$unknown, bid.b);
-		},
-		$elm$core$Array$toList(model.bids));
-	var validCardsSelected = A2(
-		$elm$core$List$all,
-		function (bid) {
-			return !A2($author$project$Card$eq, $author$project$Card$unknown, bid.a);
-		},
-		$elm$core$Array$toList(model.bids));
-	var modalTitle = 'Bidding';
-	var bidsList = $elm$core$Array$toList(model.bids);
-	var body = A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
-			]),
-		A2($elm$core$List$indexedMap, viewBid, bidsList));
-	var footerChild = A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							$author$project$Types$AssignBiddingPhaseCards(bidsList))),
-						$elm$html$Html$Attributes$disabled(!(validFactionsSelected && validCardsSelected))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Assign bids')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							$author$project$Types$ModalMsg(
-								$author$project$Types$BiddingModalMsg($author$project$Types$AddBid))))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Add bid')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							$author$project$Types$ModalMsg(
-								$author$project$Types$BiddingModalMsg($author$project$Types$ResetBids))))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Reset')
-					]))
-			]));
-	return A4(
-		$author$project$View$modal,
-		modalTitle,
-		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
-		body,
-		footerChild);
-};
+		};
+		var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.faction);
+		var modalTitle = 'Add Card';
+		var footer = A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								A2($author$project$Types$AddCard, model.card, model.faction))),
+							$elm$html$Html$Attributes$disabled(!validFactionSelected)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Assign card')
+						]))
+				]));
+		var body = A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
+						]),
+					_List_fromArray(
+						[
+							viewCardTypeSelectControl(model.card),
+							viewFactionSelectControl(model.faction)
+						]))
+				]));
+		return A4(
+			$author$project$View$modal,
+			modalTitle,
+			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+			body,
+			footer);
+	});
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $author$project$Modal$Bidding$view = F2(
+	function (factions, model) {
+		var viewFactionSelectControl = F2(
+			function (index, faction) {
+				return $author$project$View$select(
+					{
+						current: faction,
+						eq: $author$project$Faction$eq,
+						isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
+						name: 'Faction',
+						onSelect: function (s) {
+							return $author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$BiddingModalMsg(
+										A2($author$project$Types$SelectBiddingFaction, index, s))));
+						},
+						options: A2($elm$core$List$cons, $author$project$Faction$unknown, factions),
+						toHtml: function (f) {
+							return $elm$html$Html$text(
+								$author$project$Faction$toString(f));
+						},
+						toValueString: $author$project$Faction$toString
+					});
+			});
+		var viewCardTypeSelectControl = F2(
+			function (index, card) {
+				return $author$project$View$select(
+					{
+						current: card,
+						eq: $author$project$Card$eq,
+						isValid: !A2($author$project$Card$eq, $author$project$Card$unknown, card),
+						name: 'Card',
+						onSelect: function (s) {
+							return $author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$BiddingModalMsg(
+										A2($author$project$Types$SelectBiddingCard, index, s))));
+						},
+						options: $author$project$Card$uniqueCardsWithUnknown,
+						toHtml: function (c) {
+							return $elm$html$Html$text(
+								$author$project$Card$toString(c));
+						},
+						toValueString: $author$project$Card$toString
+					});
+			});
+		var viewBid = F2(
+			function (index, bid) {
+				var card = bid.a;
+				var faction = bid.b;
+				return A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
+						]),
+					_List_fromArray(
+						[
+							A2(viewCardTypeSelectControl, index, card),
+							A2(viewFactionSelectControl, index, faction)
+						]));
+			});
+		var validFactionsSelected = A2(
+			$elm$core$List$all,
+			function (bid) {
+				return !A2($author$project$Faction$eq, $author$project$Faction$unknown, bid.b);
+			},
+			$elm$core$Array$toList(model.bids));
+		var validCardsSelected = A2(
+			$elm$core$List$all,
+			function (bid) {
+				return !A2($author$project$Card$eq, $author$project$Card$unknown, bid.a);
+			},
+			$elm$core$Array$toList(model.bids));
+		var modalTitle = 'Bidding';
+		var bidsList = $elm$core$Array$toList(model.bids);
+		var body = A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
+				]),
+			A2($elm$core$List$indexedMap, viewBid, bidsList));
+		var footerChild = A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								$author$project$Types$AssignBiddingPhaseCards(bidsList))),
+							$elm$html$Html$Attributes$disabled(!(validFactionsSelected && validCardsSelected))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Assign bids')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$BiddingModalMsg($author$project$Types$AddBid))))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Add bid')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$BiddingModalMsg($author$project$Types$ResetBids))))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Reset')
+						]))
+				]));
+		return A4(
+			$author$project$View$modal,
+			modalTitle,
+			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+			body,
+			footerChild);
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
 var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
@@ -10275,79 +10277,42 @@ var $author$project$View$selectWithButton = function (config) {
 					]))
 			]));
 };
-var $author$project$Modal$Combat$view = function (model) {
-	var viewFactionSelect = F3(
-		function (faction, otherFaction, msg) {
-			return $author$project$View$select(
-				{
-					current: faction,
-					eq: $author$project$Faction$eq,
-					isValid: (!A2($author$project$Faction$eq, faction, $author$project$Faction$unknown)) && (!A2($author$project$Faction$eq, faction, otherFaction)),
-					name: 'Faction',
-					onSelect: function (s) {
-						return $author$project$Types$ViewGameMsg(
-							$author$project$Types$ModalMsg(
-								$author$project$Types$CombatModalMsg(
-									msg(s))));
-					},
-					options: $author$project$Faction$factionsWithUnknown,
-					toHtml: function (f) {
-						return $elm$html$Html$text(
-							$author$project$Faction$toString(f));
-					},
-					toValueString: $author$project$Faction$toString
-				});
-		});
-	var viewCardSelectWithDiscard = F6(
-		function (name, cardSelectMsg, checkboxMsg, card, cards, isDiscard) {
-			var selectConfig = {
-				current: card,
-				eq: $author$project$Card$eq,
-				isValid: !A2($author$project$Card$eq, card, $author$project$Card$unknown),
-				name: name,
-				onSelect: function (s) {
-					return $author$project$Types$ViewGameMsg(
-						$author$project$Types$ModalMsg(
-							$author$project$Types$CombatModalMsg(
-								cardSelectMsg(s))));
-				},
-				options: cards,
-				toHtml: function (c) {
-					return $elm$html$Html$text(
-						$author$project$Card$toString(c));
-				},
-				toValueString: $author$project$Card$toString
-			};
-			var selectConfigWithButton = isDiscard ? {
-				buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDanger),
-				buttonText: 'Discard',
-				onButtonClick: $author$project$Types$ViewGameMsg(
-					$author$project$Types$ModalMsg(
-						$author$project$Types$CombatModalMsg(checkboxMsg))),
-				selectConfig: selectConfig
-			} : {
-				buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-				buttonText: 'Keep',
-				onButtonClick: $author$project$Types$ViewGameMsg(
-					$author$project$Types$ModalMsg(
-						$author$project$Types$CombatModalMsg(checkboxMsg))),
-				selectConfig: selectConfig
-			};
-			return $author$project$View$selectWithButton(selectConfigWithButton);
-		});
-	var viewCardSelect = F4(
-		function (name, msg, card, cards) {
-			return $author$project$View$select(
-				{
+var $author$project$Modal$Combat$view = F2(
+	function (factions, model) {
+		var viewFactionSelect = F3(
+			function (faction, otherFaction, msg) {
+				return $author$project$View$select(
+					{
+						current: faction,
+						eq: $author$project$Faction$eq,
+						isValid: (!A2($author$project$Faction$eq, faction, $author$project$Faction$unknown)) && (!A2($author$project$Faction$eq, faction, otherFaction)),
+						name: 'Faction',
+						onSelect: function (s) {
+							return $author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$CombatModalMsg(
+										msg(s))));
+						},
+						options: A2($elm$core$List$cons, $author$project$Faction$unknown, factions),
+						toHtml: function (f) {
+							return $elm$html$Html$text(
+								$author$project$Faction$toString(f));
+						},
+						toValueString: $author$project$Faction$toString
+					});
+			});
+		var viewCardSelectWithDiscard = F6(
+			function (name, cardSelectMsg, checkboxMsg, card, cards, isDiscard) {
+				var selectConfig = {
 					current: card,
 					eq: $author$project$Card$eq,
-					isValid: true,
+					isValid: !A2($author$project$Card$eq, card, $author$project$Card$unknown),
 					name: name,
 					onSelect: function (s) {
 						return $author$project$Types$ViewGameMsg(
 							$author$project$Types$ModalMsg(
 								$author$project$Types$CombatModalMsg(
-									msg(s))));
+									cardSelectMsg(s))));
 					},
 					options: cards,
 					toHtml: function (c) {
@@ -10355,141 +10320,179 @@ var $author$project$Modal$Combat$view = function (model) {
 							$author$project$Card$toString(c));
 					},
 					toValueString: $author$project$Card$toString
-				});
-		});
-	var modalTitle = 'Combat';
-	var isValid = (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.left.faction)) && ((!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.right.faction)) && (!A2($author$project$Faction$eq, model.left.faction, model.right.faction)));
-	var footer = A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							A2($author$project$Types$FinishCombat, model.left, model.right))),
-						$elm$html$Html$Attributes$disabled(!isValid)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Finish')
-					]))
-			]));
-	var cheapHeroCard = function (isOn) {
-		return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
-	};
-	var viewCards = F2(
-		function (side, combatSide) {
-			return _List_fromArray(
+				};
+				var selectConfigWithButton = isDiscard ? {
+					buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDanger),
+					buttonText: 'Discard',
+					onButtonClick: $author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$CombatModalMsg(checkboxMsg))),
+					selectConfig: selectConfig
+				} : {
+					buttonClass: $elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+					buttonText: 'Keep',
+					onButtonClick: $author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$CombatModalMsg(checkboxMsg))),
+					selectConfig: selectConfig
+				};
+				return $author$project$View$selectWithButton(selectConfigWithButton);
+			});
+		var viewCardSelect = F4(
+			function (name, msg, card, cards) {
+				return $author$project$View$select(
+					{
+						current: card,
+						eq: $author$project$Card$eq,
+						isValid: true,
+						name: name,
+						onSelect: function (s) {
+							return $author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$CombatModalMsg(
+										msg(s))));
+						},
+						options: cards,
+						toHtml: function (c) {
+							return $elm$html$Html$text(
+								$author$project$Card$toString(c));
+						},
+						toValueString: $author$project$Card$toString
+					});
+			});
+		var modalTitle = 'Combat';
+		var isValid = (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.left.faction)) && ((!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.right.faction)) && (!A2($author$project$Faction$eq, model.left.faction, model.right.faction)));
+		var footer = A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
 				[
-					A6(
-					viewCardSelectWithDiscard,
-					'Weapon',
-					$author$project$Types$SelectWeapon(side),
-					$author$project$Types$ToggleWeaponDiscard(side),
-					combatSide.weapon.card,
 					A2(
-						$elm$core$List$cons,
-						$author$project$Card$none,
-						A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$weapons)),
-					combatSide.weapon.discard),
-					A6(
-					viewCardSelectWithDiscard,
-					'Defense',
-					$author$project$Types$SelectDefense(side),
-					$author$project$Types$ToggleDefenseDiscard(side),
-					combatSide.defense.card,
-					A2(
-						$elm$core$List$cons,
-						$author$project$Card$none,
-						A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$defenses)),
-					combatSide.defense.discard),
-					A4(
-					viewCardSelect,
-					'Cheap hero',
-					$author$project$Types$ToggleCheapHero(side),
-					cheapHeroCard(combatSide.cheapHero),
+					$elm$html$Html$button,
 					_List_fromArray(
-						[$author$project$Card$none, $author$project$Card$cheapHero]))
-				]);
-		});
-	var viewLeftSide = $elm$core$List$concat(
-		_List_fromArray(
-			[
-				_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								A2($author$project$Types$FinishCombat, model.left, model.right))),
+							$elm$html$Html$Attributes$disabled(!isValid)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Finish')
+						]))
+				]));
+		var cheapHeroCard = function (isOn) {
+			return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
+		};
+		var viewCards = F2(
+			function (side, combatSide) {
+				return _List_fromArray(
+					[
+						A6(
+						viewCardSelectWithDiscard,
+						'Weapon',
+						$author$project$Types$SelectWeapon(side),
+						$author$project$Types$ToggleWeaponDiscard(side),
+						combatSide.weapon.card,
+						A2(
+							$elm$core$List$cons,
+							$author$project$Card$none,
+							A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$weapons)),
+						combatSide.weapon.discard),
+						A6(
+						viewCardSelectWithDiscard,
+						'Defense',
+						$author$project$Types$SelectDefense(side),
+						$author$project$Types$ToggleDefenseDiscard(side),
+						combatSide.defense.card,
+						A2(
+							$elm$core$List$cons,
+							$author$project$Card$none,
+							A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$defenses)),
+						combatSide.defense.discard),
+						A4(
+						viewCardSelect,
+						'Cheap hero',
+						$author$project$Types$ToggleCheapHero(side),
+						cheapHeroCard(combatSide.cheapHero),
+						_List_fromArray(
+							[$author$project$Card$none, $author$project$Card$cheapHero]))
+					]);
+			});
+		var viewLeftSide = $elm$core$List$concat(
+			_List_fromArray(
 				[
-					A3(
-					viewFactionSelect,
-					model.left.faction,
-					model.right.faction,
-					$author$project$Types$SelectFaction($author$project$Types$Left))
-				]),
-				A2(viewCards, $author$project$Types$Left, model.left)
-			]));
-	var viewRightSide = $elm$core$List$concat(
-		_List_fromArray(
-			[
-				_List_fromArray(
+					_List_fromArray(
+					[
+						A3(
+						viewFactionSelect,
+						model.left.faction,
+						model.right.faction,
+						$author$project$Types$SelectFaction($author$project$Types$Left))
+					]),
+					A2(viewCards, $author$project$Types$Left, model.left)
+				]));
+		var viewRightSide = $elm$core$List$concat(
+			_List_fromArray(
 				[
-					A3(
-					viewFactionSelect,
-					model.right.faction,
-					model.left.faction,
-					$author$project$Types$SelectFaction($author$project$Types$Right))
+					_List_fromArray(
+					[
+						A3(
+						viewFactionSelect,
+						model.right.faction,
+						model.left.faction,
+						$author$project$Types$SelectFaction($author$project$Types$Right))
+					]),
+					A2(viewCards, $author$project$Types$Right, model.right)
+				]));
+		var body = A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns)
 				]),
-				A2(viewCards, $author$project$Types$Right, model.right)
-			]));
-	var body = A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
-					]),
-				viewLeftSide),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('VS')
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
-					]),
-				viewRightSide)
-			]));
-	return A4(
-		$author$project$View$modal,
-		modalTitle,
-		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
-		body,
-		footer);
-};
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+						]),
+					viewLeftSide),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('VS')
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isTwoFifths)
+						]),
+					viewRightSide)
+				]));
+		return A4(
+			$author$project$View$modal,
+			modalTitle,
+			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+			body,
+			footer);
+	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$checkbox = 'checkbox';
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$html$Html$input = _VirtualDom_node('input');
@@ -10577,83 +10580,85 @@ var $author$project$Modal$Config$view = function (model) {
 		body,
 		footer);
 };
-var $author$project$Modal$HarkonnenCardSwap$view = function (model) {
-	var viewFactionSelectControl = function (faction) {
-		return $author$project$View$select(
-			{
-				current: faction,
-				eq: $author$project$Faction$eq,
-				isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
-				name: 'Swap with faction',
-				onSelect: function (s) {
-					return $author$project$Types$ViewGameMsg(
-						$author$project$Types$ModalMsg(
-							$author$project$Types$HarkonnenCardSwapModalMsg(
-								$author$project$Types$SelectHarkonnenCardSwapMsg(s))));
-				},
-				options: A2(
-					$elm$core$List$filter,
-					function (f) {
-						return !A2($author$project$Faction$eq, $author$project$Faction$harkonnen, f);
+var $author$project$Modal$HarkonnenCardSwap$view = F2(
+	function (factions, model) {
+		var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.target);
+		var modalTitle = 'Harkonnen card swap';
+		var footer = A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								$author$project$Types$FinishHarkonnenCardSwap(model.target))),
+							$elm$html$Html$Attributes$disabled(!validFactionSelected)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Swap')
+						]))
+				]));
+		var factionsWithoutHarkonnen = A2(
+			$elm$core$List$filter,
+			function (f) {
+				return !A2($author$project$Faction$eq, $author$project$Faction$harkonnen, f);
+			},
+			factions);
+		var viewFactionSelectControl = function (faction) {
+			return $author$project$View$select(
+				{
+					current: faction,
+					eq: $author$project$Faction$eq,
+					isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
+					name: 'Swap with faction',
+					onSelect: function (s) {
+						return $author$project$Types$ViewGameMsg(
+							$author$project$Types$ModalMsg(
+								$author$project$Types$HarkonnenCardSwapModalMsg(
+									$author$project$Types$SelectHarkonnenCardSwapMsg(s))));
 					},
-					$author$project$Faction$factionsWithUnknown),
-				toHtml: function (f) {
-					return $elm$html$Html$text(
-						$author$project$Faction$toString(f));
-				},
-				toValueString: $author$project$Faction$toString
-			});
-	};
-	var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.target);
-	var modalTitle = 'Harkonnen card swap';
-	var footer = A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg(
-							$author$project$Types$FinishHarkonnenCardSwap(model.target))),
-						$elm$html$Html$Attributes$disabled(!validFactionSelected)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Swap')
-					]))
-			]));
-	var body = A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
-					]),
-				_List_fromArray(
-					[
-						viewFactionSelectControl(model.target)
-					]))
-			]));
-	return A4(
-		$author$project$View$modal,
-		modalTitle,
-		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
-		body,
-		footer);
-};
+					options: A2($elm$core$List$cons, $author$project$Faction$unknown, factionsWithoutHarkonnen),
+					toHtml: function (f) {
+						return $elm$html$Html$text(
+							$author$project$Faction$toString(f));
+					},
+					toValueString: $author$project$Faction$toString
+				});
+		};
+		var body = A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
+						]),
+					_List_fromArray(
+						[
+							viewFactionSelectControl(model.target)
+						]))
+				]));
+		return A4(
+			$author$project$View$modal,
+			modalTitle,
+			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+			body,
+			footer);
+	});
 var $author$project$View$button = F3(
 	function (attributes, clickMsg, name) {
 		var allAttributes = A2(
@@ -10718,21 +10723,21 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 		body,
 		footerChild);
 };
-var $author$project$Main$viewModal = F3(
-	function (config, _v0, modal) {
+var $author$project$Main$viewModal = F4(
+	function (factions, config, _v0, modal) {
 		switch (modal.$) {
 			case 'ModalChangeCard':
 				var model = modal.a;
 				return $author$project$Main$viewChangeCardModal(model);
 			case 'ModalBidding':
 				var model = modal.a;
-				return $author$project$Modal$Bidding$view(model);
+				return A2($author$project$Modal$Bidding$view, factions, model);
 			case 'ModalCombat':
 				var model = modal.a;
-				return $author$project$Modal$Combat$view(model);
+				return A2($author$project$Modal$Combat$view, factions, model);
 			case 'ModalAddCard':
 				var model = modal.a;
-				return $author$project$Modal$AddCard$view(model);
+				return A2($author$project$Modal$AddCard$view, factions, model);
 			case 'ModalConfig':
 				var model = modal.a;
 				return $author$project$Modal$Config$view(model);
@@ -10741,7 +10746,7 @@ var $author$project$Main$viewModal = F3(
 				return A2($author$project$View$History$modal, config, msg);
 			default:
 				var model = modal.a;
-				return $author$project$Modal$HarkonnenCardSwap$view(model);
+				return A2($author$project$Modal$HarkonnenCardSwap$view, factions, model);
 		}
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
@@ -11189,13 +11194,19 @@ var $author$project$Main$viewPlayerTiles = F2(
 				]));
 	});
 var $author$project$Main$viewGame = function (game) {
+	var factions = A2(
+		$elm$core$List$map,
+		function (p) {
+			return p.faction;
+		},
+		game.players);
 	var modal = A2(
 		$elm$core$Maybe$withDefault,
 		A2($elm$html$Html$div, _List_Nil, _List_Nil),
 		A2(
 			$elm$core$Maybe$map,
 			function (m) {
-				return A3($author$project$Main$viewModal, game.config, _List_Nil, m);
+				return A4($author$project$Main$viewModal, factions, game.config, _List_Nil, m);
 			},
 			game.modal));
 	return A3(
