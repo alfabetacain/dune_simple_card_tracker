@@ -33,6 +33,11 @@ type alias ModalBiddingModel =
     }
 
 
+type alias ModalHarkonnenCardSwapModel =
+    { target : Faction.Type
+    }
+
+
 type alias CombatCard =
     { card : Card.Type
     , discard : Bool
@@ -65,6 +70,7 @@ type Modal
     | ModalAddCard ModalAddCardModel
     | ModalConfig Config
     | ModalHistory GameMsg
+    | ModalHarkonnenCardSwap ModalHarkonnenCardSwapModel
 
 
 type alias Index =
@@ -98,12 +104,17 @@ type AddCardModalMsg
     | SelectAddCardFaction String
 
 
+type HarkonnenCardSwapModalMsg
+    = SelectHarkonnenCardSwapMsg String
+
+
 type ModalMsg
     = SelectIdentifyCard String
     | CombatModalMsg CombatModalMsg
     | BiddingModalMsg BiddingModalMsg
     | AddCardModalMsg AddCardModalMsg
     | ConfigModalMsg ConfigModalMsg
+    | HarkonnenCardSwapModalMsg HarkonnenCardSwapModalMsg
 
 
 type alias Game =
@@ -168,6 +179,8 @@ type GameMsg
     | OpenConfigModal
     | FinishConfigModal
     | OpenHistoryModal GameMsg
+    | OpenHarkonnenCardSwapModal
+    | FinishHarkonnenCardSwap Faction.Type
 
 
 type Msg

@@ -18,6 +18,7 @@ import Modal.AddCard
 import Modal.Bidding
 import Modal.Combat
 import Modal.Config
+import Modal.HarkonnenCardSwap
 import Ports
 import Types exposing (..)
 import View
@@ -222,6 +223,9 @@ updateModal msg modalModel =
         ( CombatModalMsg combatMsg, ModalCombat model ) ->
             ModalCombat <| Modal.Combat.update combatMsg model
 
+        ( HarkonnenCardSwapModalMsg cardSwapMsg, ModalHarkonnenCardSwap model ) ->
+            ModalHarkonnenCardSwap <| Modal.HarkonnenCardSwap.update cardSwapMsg model
+
         ( SelectIdentifyCard cardString, ModalChangeCard model ) ->
             case Card.fromString cardString of
                 Nothing ->
@@ -271,6 +275,26 @@ updateGame msg game =
 
                     else
                         ( game, False )
+
+                FinishHarkonnenCardSwap target ->
+                    let
+                        unknownify player =
+                            if Faction.eq Faction.harkonnen player.faction || Faction.eq target player.faction then
+                                { player | hand = List.map (\_ -> Card.unknown) player.hand }
+
+                            else
+                                player
+                    in
+                    ( withHistory (FinishHarkonnenCardSwap target)
+                        { game
+                            | players = List.map unknownify game.players
+                            , modal = Nothing
+                        }
+                    , True
+                    )
+
+                OpenHarkonnenCardSwapModal ->
+                    ( withHistory OpenHarkonnenCardSwapModal { game | modal = Just <| ModalHarkonnenCardSwap { target = Faction.unknown } }, True )
 
                 AddCard card faction ->
                     let
@@ -732,6 +756,12 @@ viewButtons =
             , button
                 [ class Bulma.levelItem
                 , class Bulma.button
+                , onClick <| ViewGameMsg OpenHarkonnenCardSwapModal
+                ]
+                [ text "Harkonnen Card Swap" ]
+            , button
+                [ class Bulma.levelItem
+                , class Bulma.button
                 , onClick <| ViewGameMsg OpenConfigModal
                 ]
                 [ text "Config" ]
@@ -836,6 +866,9 @@ viewModal config _ modal =
 
         ModalHistory msg ->
             View.History.modal config msg
+
+        ModalHarkonnenCardSwap model ->
+            Modal.HarkonnenCardSwap.view model
 
 
 view : Model -> Html Msg

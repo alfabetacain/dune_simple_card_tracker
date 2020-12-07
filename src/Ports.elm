@@ -168,8 +168,18 @@ encodeModalMsg msg =
         CombatModalMsg m ->
             encodeType "CombatModalMsg" [ encodeCombatModalMsg m ]
 
+        HarkonnenCardSwapModalMsg m ->
+            encodeType "HarkonnenCardSwapModalMsg" [ encodeHarkonnenCardSwapModalMsg m ]
+
         ConfigModalMsg m ->
             encodeType "ConfigModalMsg" [ encodeConfigModalMsg m ]
+
+
+encodeHarkonnenCardSwapModalMsg : HarkonnenCardSwapModalMsg -> E.Value
+encodeHarkonnenCardSwapModalMsg msg =
+    case msg of
+        SelectHarkonnenCardSwapMsg target ->
+            encodeType "SelectHarkonnenCardSwapMsg" [ E.string target ]
 
 
 encodeGameMsg : GameMsg -> E.Value
@@ -234,6 +244,12 @@ encodeGameMsg msg =
 
         FinishConfigModal ->
             encodeType "FinishConfigModal" []
+
+        OpenHarkonnenCardSwapModal ->
+            encodeType "OpenHarkonnenCardSwapModal" []
+
+        FinishHarkonnenCardSwap target ->
+            encodeType "FinishHarkonnenCardSwap" [ Faction.encode target ]
 
 
 encodeChangeCardModal : ModalChangeCardModel -> E.Value
@@ -316,6 +332,17 @@ encodeModal modal =
                 [ ( "type", E.string "ModalHistory" )
                 , ( "value", encodeGameMsg model )
                 ]
+
+        ModalHarkonnenCardSwap model ->
+            E.object
+                [ ( "type", E.string "ModalHarkonnenCardSwap" )
+                , ( "value", encodeHarkonnenCardSwapModel model )
+                ]
+
+
+encodeHarkonnenCardSwapModel : ModalHarkonnenCardSwapModel -> E.Value
+encodeHarkonnenCardSwapModel model =
+    encodeType "ModalHarkonnenCardSwapModel" [ Faction.encode model.target ]
 
 
 type alias BiCoder a =
@@ -514,6 +541,21 @@ decodeConfigModalMsg =
     D.andThen chooseDecoder (D.field "type" D.string)
 
 
+decodeHarkonnenCardSwapModalMsg : Decoder HarkonnenCardSwapModalMsg
+decodeHarkonnenCardSwapModalMsg =
+    let
+        chooseDecoder typ =
+            case typ of
+                "SelectHarkonnenCardSwapMsg" ->
+                    D.succeed SelectHarkonnenCardSwapMsg
+                        |> required "values" (index 0 D.string)
+
+                _ ->
+                    D.fail <| "Unknown HarkonnenCardSwapModalMsg " ++ typ
+    in
+    D.andThen chooseDecoder (D.field "type" D.string)
+
+
 decodeModalMsg : Decoder ModalMsg
 decodeModalMsg =
     let
@@ -533,6 +575,9 @@ decodeModalMsg =
 
                 "ConfigModalMsg" ->
                     D.field "values" (D.map ConfigModalMsg <| index 0 decodeConfigModalMsg)
+
+                "HarkonnenCardSwapModalMsg" ->
+                    D.field "values" (D.map HarkonnenCardSwapModalMsg <| index 0 decodeHarkonnenCardSwapModalMsg)
 
                 _ ->
                     D.fail <| "Unknown ModalMsg \"" ++ typ ++ "\""
@@ -554,6 +599,15 @@ decodeGameMsg =
                         (D.succeed AddCard
                             |> custom (index 0 Card.decode)
                             |> custom (index 1 Faction.decode)
+                        )
+
+                "OpenHarkonnenCardSwapModal" ->
+                    D.succeed OpenHarkonnenCardSwapModal
+
+                "FinishHarkonnenCardSwap" ->
+                    D.field "values"
+                        (D.succeed FinishHarkonnenCardSwap
+                            |> custom (index 0 Faction.decode)
                         )
 
                 "ModalMsg" ->
@@ -707,6 +761,12 @@ decodeModalAddCard =
         |> required "card" Card.decode
 
 
+decodeModalHarkonnenCardSwap : Decoder ModalHarkonnenCardSwapModel
+decodeModalHarkonnenCardSwap =
+    D.succeed ModalHarkonnenCardSwapModel
+        |> required "target" Faction.decode
+
+
 decodeModal : Decoder Modal
 decodeModal =
     let
@@ -729,6 +789,9 @@ decodeModal =
 
                 "ModalHistory" ->
                     D.map ModalHistory (D.field "value" decodeGameMsg)
+
+                "ModalHarkonnenCardSwap" ->
+                    D.map ModalHarkonnenCardSwap (D.field "value" decodeModalHarkonnenCardSwap)
 
                 _ ->
                     D.fail <| "Unknown modal type " ++ s

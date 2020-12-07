@@ -141,6 +141,12 @@ viewGameMsg config msg =
         OpenChangeCardModal _ _ ->
             Nothing
 
+        FinishHarkonnenCardSwap target ->
+            item [ text <| "Harkonnen card swap with " ++ Faction.toString target ]
+
+        OpenHarkonnenCardSwapModal ->
+            Nothing
+
         ChangeCardViaModal change ->
             item [ text "Changed ", Card.html config [] change.current, text " to ", Card.html config [] change.new, text <| " for " ++ Faction.toString change.faction ]
 
@@ -150,7 +156,7 @@ viewGameMsg config msg =
         AssignBiddingPhaseCards model ->
             interactiveItem (ViewGameMsg <| OpenHistoryModal <| AssignBiddingPhaseCards model) "Bidding phase"
 
-        ModalMsg m ->
+        ModalMsg _ ->
             Nothing
 
         CloseModal ->
