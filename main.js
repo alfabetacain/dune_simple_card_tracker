@@ -8509,6 +8509,7 @@ var $author$project$Card$bulmaClass = function (card) {
 	};
 	return containsCard($author$project$Card$weapons) ? $ahstro$elm_bulma_classes$Bulma$Classes$isDanger : (containsCard($author$project$Card$defenses) ? $ahstro$elm_bulma_classes$Bulma$Classes$isInfo : (containsCard($author$project$Card$special) ? $ahstro$elm_bulma_classes$Bulma$Classes$isSuccess : (A2($author$project$Card$eq, $author$project$Card$useless, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isWarning : (A2($author$project$Card$eq, $author$project$Card$unknown, card) ? $ahstro$elm_bulma_classes$Bulma$Classes$isBlack : ''))));
 };
+var $ahstro$elm_bulma_classes$Bulma$Classes$isMedium = 'is-medium';
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $ahstro$elm_bulma_classes$Bulma$Classes$tag = 'tag';
 var $author$project$Card$toShortString = function (card) {
@@ -8525,9 +8526,12 @@ var $author$project$Card$html = F3(
 				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tag),
 				A2(
 					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class(
-						$author$project$Card$bulmaClass(card)),
-					attrs)),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isMedium),
+					A2(
+						$elm$core$List$cons,
+						$elm$html$Html$Attributes$class(
+							$author$project$Card$bulmaClass(card)),
+						attrs))),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(name)
@@ -10609,6 +10613,7 @@ var $author$project$Card$htmlWithDiscard = F4(
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tag),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isMedium),
 							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isDelete),
 							$elm$html$Html$Events$onClick(deleteMsg)
 						]),
