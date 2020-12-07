@@ -51,8 +51,8 @@ update msg model =
             Maybe.withDefault model maybeUpdated
 
 
-view : ModalBiddingModel -> Html Msg
-view model =
+view : List Faction.Type -> ModalBiddingModel -> Html Msg
+view factions model =
     let
         validFactionsSelected =
             List.all (\bid -> not <| Faction.eq Faction.unknown (Tuple.second bid)) (Array.toList model.bids)
@@ -80,7 +80,7 @@ view model =
                 { eq = Faction.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| BiddingModalMsg <| SelectBiddingFaction index s
                 , current = faction
-                , options = Faction.factionsWithUnknown
+                , options = Faction.unknown :: factions
                 , toHtml = \f -> text <| Faction.toString f
                 , toValueString = Faction.toString
                 , name = "Faction"

@@ -10,8 +10,8 @@ import Types exposing (AddCardModalMsg(..), GameMsg(..), ModalAddCardModel, Moda
 import View
 
 
-view : ModalAddCardModel -> Html Msg
-view model =
+view : List Faction.Type -> ModalAddCardModel -> Html Msg
+view factions model =
     let
         validFactionSelected =
             not <| Faction.eq Faction.unknown model.faction
@@ -36,7 +36,7 @@ view model =
                 { eq = Faction.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| AddCardModalMsg <| SelectAddCardFaction s
                 , current = faction
-                , options = Faction.factionsWithUnknown
+                , options = Faction.unknown :: factions
                 , toHtml = \f -> text <| Faction.toString f
                 , toValueString = Faction.toString
                 , name = "Faction"

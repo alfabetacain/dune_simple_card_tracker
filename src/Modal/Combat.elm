@@ -126,8 +126,8 @@ update msg model =
             Lens.modify (Lens.compose sideLens sideCheapHero) (\_ -> isOn) model
 
 
-view : ModalCombatModel -> Html Msg
-view model =
+view : List Faction.Type -> ModalCombatModel -> Html Msg
+view factions model =
     let
         modalTitle =
             "Combat"
@@ -137,7 +137,7 @@ view model =
                 { eq = Faction.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
                 , current = faction
-                , options = Faction.factionsWithUnknown
+                , options = Faction.unknown :: factions
                 , toHtml = \f -> text <| Faction.toString f
                 , toValueString = Faction.toString
                 , name = "Faction"

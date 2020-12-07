@@ -21,8 +21,8 @@ update msg model =
                     { model | target = faction }
 
 
-view : ModalHarkonnenCardSwapModel -> Html Msg
-view model =
+view : List Faction.Type -> ModalHarkonnenCardSwapModel -> Html Msg
+view factions model =
     let
         validFactionSelected =
             not <| Faction.eq Faction.unknown model.target
@@ -30,12 +30,15 @@ view model =
         modalTitle =
             "Harkonnen card swap"
 
+        factionsWithoutHarkonnen =
+            List.filter (\f -> not <| Faction.eq Faction.harkonnen f) factions
+
         viewFactionSelectControl faction =
             View.select
                 { eq = Faction.eq
                 , onSelect = \s -> ViewGameMsg <| ModalMsg <| HarkonnenCardSwapModalMsg <| SelectHarkonnenCardSwapMsg s
                 , current = faction
-                , options = List.filter (\f -> not <| Faction.eq Faction.harkonnen f) Faction.factionsWithUnknown
+                , options = Faction.unknown :: factionsWithoutHarkonnen
                 , toHtml = \f -> text <| Faction.toString f
                 , toValueString = Faction.toString
                 , name = "Swap with faction"

@@ -800,8 +800,11 @@ viewNavbar isExpanded =
 viewGame : Game -> Html Msg
 viewGame game =
     let
+        factions =
+            List.map (\p -> p.faction) game.players
+
         modal =
-            Maybe.withDefault (div [] []) <| Maybe.map (\m -> viewModal game.config [] m) game.modal
+            Maybe.withDefault (div [] []) <| Maybe.map (\m -> viewModal factions game.config [] m) game.modal
     in
     Html.node "body"
         []
@@ -846,20 +849,20 @@ viewFooter =
         ]
 
 
-viewModal : Config -> List Card.Type -> Modal -> Html Msg
-viewModal config _ modal =
+viewModal : List Faction.Type -> Config -> List Card.Type -> Modal -> Html Msg
+viewModal factions config _ modal =
     case modal of
         ModalChangeCard model ->
             viewChangeCardModal model
 
         ModalBidding model ->
-            Modal.Bidding.view model
+            Modal.Bidding.view factions model
 
         ModalCombat model ->
-            Modal.Combat.view model
+            Modal.Combat.view factions model
 
         ModalAddCard model ->
-            Modal.AddCard.view model
+            Modal.AddCard.view factions model
 
         ModalConfig model ->
             Modal.Config.view model
@@ -868,7 +871,7 @@ viewModal config _ modal =
             View.History.modal config msg
 
         ModalHarkonnenCardSwap model ->
-            Modal.HarkonnenCardSwap.view model
+            Modal.HarkonnenCardSwap.view factions model
 
 
 view : Model -> Html Msg
