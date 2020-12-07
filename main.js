@@ -5766,6 +5766,7 @@ var $author$project$Ports$decodeBiddingModalMsg = function () {
 		chooseDecoder,
 		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
 }();
+var $author$project$Types$ResetCombatModal = {$: 'ResetCombatModal'};
 var $author$project$Types$SelectDefense = F2(
 	function (a, b) {
 		return {$: 'SelectDefense', a: a, b: b};
@@ -5859,6 +5860,8 @@ var $author$project$Ports$decodeCombatModalMsg = function () {
 					'values',
 					A2($elm$json$Json$Decode$index, 0, $author$project$Ports$decodeSide),
 					$elm$json$Json$Decode$succeed($author$project$Types$ToggleDefenseDiscard));
+			case 'ResetCombatModal':
+				return $elm$json$Json$Decode$succeed($author$project$Types$ResetCombatModal);
 			default:
 				return $elm$json$Json$Decode$fail('Unknown CombatModalMsg ' + typ);
 		}
@@ -6510,6 +6513,15 @@ var $author$project$Main$createGame = function (factions) {
 		A2($elm$core$List$cons, $author$project$Faction$atreides, withoutAtreides));
 	return {config: $author$project$Main$initConfig, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, history: _List_Nil, modal: $elm$core$Maybe$Nothing, navbarExpanded: false, players: players, savedBiddingPhaseModalModel: $elm$core$Maybe$Nothing, savedCombatModalModel: $elm$core$Maybe$Nothing};
 };
+var $author$project$Modal$Combat$init = function () {
+	var initialSide = {
+		cheapHero: false,
+		defense: {card: $author$project$Card$none, discard: false},
+		faction: $author$project$Faction$unknown,
+		weapon: {card: $author$project$Card$none, discard: false}
+	};
+	return {left: initialSide, right: initialSide};
+}();
 var $elm$core$Elm$JsArray$push = _JsArray_push;
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
@@ -6835,7 +6847,7 @@ var $author$project$Ports$encodeCombatModalMsg = function (msg) {
 					[
 						$author$project$Ports$encodeSide(side)
 					]));
-		default:
+		case 'ToggleDefenseDiscard':
 			var side = msg.a;
 			return A2(
 				$author$project$Ports$encodeType,
@@ -6844,6 +6856,8 @@ var $author$project$Ports$encodeCombatModalMsg = function (msg) {
 					[
 						$author$project$Ports$encodeSide(side)
 					]));
+		default:
+			return A2($author$project$Ports$encodeType, 'ResetCombatModal', _List_Nil);
 	}
 };
 var $author$project$Ports$encodeConfigModalMsg = function (msg) {
@@ -7738,6 +7752,8 @@ var $author$project$Modal$Combat$update = F2(
 				} else {
 					return model;
 				}
+			case 'ResetCombatModal':
+				return $author$project$Modal$Combat$init;
 			case 'SelectWeapon':
 				var side = msg.a;
 				var card = msg.b;
@@ -8146,13 +8162,7 @@ var $author$project$Main$updateGame = F2(
 					var initialState = function () {
 						var _v8 = game.savedCombatModalModel;
 						if (_v8.$ === 'Nothing') {
-							var initialSide = {
-								cheapHero: false,
-								defense: {card: $author$project$Card$none, discard: false},
-								faction: $author$project$Faction$unknown,
-								weapon: {card: $author$project$Card$none, discard: false}
-							};
-							return {left: initialSide, right: initialSide};
+							return $author$project$Modal$Combat$init;
 						} else {
 							var previous = _v8.a;
 							return previous;
@@ -10381,6 +10391,20 @@ var $author$project$Modal$Combat$view = F2(
 					_List_fromArray(
 						[
 							$elm$html$Html$text('Finish')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg(
+								$author$project$Types$ModalMsg(
+									$author$project$Types$CombatModalMsg($author$project$Types$ResetCombatModal))))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Reset')
 						]))
 				]));
 		var cheapHeroCard = function (isOn) {
