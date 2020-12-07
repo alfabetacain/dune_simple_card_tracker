@@ -21,7 +21,7 @@ jobs:
       - name: Build (Elm)
         run: elm make src/Main.elm --output=dist/main.js
       - name: Build (CSS)
-        run: npm run css-build
+        run: npm install && npm run css-build
       - name: Deploy
         if: success()
         uses: JamesIves/github-pages-deploy-action@3.6.2
