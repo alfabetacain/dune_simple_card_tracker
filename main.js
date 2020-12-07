@@ -5328,6 +5328,9 @@ var $author$project$Types$FinishCombat = F2(
 		return {$: 'FinishCombat', a: a, b: b};
 	});
 var $author$project$Types$FinishConfigModal = {$: 'FinishConfigModal'};
+var $author$project$Types$FinishHarkonnenCardSwap = function (a) {
+	return {$: 'FinishHarkonnenCardSwap', a: a};
+};
 var $author$project$Types$ModalMsg = function (a) {
 	return {$: 'ModalMsg', a: a};
 };
@@ -5339,6 +5342,7 @@ var $author$project$Types$OpenChangeCardModal = F2(
 	});
 var $author$project$Types$OpenCombatModal = {$: 'OpenCombatModal'};
 var $author$project$Types$OpenConfigModal = {$: 'OpenConfigModal'};
+var $author$project$Types$OpenHarkonnenCardSwapModal = {$: 'OpenHarkonnenCardSwapModal'};
 var $author$project$Types$OpenHistoryModal = function (a) {
 	return {$: 'OpenHistoryModal', a: a};
 };
@@ -5675,6 +5679,9 @@ var $author$project$Types$CombatModalMsg = function (a) {
 var $author$project$Types$ConfigModalMsg = function (a) {
 	return {$: 'ConfigModalMsg', a: a};
 };
+var $author$project$Types$HarkonnenCardSwapModalMsg = function (a) {
+	return {$: 'HarkonnenCardSwapModalMsg', a: a};
+};
 var $author$project$Types$SelectIdentifyCard = function (a) {
 	return {$: 'SelectIdentifyCard', a: a};
 };
@@ -5882,6 +5889,26 @@ var $author$project$Ports$decodeConfigModalMsg = function () {
 		chooseDecoder,
 		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
 }();
+var $author$project$Types$SelectHarkonnenCardSwapMsg = function (a) {
+	return {$: 'SelectHarkonnenCardSwapMsg', a: a};
+};
+var $author$project$Ports$decodeHarkonnenCardSwapModalMsg = function () {
+	var chooseDecoder = function (typ) {
+		if (typ === 'SelectHarkonnenCardSwapMsg') {
+			return A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'values',
+				A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$string),
+				$elm$json$Json$Decode$succeed($author$project$Types$SelectHarkonnenCardSwapMsg));
+		} else {
+			return $elm$json$Json$Decode$fail('Unknown HarkonnenCardSwapModalMsg ' + typ);
+		}
+	};
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		chooseDecoder,
+		A2($elm$json$Json$Decode$field, 'type', $elm$json$Json$Decode$string));
+}();
 var $author$project$Ports$decodeModalMsg = function () {
 	var chooseDecoder = function (typ) {
 		switch (typ) {
@@ -5925,6 +5952,14 @@ var $author$project$Ports$decodeModalMsg = function () {
 						$elm$json$Json$Decode$map,
 						$author$project$Types$ConfigModalMsg,
 						A2($elm$json$Json$Decode$index, 0, $author$project$Ports$decodeConfigModalMsg)));
+			case 'HarkonnenCardSwapModalMsg':
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2(
+						$elm$json$Json$Decode$map,
+						$author$project$Types$HarkonnenCardSwapModalMsg,
+						A2($elm$json$Json$Decode$index, 0, $author$project$Ports$decodeHarkonnenCardSwapModalMsg)));
 			default:
 				return $elm$json$Json$Decode$fail('Unknown ModalMsg \"' + (typ + '\"'));
 		}
@@ -5952,6 +5987,16 @@ function $author$project$Ports$cyclic$decodeGameMsg() {
 							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
 							A2($elm$json$Json$Decode$index, 0, $author$project$Card$decode),
 							$elm$json$Json$Decode$succeed($author$project$Types$AddCard))));
+			case 'OpenHarkonnenCardSwapModal':
+				return $elm$json$Json$Decode$succeed($author$project$Types$OpenHarkonnenCardSwapModal);
+			case 'FinishHarkonnenCardSwap':
+				return A2(
+					$elm$json$Json$Decode$field,
+					'values',
+					A2(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+						A2($elm$json$Json$Decode$index, 0, $author$project$Faction$decode),
+						$elm$json$Json$Decode$succeed($author$project$Types$FinishHarkonnenCardSwap)));
 			case 'ModalMsg':
 				return A2(
 					$elm$json$Json$Decode$map,
@@ -6071,6 +6116,9 @@ var $author$project$Types$ModalCombat = function (a) {
 var $author$project$Types$ModalConfig = function (a) {
 	return {$: 'ModalConfig', a: a};
 };
+var $author$project$Types$ModalHarkonnenCardSwap = function (a) {
+	return {$: 'ModalHarkonnenCardSwap', a: a};
+};
 var $author$project$Types$ModalHistory = function (a) {
 	return {$: 'ModalHistory', a: a};
 };
@@ -6131,6 +6179,14 @@ var $author$project$Ports$decodeModalCombat = A3(
 		'left',
 		$author$project$Ports$decodeCombatSide,
 		$elm$json$Json$Decode$succeed($author$project$Types$ModalCombatModel)));
+var $author$project$Types$ModalHarkonnenCardSwapModel = function (target) {
+	return {target: target};
+};
+var $author$project$Ports$decodeModalHarkonnenCardSwap = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'target',
+	$author$project$Faction$decode,
+	$elm$json$Json$Decode$succeed($author$project$Types$ModalHarkonnenCardSwapModel));
 var $author$project$Ports$decodeModal = function () {
 	var decide = function (s) {
 		switch (s) {
@@ -6164,6 +6220,11 @@ var $author$project$Ports$decodeModal = function () {
 					$elm$json$Json$Decode$map,
 					$author$project$Types$ModalHistory,
 					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeGameMsg));
+			case 'ModalHarkonnenCardSwap':
+				return A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Types$ModalHarkonnenCardSwap,
+					A2($elm$json$Json$Decode$field, 'value', $author$project$Ports$decodeModalHarkonnenCardSwap));
 			default:
 				return $elm$json$Json$Decode$fail('Unknown modal type ' + s);
 		}
@@ -6795,6 +6856,16 @@ var $author$project$Ports$encodeConfigModalMsg = function (msg) {
 			return A2($author$project$Ports$encodeType, 'ToggleDoubleAddToHarkonnen', _List_Nil);
 	}
 };
+var $author$project$Ports$encodeHarkonnenCardSwapModalMsg = function (msg) {
+	var target = msg.a;
+	return A2(
+		$author$project$Ports$encodeType,
+		'SelectHarkonnenCardSwapMsg',
+		_List_fromArray(
+			[
+				$elm$json$Json$Encode$string(target)
+			]));
+};
 var $author$project$Ports$encodeModalMsg = function (msg) {
 	switch (msg.$) {
 		case 'SelectIdentifyCard':
@@ -6832,6 +6903,15 @@ var $author$project$Ports$encodeModalMsg = function (msg) {
 				_List_fromArray(
 					[
 						$author$project$Ports$encodeCombatModalMsg(m)
+					]));
+		case 'HarkonnenCardSwapModalMsg':
+			var m = msg.a;
+			return A2(
+				$author$project$Ports$encodeType,
+				'HarkonnenCardSwapModalMsg',
+				_List_fromArray(
+					[
+						$author$project$Ports$encodeHarkonnenCardSwapModalMsg(m)
 					]));
 		default:
 			var m = msg.a;
@@ -6960,8 +7040,19 @@ var $author$project$Ports$encodeGameMsg = function (msg) {
 			return A2($author$project$Ports$encodeType, 'OpenAddCardModal', _List_Nil);
 		case 'OpenConfigModal':
 			return A2($author$project$Ports$encodeType, 'OpenConfigModal', _List_Nil);
-		default:
+		case 'FinishConfigModal':
 			return A2($author$project$Ports$encodeType, 'FinishConfigModal', _List_Nil);
+		case 'OpenHarkonnenCardSwapModal':
+			return A2($author$project$Ports$encodeType, 'OpenHarkonnenCardSwapModal', _List_Nil);
+		default:
+			var target = msg.a;
+			return A2(
+				$author$project$Ports$encodeType,
+				'FinishHarkonnenCardSwap',
+				_List_fromArray(
+					[
+						$author$project$Faction$encode(target)
+					]));
 	}
 };
 var $author$project$Ports$encodeAddCardModel = function (model) {
@@ -7001,6 +7092,15 @@ var $author$project$Ports$encodeCombatModel = function (model) {
 				_Utils_Tuple2(
 				'right',
 				$author$project$Ports$encodeCombatSide(model.right))
+			]));
+};
+var $author$project$Ports$encodeHarkonnenCardSwapModel = function (model) {
+	return A2(
+		$author$project$Ports$encodeType,
+		'ModalHarkonnenCardSwapModel',
+		_List_fromArray(
+			[
+				$author$project$Faction$encode(model.target)
 			]));
 };
 var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
@@ -7119,7 +7219,7 @@ var $author$project$Ports$encodeModal = function (modal) {
 						'value',
 						$author$project$Ports$encodeConfig(model))
 					]));
-		default:
+		case 'ModalHistory':
 			var model = modal.a;
 			return $elm$json$Json$Encode$object(
 				_List_fromArray(
@@ -7130,6 +7230,18 @@ var $author$project$Ports$encodeModal = function (modal) {
 						_Utils_Tuple2(
 						'value',
 						$author$project$Ports$encodeGameMsg(model))
+					]));
+		default:
+			var model = modal.a;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'type',
+						$elm$json$Json$Encode$string('ModalHarkonnenCardSwap')),
+						_Utils_Tuple2(
+						'value',
+						$author$project$Ports$encodeHarkonnenCardSwapModel(model))
 					]));
 	}
 };
@@ -7729,10 +7841,23 @@ var $author$project$Modal$Config$update = F2(
 					{doubleAddToHarkonnen: !model.doubleAddToHarkonnen});
 		}
 	});
+var $author$project$Modal$HarkonnenCardSwap$update = F2(
+	function (msg, model) {
+		var factionString = msg.a;
+		var _v1 = $author$project$Faction$fromString(factionString);
+		if (_v1.$ === 'Nothing') {
+			return model;
+		} else {
+			var faction = _v1.a;
+			return _Utils_update(
+				model,
+				{target: faction});
+		}
+	});
 var $author$project$Main$updateModal = F2(
 	function (msg, modalModel) {
 		var _v0 = _Utils_Tuple2(msg, modalModel);
-		_v0$5:
+		_v0$6:
 		while (true) {
 			switch (_v0.a.$) {
 				case 'CombatModalMsg':
@@ -7742,7 +7867,16 @@ var $author$project$Main$updateModal = F2(
 						return $author$project$Types$ModalCombat(
 							A2($author$project$Modal$Combat$update, combatMsg, model));
 					} else {
-						break _v0$5;
+						break _v0$6;
+					}
+				case 'HarkonnenCardSwapModalMsg':
+					if (_v0.b.$ === 'ModalHarkonnenCardSwap') {
+						var cardSwapMsg = _v0.a.a;
+						var model = _v0.b.a;
+						return $author$project$Types$ModalHarkonnenCardSwap(
+							A2($author$project$Modal$HarkonnenCardSwap$update, cardSwapMsg, model));
+					} else {
+						break _v0$6;
 					}
 				case 'SelectIdentifyCard':
 					if (_v0.b.$ === 'ModalChangeCard') {
@@ -7759,7 +7893,7 @@ var $author$project$Main$updateModal = F2(
 									{selectedCard: card}));
 						}
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 				case 'BiddingModalMsg':
 					if (_v0.b.$ === 'ModalBidding') {
@@ -7768,7 +7902,7 @@ var $author$project$Main$updateModal = F2(
 						return $author$project$Types$ModalBidding(
 							A2($author$project$Modal$Bidding$update, biddingMsg, model));
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 				case 'AddCardModalMsg':
 					if (_v0.b.$ === 'ModalAddCard') {
@@ -7777,7 +7911,7 @@ var $author$project$Main$updateModal = F2(
 						return $author$project$Types$ModalAddCard(
 							A2($author$project$Modal$AddCard$update, addCardMsg, model));
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 				default:
 					if (_v0.b.$ === 'ModalConfig') {
@@ -7786,7 +7920,7 @@ var $author$project$Main$updateModal = F2(
 						return $author$project$Types$ModalConfig(
 							A2($author$project$Modal$Config$update, configMsg, model));
 					} else {
-						break _v0$5;
+						break _v0$6;
 					}
 			}
 		}
@@ -7807,8 +7941,8 @@ var $author$project$Main$popHistory = function (game) {
 		$elm$core$List$tail(game.history));
 	var folder = F2(
 		function (msg, model) {
-			var _v12 = A2($author$project$Main$updateGame, msg, model);
-			var updatedModel = _v12.a;
+			var _v13 = A2($author$project$Main$updateGame, msg, model);
+			var updatedModel = _v13.a;
 			if (updatedModel.$ === 'ViewGame') {
 				var g = updatedModel.a;
 				return g;
@@ -7852,16 +7986,54 @@ var $author$project$Main$updateGame = F2(
 										$author$project$Types$ModalHistory(m))
 								})),
 						true) : _Utils_Tuple2(game, false);
+				case 'FinishHarkonnenCardSwap':
+					var target = msg.a;
+					var unknownify = function (player) {
+						return (A2($author$project$Faction$eq, $author$project$Faction$harkonnen, player.faction) || A2($author$project$Faction$eq, target, player.faction)) ? _Utils_update(
+							player,
+							{
+								hand: A2(
+									$elm$core$List$map,
+									function (_v2) {
+										return $author$project$Card$unknown;
+									},
+									player.hand)
+							}) : player;
+					};
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Types$FinishHarkonnenCardSwap(target),
+							_Utils_update(
+								game,
+								{
+									modal: $elm$core$Maybe$Nothing,
+									players: A2($elm$core$List$map, unknownify, game.players)
+								})),
+						true);
+				case 'OpenHarkonnenCardSwapModal':
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Main$withHistory,
+							$author$project$Types$OpenHarkonnenCardSwapModal,
+							_Utils_update(
+								game,
+								{
+									modal: $elm$core$Maybe$Just(
+										$author$project$Types$ModalHarkonnenCardSwap(
+											{target: $author$project$Faction$unknown}))
+								})),
+						true);
 				case 'AddCard':
 					var card = msg.a;
 					var faction = msg.b;
 					var updatedModal = function () {
-						var _v2 = game.modal;
-						if ((_v2.$ === 'Just') && (_v2.a.$ === 'ModalAddCard')) {
-							var m = _v2.a.a;
+						var _v3 = game.modal;
+						if ((_v3.$ === 'Just') && (_v3.a.$ === 'ModalAddCard')) {
+							var m = _v3.a.a;
 							return $elm$core$Maybe$Nothing;
 						} else {
-							var x = _v2;
+							var x = _v3;
 							return x;
 						}
 					}();
@@ -7902,9 +8074,9 @@ var $author$project$Main$updateGame = F2(
 						true);
 				case 'DragDropCardToFaction':
 					var msg_ = msg.a;
-					var _v3 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
-					var model_ = _v3.a;
-					var result = _v3.b;
+					var _v4 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, game.dragDrop);
+					var model_ = _v4.a;
+					var result = _v4.b;
 					if (result.$ === 'Nothing') {
 						return _Utils_Tuple2(
 							_Utils_update(
@@ -7912,9 +8084,9 @@ var $author$project$Main$updateGame = F2(
 								{dragDrop: model_}),
 							false);
 					} else {
-						var _v5 = result.a;
-						var card = _v5.a;
-						var faction = _v5.b;
+						var _v6 = result.a;
+						var card = _v6.a;
+						var faction = _v6.b;
 						var updatedPlayers = A4($author$project$Main$addCardToPlayer, game.config, card, faction, game.players);
 						return _Utils_Tuple2(
 							A2(
@@ -7927,8 +8099,8 @@ var $author$project$Main$updateGame = F2(
 					}
 				case 'OpenBiddingPhaseModal':
 					var initialState = function () {
-						var _v6 = game.savedBiddingPhaseModalModel;
-						if (_v6.$ === 'Nothing') {
+						var _v7 = game.savedBiddingPhaseModalModel;
+						if (_v7.$ === 'Nothing') {
 							return {
 								bids: A2(
 									$elm$core$Array$push,
@@ -7942,7 +8114,7 @@ var $author$project$Main$updateGame = F2(
 									game.players)
 							};
 						} else {
-							var saved = _v6.a;
+							var saved = _v7.a;
 							return saved;
 						}
 					}();
@@ -7972,8 +8144,8 @@ var $author$project$Main$updateGame = F2(
 						true);
 				case 'OpenCombatModal':
 					var initialState = function () {
-						var _v7 = game.savedCombatModalModel;
-						if (_v7.$ === 'Nothing') {
+						var _v8 = game.savedCombatModalModel;
+						if (_v8.$ === 'Nothing') {
 							var initialSide = {
 								cheapHero: false,
 								defense: {card: $author$project$Card$none, discard: false},
@@ -7982,7 +8154,7 @@ var $author$project$Main$updateGame = F2(
 							};
 							return {left: initialSide, right: initialSide};
 						} else {
-							var previous = _v7.a;
+							var previous = _v8.a;
 							return previous;
 						}
 					}();
@@ -8148,9 +8320,9 @@ var $author$project$Main$updateGame = F2(
 								})),
 						true);
 				case 'FinishConfigModal':
-					var _v9 = game.modal;
-					if ((_v9.$ === 'Just') && (_v9.a.$ === 'ModalConfig')) {
-						var config = _v9.a.a;
+					var _v10 = game.modal;
+					if ((_v10.$ === 'Just') && (_v10.a.$ === 'ModalConfig')) {
+						var config = _v10.a.a;
 						return _Utils_Tuple2(
 							A2(
 								$author$project$Main$withHistory,
@@ -8163,13 +8335,13 @@ var $author$project$Main$updateGame = F2(
 						return _Utils_Tuple2(game, false);
 					}
 				case 'CloseModal':
-					var _v10 = game.modal;
-					_v10$2:
+					var _v11 = game.modal;
+					_v11$2:
 					while (true) {
-						if (_v10.$ === 'Just') {
-							switch (_v10.a.$) {
+						if (_v11.$ === 'Just') {
+							switch (_v11.a.$) {
 								case 'ModalBidding':
-									var biddingModel = _v10.a.a;
+									var biddingModel = _v11.a.a;
 									return _Utils_Tuple2(
 										A2(
 											$author$project$Main$withHistory,
@@ -8182,7 +8354,7 @@ var $author$project$Main$updateGame = F2(
 												})),
 										true);
 								case 'ModalCombat':
-									var combatModel = _v10.a.a;
+									var combatModel = _v11.a.a;
 									return _Utils_Tuple2(
 										A2(
 											$author$project$Main$withHistory,
@@ -8195,10 +8367,10 @@ var $author$project$Main$updateGame = F2(
 												})),
 										true);
 								default:
-									break _v10$2;
+									break _v11$2;
 							}
 						} else {
-							break _v10$2;
+							break _v11$2;
 						}
 					}
 					return _Utils_Tuple2(
@@ -8212,11 +8384,11 @@ var $author$project$Main$updateGame = F2(
 				default:
 					var modalMsg = msg.a;
 					var newModalModel = function () {
-						var _v11 = game.modal;
-						if (_v11.$ === 'Nothing') {
+						var _v12 = game.modal;
+						if (_v12.$ === 'Nothing') {
 							return $elm$core$Maybe$Nothing;
 						} else {
-							var modalModel = _v11.a;
+							var modalModel = _v12.a;
 							return $elm$core$Maybe$Just(
 								A2($author$project$Main$updateModal, modalMsg, modalModel));
 						}
@@ -8608,6 +8780,16 @@ var $author$project$View$History$viewGameMsg = F2(
 				return $elm$core$Maybe$Nothing;
 			case 'OpenChangeCardModal':
 				return $elm$core$Maybe$Nothing;
+			case 'FinishHarkonnenCardSwap':
+				var target = msg.a;
+				return item(
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							'Harkonnen card swap with ' + $author$project$Faction$toString(target))
+						]));
+			case 'OpenHarkonnenCardSwapModal':
+				return $elm$core$Maybe$Nothing;
 			case 'ChangeCardViaModal':
 				var change = msg.a;
 				return item(
@@ -8631,7 +8813,6 @@ var $author$project$View$History$viewGameMsg = F2(
 							$author$project$Types$AssignBiddingPhaseCards(model))),
 					'Bidding phase');
 			case 'ModalMsg':
-				var m = msg.a;
 				return $elm$core$Maybe$Nothing;
 			case 'CloseModal':
 				return $elm$core$Maybe$Nothing;
@@ -8771,6 +8952,19 @@ var $author$project$Main$viewButtons = A2(
 					_List_fromArray(
 						[
 							$elm$html$Html$text('Combat')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$levelItem),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg($author$project$Types$OpenHarkonnenCardSwapModal))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Harkonnen Card Swap')
 						])),
 					A2(
 					$elm$html$Html$button,
@@ -10383,6 +10577,83 @@ var $author$project$Modal$Config$view = function (model) {
 		body,
 		footer);
 };
+var $author$project$Modal$HarkonnenCardSwap$view = function (model) {
+	var viewFactionSelectControl = function (faction) {
+		return $author$project$View$select(
+			{
+				current: faction,
+				eq: $author$project$Faction$eq,
+				isValid: !A2($author$project$Faction$eq, faction, $author$project$Faction$unknown),
+				name: 'Swap with faction',
+				onSelect: function (s) {
+					return $author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$HarkonnenCardSwapModalMsg(
+								$author$project$Types$SelectHarkonnenCardSwapMsg(s))));
+				},
+				options: A2(
+					$elm$core$List$filter,
+					function (f) {
+						return !A2($author$project$Faction$eq, $author$project$Faction$harkonnen, f);
+					},
+					$author$project$Faction$factionsWithUnknown),
+				toHtml: function (f) {
+					return $elm$html$Html$text(
+						$author$project$Faction$toString(f));
+				},
+				toValueString: $author$project$Faction$toString
+			});
+	};
+	var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.target);
+	var modalTitle = 'Harkonnen card swap';
+	var footer = A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+						$elm$html$Html$Events$onClick(
+						$author$project$Types$ViewGameMsg(
+							$author$project$Types$FinishHarkonnenCardSwap(model.target))),
+						$elm$html$Html$Attributes$disabled(!validFactionSelected)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Swap')
+					]))
+			]));
+	var body = A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field),
+						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isGrouped)
+					]),
+				_List_fromArray(
+					[
+						viewFactionSelectControl(model.target)
+					]))
+			]));
+	return A4(
+		$author$project$View$modal,
+		modalTitle,
+		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
+		body,
+		footer);
+};
 var $author$project$View$button = F3(
 	function (attributes, clickMsg, name) {
 		var allAttributes = A2(
@@ -10465,9 +10736,12 @@ var $author$project$Main$viewModal = F3(
 			case 'ModalConfig':
 				var model = modal.a;
 				return $author$project$Modal$Config$view(model);
-			default:
+			case 'ModalHistory':
 				var msg = modal.a;
 				return A2($author$project$View$History$modal, config, msg);
+			default:
+				var model = modal.a;
+				return $author$project$Modal$HarkonnenCardSwap$view(model);
 		}
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
