@@ -38,7 +38,7 @@ These interactions should get you through a full game, but for convenience, a co
 
 ## Differences with Atredies Mentat (AM)
 
-The main reason for creating this project is that although I found Atreides Mentat quite useful, it was a bit too good for me. Due to my own shortcomings, I repeately found myself forgetting a card or two and had a hard time recovering from this. Because of this, and because I thought it would be fun to try to implement something larger in (Elm)[], I created this project. 
+The main reason for creating this project is that although I found Atreides Mentat quite useful, it was a bit too good for me. Due to my own shortcomings, I repeately found myself forgetting a card or two and had a hard time recovering from this. Because of this, and because I thought it would be fun to try to implement something larger in (Elm)[https://elm-lang.org/], I created this project. 
 
 So, although the two projects are quite similar, there are a couple of differences, which is listed below. The list does not cover everything, but should cover the most important points. For convenience, I will refer to Atreides Mentat as AM and this project as SCT (Simple Card Tracker).
 
