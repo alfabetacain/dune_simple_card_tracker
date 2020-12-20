@@ -4,7 +4,7 @@ Heavily inspired by [https://github.com/ohgoditspotato/atreides_mentat](https://
 
 ## How to
 
-The site (https://alfabetacain.github.io/dune_simple_card_tracker/)[https://alfabetacain.github.io/dune_simple_card_tracker/] is a simple card tracker for Atreides for the board game (Dune)[https://boardgamegeek.com/boardgame/283355/dune] (if you haven't played it, you should).
+The site [https://alfabetacain.github.io/dune_simple_card_tracker/](https://alfabetacain.github.io/dune_simple_card_tracker/) is a simple card tracker for Atreides for the board game [Dune](https://boardgamegeek.com/boardgame/283355/dune) (if you haven't played it, you should).
 
 It allows the player to assign cards to the individual factions in the game and thereby keep track of who has what. Once assigned to a faction, the cards can then be changed to another card (in case the card should have been another card) or discarded. 
 
@@ -38,7 +38,7 @@ These interactions should get you through a full game, but for convenience, a co
 
 ## Differences with Atredies Mentat (AM)
 
-The main reason for creating this project is that although I found Atreides Mentat quite useful, it was a bit too good for me. Due to my own shortcomings, I repeately found myself forgetting a card or two and had a hard time recovering from this. Because of this, and because I thought it would be fun to try to implement something larger in (Elm)[https://elm-lang.org/], I created this project. 
+The main reason for creating this project is that although I found Atreides Mentat quite useful, it was a bit too good for me. Due to my own shortcomings, I repeately found myself forgetting a card or two and had a hard time recovering from this. Because of this, and because I thought it would be fun to try to implement something larger in [Elm](https://elm-lang.org/), I created this project. 
 
 So, although the two projects are quite similar, there are a couple of differences, which is listed below. The list does not cover everything, but should cover the most important points. For convenience, I will refer to Atreides Mentat as AM and this project as SCT (Simple Card Tracker).
 
@@ -65,4 +65,4 @@ So, although the two projects are quite similar, there are a couple of differenc
 
 ## Implementation
 
-This project is implemented in (Elm)[https://elm-lang.org/] and uses the (Bulma)[https://bulma.io/] framework for styling. The state of the game is stored in (localStorage)[https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage], which is written to every time the state changes.
+This project is implemented in [Elm](https://elm-lang.org/) and uses the [Bulma](https://bulma.io/) framework for styling. The state of the game is stored in [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), which is written to every time the state changes.
