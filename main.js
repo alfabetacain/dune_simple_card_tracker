@@ -5779,10 +5779,9 @@ var $author$project$Types$SelectWeapon = F2(
 	function (a, b) {
 		return {$: 'SelectWeapon', a: a, b: b};
 	});
-var $author$project$Types$ToggleCheapHero = F2(
-	function (a, b) {
-		return {$: 'ToggleCheapHero', a: a, b: b};
-	});
+var $author$project$Types$ToggleCheapHero = function (a) {
+	return {$: 'ToggleCheapHero', a: a};
+};
 var $author$project$Types$ToggleDefenseDiscard = function (a) {
 	return {$: 'ToggleDefenseDiscard', a: a};
 };
@@ -5842,12 +5841,8 @@ var $author$project$Ports$decodeCombatModalMsg = function () {
 				return A3(
 					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 					'values',
-					A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$string),
-					A3(
-						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'values',
-						A2($elm$json$Json$Decode$index, 0, $author$project$Ports$decodeSide),
-						$elm$json$Json$Decode$succeed($author$project$Types$ToggleCheapHero)));
+					A2($elm$json$Json$Decode$index, 0, $author$project$Ports$decodeSide),
+					$elm$json$Json$Decode$succeed($author$project$Types$ToggleCheapHero));
 			case 'ToggleWeaponDiscard':
 				return A3(
 					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -6829,14 +6824,12 @@ var $author$project$Ports$encodeCombatModalMsg = function (msg) {
 					]));
 		case 'ToggleCheapHero':
 			var side = msg.a;
-			var s = msg.b;
 			return A2(
 				$author$project$Ports$encodeType,
 				'ToggleCheapHero',
 				_List_fromArray(
 					[
-						$author$project$Ports$encodeSide(side),
-						$elm$json$Json$Encode$string(s)
+						$author$project$Ports$encodeSide(side)
 					]));
 		case 'ToggleWeaponDiscard':
 			var side = msg.a;
@@ -7820,23 +7813,11 @@ var $author$project$Modal$Combat$update = F2(
 					model);
 			default:
 				var side = msg.a;
-				var card = msg.b;
 				var sideLens = $author$project$Modal$Combat$chooseSideLens(side);
-				var isOn = function () {
-					var _v6 = $author$project$Card$fromString(card);
-					if (_v6.$ === 'Nothing') {
-						return false;
-					} else {
-						var c = _v6.a;
-						return !A2($author$project$Card$eq, $author$project$Card$none, c);
-					}
-				}();
 				return A3(
 					$arturopala$elm_monocle$Monocle$Lens$modify,
 					A2($arturopala$elm_monocle$Monocle$Lens$compose, sideLens, $author$project$Modal$Combat$sideCheapHero),
-					function (_v5) {
-						return isOn;
-					},
+					$elm$core$Basics$not,
 					model);
 		}
 	});
@@ -10333,28 +10314,6 @@ var $author$project$Modal$Combat$view = F2(
 				};
 				return $author$project$View$selectWithButton(selectConfigWithButton);
 			});
-		var viewCardSelect = F4(
-			function (name, msg, card, cards) {
-				return $author$project$View$select(
-					{
-						current: card,
-						eq: $author$project$Card$eq,
-						isValid: true,
-						name: name,
-						onSelect: function (s) {
-							return $author$project$Types$ViewGameMsg(
-								$author$project$Types$ModalMsg(
-									$author$project$Types$CombatModalMsg(
-										msg(s))));
-						},
-						options: cards,
-						toHtml: function (c) {
-							return $elm$html$Html$text(
-								$author$project$Card$toString(c));
-						},
-						toValueString: $author$project$Card$toString
-					});
-			});
 		var resetButton = A2(
 			$elm$html$Html$button,
 			_List_fromArray(
@@ -10386,9 +10345,59 @@ var $author$project$Modal$Combat$view = F2(
 				[
 					$elm$html$Html$text('Finish')
 				]));
-		var cheapHeroCard = function (isOn) {
-			return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
-		};
+		var cheapHeroSelect = F2(
+			function (side, isOn) {
+				return A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$field)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$label,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$label)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Cheap hero played')
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$control)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+											$elm$html$Html$Attributes$classList(
+											_List_fromArray(
+												[
+													_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isDanger, isOn),
+													_Utils_Tuple2($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess, !isOn)
+												])),
+											$elm$html$Html$Events$onClick(
+											$author$project$Types$ViewGameMsg(
+												$author$project$Types$ModalMsg(
+													$author$project$Types$CombatModalMsg(
+														$author$project$Types$ToggleCheapHero(side)))))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(
+											isOn ? 'Yes' : 'No')
+										]))
+								]))
+						]));
+			});
 		var viewCards = F2(
 			function (side, combatSide) {
 				return _List_fromArray(
@@ -10415,13 +10424,7 @@ var $author$project$Modal$Combat$view = F2(
 							$author$project$Card$none,
 							A2($elm$core$List$cons, $author$project$Card$useless, $author$project$Card$defenses)),
 						combatSide.defense.discard),
-						A4(
-						viewCardSelect,
-						'Cheap hero',
-						$author$project$Types$ToggleCheapHero(side),
-						cheapHeroCard(combatSide.cheapHero),
-						_List_fromArray(
-							[$author$project$Card$none, $author$project$Card$cheapHero]))
+						A2(cheapHeroSelect, side, combatSide.cheapHero)
 					]);
 			});
 		var viewLeftSide = $elm$core$List$concat(
