@@ -130,8 +130,8 @@ encodeCombatModalMsg msg =
         SelectDefense side s ->
             encodeType "SelectDefense" [ encodeSide side, E.string s ]
 
-        ToggleCheapHero side s ->
-            encodeType "ToggleCheapHero" [ encodeSide side, E.string s ]
+        ToggleCheapHero side ->
+            encodeType "ToggleCheapHero" [ encodeSide side ]
 
         ToggleWeaponDiscard side ->
             encodeType "ToggleWeaponDiscard" [ encodeSide side ]
@@ -508,7 +508,6 @@ decodeCombatModalMsg =
                 "ToggleCheapHero" ->
                     D.succeed ToggleCheapHero
                         |> required "values" (index 0 decodeSide)
-                        |> required "values" (index 1 D.string)
 
                 "ToggleWeaponDiscard" ->
                     D.succeed ToggleWeaponDiscard

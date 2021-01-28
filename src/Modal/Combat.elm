@@ -4,7 +4,7 @@ import Bulma.Classes as Bulma
 import Card
 import Faction
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, disabled)
+import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
 import Monocle.Lens as Lens exposing (Lens)
 import Types exposing (CombatCard, CombatModalMsg(..), CombatSide, GameMsg(..), ModalCombatModel, ModalMsg(..), Msg(..), Side(..))
@@ -128,20 +128,12 @@ update msg model =
             in
             Lens.modify (Lens.compose sideLens sideDefense) (\cc -> { cc | discard = not cc.discard }) model
 
-        ToggleCheapHero side card ->
+        ToggleCheapHero side ->
             let
-                isOn =
-                    case Card.fromString card of
-                        Nothing ->
-                            False
-
-                        Just c ->
-                            not <| Card.eq Card.none c
-
                 sideLens =
                     chooseSideLens side
             in
-            Lens.modify (Lens.compose sideLens sideCheapHero) (\_ -> isOn) model
+            Lens.modify (Lens.compose sideLens sideCheapHero) not model
 
 
 view : List Faction.Type -> ModalCombatModel -> Html Msg
@@ -194,24 +186,25 @@ view factions model =
             in
             View.selectWithButton selectConfigWithButton
 
-        viewCardSelect name msg card cards =
-            View.select
-                { eq = Card.eq
-                , onSelect = \s -> ViewGameMsg <| ModalMsg <| CombatModalMsg <| msg s
-                , current = card
-                , options = cards
-                , toHtml = \c -> text <| Card.toString c
-                , toValueString = Card.toString
-                , name = name
-                , isValid = True
-                }
+        cheapHeroSelect side isOn =
+            div [ class Bulma.field ]
+                [ Html.label [ class Bulma.label ] [ text "Cheap hero played" ]
+                , div [ class Bulma.control ]
+                    [ button
+                        [ class Bulma.button
+                        , classList [ ( Bulma.isDanger, isOn ), ( Bulma.isSuccess, not isOn ) ]
+                        , onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg <| ToggleCheapHero side
+                        ]
+                        [ text
+                            (if isOn then
+                                "Yes"
 
-        cheapHeroCard isOn =
-            if isOn then
-                Card.cheapHero
-
-            else
-                Card.none
+                             else
+                                "No"
+                            )
+                        ]
+                    ]
+                ]
 
         viewCards side combatSide =
             [ viewCardSelectWithDiscard
@@ -228,7 +221,7 @@ view factions model =
                 combatSide.defense.card
                 (Card.none :: Card.useless :: Card.defenses)
                 combatSide.defense.discard
-            , viewCardSelect "Cheap hero" (ToggleCheapHero side) (cheapHeroCard combatSide.cheapHero) [ Card.none, Card.cheapHero ]
+            , cheapHeroSelect side combatSide.cheapHero
             ]
 
         viewLeftSide =
