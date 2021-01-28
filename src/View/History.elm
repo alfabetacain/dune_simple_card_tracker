@@ -181,7 +181,7 @@ list : Config -> List GameMsg -> Html Msg
 list config history =
     div [ class Bulma.tile, class Bulma.isAncestor ]
         [ div [ class Bulma.tile, class Bulma.isParent ]
-            [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered ]
+            [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered, class Bulma.content ]
                 [ ol [] <| List.filterMap (viewGameMsg config) history
                 ]
             ]
