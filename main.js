@@ -9600,8 +9600,6 @@ var $author$project$Main$viewDeck = F2(
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$delete = 'delete';
 var $elm$html$Html$header = _VirtualDom_node('header');
-var $elm$html$Html$i = _VirtualDom_node('i');
-var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isActive = 'is-active';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modal = 'modal';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalBackground = 'modal-background';
@@ -9610,8 +9608,22 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardBody = 'modal-card-body';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot = 'modal-card-foot';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardHead = 'modal-card-head';
 var $ahstro$elm_bulma_classes$Bulma$Classes$modalCardTitle = 'modal-card-title';
-var $author$project$View$modal = F4(
-	function (title, onClose, bodyChild, footerChild) {
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $author$project$View$modal = F5(
+	function (title, onClose, bodyChild, leftButtons, rightButtons) {
+		var undoButton = A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg($author$project$Types$Undo))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Undo')
+				]));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -9655,25 +9667,6 @@ var $author$project$View$modal = F4(
 											$elm$html$Html$text(title)
 										])),
 									A2(
-									$elm$html$Html$span,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$icon),
-											$elm$html$Html$Events$onClick(
-											$author$project$Types$ViewGameMsg($author$project$Types$Undo))
-										]),
-									_List_fromArray(
-										[
-											A2(
-											$elm$html$Html$i,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$class('fas'),
-													$elm$html$Html$Attributes$class('fa-undo')
-												]),
-											_List_Nil)
-										])),
-									A2(
 									$elm$html$Html$button,
 									_List_fromArray(
 										[
@@ -9694,10 +9687,17 @@ var $author$project$View$modal = F4(
 							$elm$html$Html$footer,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot)
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$modalCardFoot),
+									A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between')
 								]),
 							_List_fromArray(
-								[footerChild]))
+								[
+									A2(
+									$elm$html$Html$div,
+									_List_Nil,
+									A2($elm$core$List$cons, undoButton, leftButtons)),
+									A2($elm$html$Html$div, _List_Nil, rightButtons)
+								]))
 						]))
 				]));
 	});
@@ -9721,24 +9721,18 @@ var $author$project$View$History$modal = F2(
 							]));
 				};
 				var modalTitle = 'Bidding phase';
-				var footer = A2(
-					$elm$html$Html$div,
-					_List_Nil,
+				var closeButton = A2(
+					$elm$html$Html$button,
 					_List_fromArray(
 						[
-							A2(
-							$elm$html$Html$button,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-									$elm$html$Html$Events$onClick(
-									$author$project$Types$ViewGameMsg($author$project$Types$CloseModal))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Close')
-								]))
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg($author$project$Types$CloseModal))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Close')
 						]));
 				var body = A2(
 					$elm$html$Html$div,
@@ -9750,12 +9744,14 @@ var $author$project$View$History$modal = F2(
 							_List_Nil,
 							A2($elm$core$List$map, viewAssignment, assignments))
 						]));
-				return A4(
+				return A5(
 					$author$project$View$modal,
 					modalTitle,
 					$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 					body,
-					footer);
+					_List_Nil,
+					_List_fromArray(
+						[closeButton]));
 			case 'FinishCombat':
 				var left = msg.a;
 				var right = msg.b;
@@ -9802,24 +9798,18 @@ var $author$project$View$History$modal = F2(
 							]));
 				};
 				var modalTitle = 'Combat';
-				var footer = A2(
-					$elm$html$Html$div,
-					_List_Nil,
+				var closeButton = A2(
+					$elm$html$Html$button,
 					_List_fromArray(
 						[
-							A2(
-							$elm$html$Html$button,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-									$elm$html$Html$Events$onClick(
-									$author$project$Types$ViewGameMsg($author$project$Types$CloseModal))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('Close')
-								]))
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+							$elm$html$Html$Events$onClick(
+							$author$project$Types$ViewGameMsg($author$project$Types$CloseModal))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Close')
 						]));
 				var body = A2(
 					$elm$html$Html$div,
@@ -9829,12 +9819,14 @@ var $author$project$View$History$modal = F2(
 							viewCombatSide(left),
 							viewCombatSide(right)
 						]));
-				return A4(
+				return A5(
 					$author$project$View$modal,
 					modalTitle,
 					$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 					body,
-					footer);
+					_List_Nil,
+					_List_fromArray(
+						[closeButton]));
 			default:
 				return A2($elm$html$Html$div, _List_Nil, _List_Nil);
 		}
@@ -10021,26 +10013,20 @@ var $author$project$Modal$AddCard$view = F2(
 		};
 		var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.faction);
 		var modalTitle = 'Add Card';
-		var footer = A2(
-			$elm$html$Html$div,
-			_List_Nil,
+		var completeButton = A2(
+			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								A2($author$project$Types$AddCard, model.card, model.faction))),
-							$elm$html$Html$Attributes$disabled(!validFactionSelected)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Assign card')
-						]))
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						A2($author$project$Types$AddCard, model.card, model.faction))),
+					$elm$html$Html$Attributes$disabled(!validFactionSelected)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Assign card')
 				]));
 		var body = A2(
 			$elm$html$Html$div,
@@ -10063,12 +10049,14 @@ var $author$project$Modal$AddCard$view = F2(
 							viewFactionSelectControl(model.faction)
 						]))
 				]));
-		return A4(
+		return A5(
 			$author$project$View$modal,
 			modalTitle,
 			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 			body,
-			footer);
+			_List_Nil,
+			_List_fromArray(
+				[completeButton]));
 	});
 var $elm$core$List$all = F2(
 	function (isOkay, list) {
@@ -10152,6 +10140,20 @@ var $author$project$Modal$Bidding$view = F2(
 				return !A2($author$project$Card$eq, $author$project$Card$unknown, bid.a);
 			},
 			$elm$core$Array$toList(model.bids));
+		var resetButton = A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$BiddingModalMsg($author$project$Types$ResetBids))))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Reset')
+				]));
 		var modalTitle = 'Bidding';
 		var bidsList = $elm$core$Array$toList(model.bids);
 		var body = A2(
@@ -10161,62 +10163,45 @@ var $author$project$Modal$Bidding$view = F2(
 					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$container)
 				]),
 			A2($elm$core$List$indexedMap, viewBid, bidsList));
-		var footerChild = A2(
-			$elm$html$Html$div,
-			_List_Nil,
+		var assignBidsButton = A2(
+			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								$author$project$Types$AssignBiddingPhaseCards(bidsList))),
-							$elm$html$Html$Attributes$disabled(!(validFactionsSelected && validCardsSelected))
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Assign bids')
-						])),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								$author$project$Types$ModalMsg(
-									$author$project$Types$BiddingModalMsg($author$project$Types$AddBid))))
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Add bid')
-						])),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								$author$project$Types$ModalMsg(
-									$author$project$Types$BiddingModalMsg($author$project$Types$ResetBids))))
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Reset')
-						]))
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$AssignBiddingPhaseCards(bidsList))),
+					$elm$html$Html$Attributes$disabled(!(validFactionsSelected && validCardsSelected))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Assign bids')
 				]));
-		return A4(
+		var addBidButton = A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isInfo),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$BiddingModalMsg($author$project$Types$AddBid))))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Add bid')
+				]));
+		return A5(
 			$author$project$View$modal,
 			modalTitle,
 			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 			body,
-			footerChild);
+			_List_fromArray(
+				[resetButton, addBidButton]),
+			_List_fromArray(
+				[assignBidsButton]));
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
 var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
@@ -10370,42 +10355,36 @@ var $author$project$Modal$Combat$view = F2(
 						toValueString: $author$project$Card$toString
 					});
 			});
-		var modalTitle = 'Combat';
-		var isValid = (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.left.faction)) && ((!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.right.faction)) && (!A2($author$project$Faction$eq, model.left.faction, model.right.faction)));
-		var footer = A2(
-			$elm$html$Html$div,
-			_List_Nil,
+		var resetButton = A2(
+			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								A2($author$project$Types$FinishCombat, model.left, model.right))),
-							$elm$html$Html$Attributes$disabled(!isValid)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Finish')
-						])),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								$author$project$Types$ModalMsg(
-									$author$project$Types$CombatModalMsg($author$project$Types$ResetCombatModal))))
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Reset')
-						]))
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$ModalMsg(
+							$author$project$Types$CombatModalMsg($author$project$Types$ResetCombatModal))))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Reset')
+				]));
+		var modalTitle = 'Combat';
+		var isValid = (!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.left.faction)) && ((!A2($author$project$Faction$eq, $author$project$Faction$unknown, model.right.faction)) && (!A2($author$project$Faction$eq, model.left.faction, model.right.faction)));
+		var finishButton = A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						A2($author$project$Types$FinishCombat, model.left, model.right))),
+					$elm$html$Html$Attributes$disabled(!isValid)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Finish')
 				]));
 		var cheapHeroCard = function (isOn) {
 			return isOn ? $author$project$Card$cheapHero : $author$project$Card$none;
@@ -10510,12 +10489,15 @@ var $author$project$Modal$Combat$view = F2(
 						]),
 					viewRightSide)
 				]));
-		return A4(
+		return A5(
 			$author$project$View$modal,
 			modalTitle,
 			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 			body,
-			footer);
+			_List_fromArray(
+				[resetButton]),
+			_List_fromArray(
+				[finishButton]));
 	});
 var $ahstro$elm_bulma_classes$Bulma$Classes$checkbox = 'checkbox';
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
@@ -10566,25 +10548,6 @@ var $author$project$Modal$Config$view = function (model) {
 					]));
 		});
 	var title = 'Config';
-	var footer = A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-						$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-						$elm$html$Html$Events$onClick(
-						$author$project$Types$ViewGameMsg($author$project$Types$FinishConfigModal))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Apply')
-					]))
-			]));
 	var body = A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -10597,38 +10560,47 @@ var $author$project$Modal$Config$view = function (model) {
 				A3(toggleField, $author$project$Types$ToggleHandLimits, 'Enforce hand limits', model.handLimits),
 				A3(toggleField, $author$project$Types$ToggleDoubleAddToHarkonnen, 'Add unknown card to harkonnen automatically during bidding', model.doubleAddToHarkonnen)
 			]));
-	return A4(
+	var applyButton = A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+				$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+				$elm$html$Html$Events$onClick(
+				$author$project$Types$ViewGameMsg($author$project$Types$FinishConfigModal))
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Apply')
+			]));
+	return A5(
 		$author$project$View$modal,
 		title,
 		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 		body,
-		footer);
+		_List_Nil,
+		_List_fromArray(
+			[applyButton]));
 };
 var $author$project$Modal$HarkonnenCardSwap$view = F2(
 	function (factions, model) {
 		var validFactionSelected = !A2($author$project$Faction$eq, $author$project$Faction$unknown, model.target);
-		var modalTitle = 'Harkonnen card swap';
-		var footer = A2(
-			$elm$html$Html$div,
-			_List_Nil,
+		var swapButton = A2(
+			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
-							$elm$html$Html$Events$onClick(
-							$author$project$Types$ViewGameMsg(
-								$author$project$Types$FinishHarkonnenCardSwap(model.target))),
-							$elm$html$Html$Attributes$disabled(!validFactionSelected)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Swap')
-						]))
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$button),
+					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isSuccess),
+					$elm$html$Html$Events$onClick(
+					$author$project$Types$ViewGameMsg(
+						$author$project$Types$FinishHarkonnenCardSwap(model.target))),
+					$elm$html$Html$Attributes$disabled(!validFactionSelected)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Swap')
 				]));
+		var modalTitle = 'Harkonnen card swap';
 		var factionsWithoutHarkonnen = A2(
 			$elm$core$List$filter,
 			function (f) {
@@ -10676,12 +10648,14 @@ var $author$project$Modal$HarkonnenCardSwap$view = F2(
 							viewFactionSelectControl(model.target)
 						]))
 				]));
-		return A4(
+		return A5(
 			$author$project$View$modal,
 			modalTitle,
 			$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 			body,
-			footer);
+			_List_Nil,
+			_List_fromArray(
+				[swapButton]));
 	});
 var $author$project$View$button = F3(
 	function (attributes, clickMsg, name) {
@@ -10740,12 +10714,14 @@ var $author$project$Main$viewChangeCardModal = function (model) {
 					$author$project$Types$SelectIdentifyCard(s)));
 		},
 		model.selectedCard);
-	return A4(
+	return A5(
 		$author$project$View$modal,
 		modalTitle,
 		$author$project$Types$ViewGameMsg($author$project$Types$CloseModal),
 		body,
-		footerChild);
+		_List_Nil,
+		_List_fromArray(
+			[footerChild]));
 };
 var $author$project$Main$viewModal = F4(
 	function (factions, config, _v0, modal) {
@@ -10923,6 +10899,8 @@ var $author$project$Card$htmlWithDiscard = F4(
 					_List_Nil)
 				]));
 	});
+var $elm$html$Html$i = _VirtualDom_node('i');
+var $ahstro$elm_bulma_classes$Bulma$Classes$icon = 'icon';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isSize5 = 'is-size-5';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isVertical = 'is-vertical';
 var $elm$core$List$takeReverse = F3(
