@@ -84,20 +84,26 @@ button attributes clickMsg name =
     Html.button allAttributes [ text name ]
 
 
-modal : String -> Msg -> Html Msg -> Html Msg -> Html Msg
-modal title onClose bodyChild footerChild =
+modal : String -> Msg -> Html Msg -> List (Html Msg) -> List (Html Msg) -> Html Msg
+modal title onClose bodyChild leftButtons rightButtons =
+    let
+        undoButton =
+            Html.button
+                [ class Bulma.button
+                , onClick <| ViewGameMsg <| Undo
+                ]
+                [ text "Undo" ]
+    in
     div [ class Bulma.modal, class Bulma.isActive ]
         [ div [ class Bulma.modalBackground ] []
         , div [ class Bulma.modalCard ]
             [ header [ class Bulma.modalCardHead ]
                 [ p [ class Bulma.modalCardTitle ] [ text title ]
-                , span [ class Bulma.icon, onClick <| ViewGameMsg Undo ]
-                    [ i [ class "fas", class "fa-undo" ] [] ]
                 , Html.button [ class Bulma.delete, onClick onClose ] []
                 ]
             , section [ class Bulma.modalCardBody ]
                 [ bodyChild ]
-            , footer [ class Bulma.modalCardFoot ]
-                [ footerChild ]
+            , footer [ class Bulma.modalCardFoot, Html.Attributes.style "justify-content" "space-between" ]
+                [ div [] (undoButton :: leftButtons), div [] rightButtons ]
             ]
         ]

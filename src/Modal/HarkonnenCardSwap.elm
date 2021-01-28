@@ -52,15 +52,13 @@ view factions model =
                     ]
                 ]
 
-        footer =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| FinishHarkonnenCardSwap model.target
-                    , disabled (not validFactionSelected)
-                    ]
-                    [ text "Swap" ]
+        swapButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isSuccess
+                , onClick <| ViewGameMsg <| FinishHarkonnenCardSwap model.target
+                , disabled (not validFactionSelected)
                 ]
+                [ text "Swap" ]
     in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footer
+    View.modal modalTitle (ViewGameMsg CloseModal) body [] [ swapButton ]

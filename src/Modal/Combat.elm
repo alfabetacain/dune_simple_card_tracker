@@ -257,20 +257,20 @@ view factions model =
                 && not (Faction.eq Faction.unknown model.right.faction)
                 && not (Faction.eq model.left.faction model.right.faction)
 
-        footer =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| FinishCombat model.left model.right
-                    , disabled (not isValid)
-                    ]
-                    [ text "Finish" ]
-                , button
-                    [ class Bulma.button
-                    , onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg ResetCombatModal
-                    ]
-                    [ text "Reset" ]
+        finishButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isSuccess
+                , onClick <| ViewGameMsg <| FinishCombat model.left model.right
+                , disabled (not isValid)
                 ]
+                [ text "Finish" ]
+
+        resetButton =
+            button
+                [ class Bulma.button
+                , onClick <| ViewGameMsg <| ModalMsg <| CombatModalMsg ResetCombatModal
+                ]
+                [ text "Reset" ]
     in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footer
+    View.modal modalTitle (ViewGameMsg CloseModal) body [ resetButton ] [ finishButton ]

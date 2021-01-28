@@ -101,26 +101,28 @@ view factions model =
         body =
             div [ class Bulma.container ] <| List.indexedMap viewBid bidsList
 
-        footerChild =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| AssignBiddingPhaseCards bidsList
-                    , disabled (not (validFactionsSelected && validCardsSelected))
-                    ]
-                    [ text "Assign bids" ]
-                , button
-                    [ class Bulma.button
-                    , class Bulma.isInfo
-                    , onClick <| ViewGameMsg <| ModalMsg <| BiddingModalMsg AddBid
-                    ]
-                    [ text "Add bid" ]
-                , button
-                    [ class Bulma.button
-                    , onClick <| ViewGameMsg <| ModalMsg <| BiddingModalMsg ResetBids
-                    ]
-                    [ text "Reset" ]
+        assignBidsButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isSuccess
+                , onClick <| ViewGameMsg <| AssignBiddingPhaseCards bidsList
+                , disabled (not (validFactionsSelected && validCardsSelected))
                 ]
+                [ text "Assign bids" ]
+
+        addBidButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isInfo
+                , onClick <| ViewGameMsg <| ModalMsg <| BiddingModalMsg AddBid
+                ]
+                [ text "Add bid" ]
+
+        resetButton =
+            button
+                [ class Bulma.button
+                , onClick <| ViewGameMsg <| ModalMsg <| BiddingModalMsg ResetBids
+                ]
+                [ text "Reset" ]
     in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
+    View.modal modalTitle (ViewGameMsg CloseModal) body [ resetButton, addBidButton ] [ assignBidsButton ]

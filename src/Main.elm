@@ -820,7 +820,7 @@ viewChangeCardModal model =
         footerChild =
             View.button [ Html.Attributes.id "identify-card-button", class Bulma.isSuccess ] (ViewGameMsg <| ChangeCardViaModal { faction = model.faction, new = model.selectedCard, current = model.clickedCard }) "Identify Card"
     in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footerChild
+    View.modal modalTitle (ViewGameMsg CloseModal) body [] [ footerChild ]
 
 
 viewFooter : Html msg

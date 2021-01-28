@@ -51,18 +51,16 @@ view factions model =
                     ]
                 ]
 
-        footer =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| AddCard model.card model.faction
-                    , disabled (not validFactionSelected)
-                    ]
-                    [ text "Assign card" ]
+        completeButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isSuccess
+                , onClick <| ViewGameMsg <| AddCard model.card model.faction
+                , disabled (not validFactionSelected)
                 ]
+                [ text "Assign card" ]
     in
-    View.modal modalTitle (ViewGameMsg CloseModal) body footer
+    View.modal modalTitle (ViewGameMsg CloseModal) body [] [ completeButton ]
 
 
 update : AddCardModalMsg -> ModalAddCardModel -> ModalAddCardModel

@@ -28,17 +28,15 @@ modal config msg =
                 body =
                     div [] [ ul [] <| List.map viewAssignment assignments ]
 
-                footer =
-                    div []
-                        [ button
-                            [ class Bulma.button
-                            , class Bulma.isSuccess
-                            , onClick <| ViewGameMsg <| CloseModal
-                            ]
-                            [ text "Close" ]
+                closeButton =
+                    button
+                        [ class Bulma.button
+                        , class Bulma.isSuccess
+                        , onClick <| ViewGameMsg <| CloseModal
                         ]
+                        [ text "Close" ]
             in
-            View.modal modalTitle (ViewGameMsg <| CloseModal) body footer
+            View.modal modalTitle (ViewGameMsg <| CloseModal) body [] [ closeButton ]
 
         FinishCombat left right ->
             let
@@ -80,17 +78,15 @@ modal config msg =
                 body =
                     div [] [ viewCombatSide left, viewCombatSide right ]
 
-                footer =
-                    div []
-                        [ button
-                            [ class Bulma.button
-                            , class Bulma.isSuccess
-                            , onClick <| ViewGameMsg <| CloseModal
-                            ]
-                            [ text "Close" ]
+                closeButton =
+                    button
+                        [ class Bulma.button
+                        , class Bulma.isSuccess
+                        , onClick <| ViewGameMsg <| CloseModal
                         ]
+                        [ text "Close" ]
             in
-            View.modal modalTitle (ViewGameMsg <| CloseModal) body footer
+            View.modal modalTitle (ViewGameMsg <| CloseModal) body [] [ closeButton ]
 
         _ ->
             div [] []

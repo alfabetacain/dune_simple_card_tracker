@@ -49,14 +49,12 @@ view model =
                 , toggleField ToggleDoubleAddToHarkonnen "Add unknown card to harkonnen automatically during bidding" model.doubleAddToHarkonnen
                 ]
 
-        footer =
-            div []
-                [ button
-                    [ class Bulma.button
-                    , class Bulma.isSuccess
-                    , onClick <| ViewGameMsg <| FinishConfigModal
-                    ]
-                    [ text "Apply" ]
+        applyButton =
+            button
+                [ class Bulma.button
+                , class Bulma.isSuccess
+                , onClick <| ViewGameMsg <| FinishConfigModal
                 ]
+                [ text "Apply" ]
     in
-    View.modal title (ViewGameMsg CloseModal) body footer
+    View.modal title (ViewGameMsg CloseModal) body [] [ applyButton ]
