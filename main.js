@@ -8854,7 +8854,8 @@ var $author$project$View$History$list = F2(
 								[
 									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
 									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isChild),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered)
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$content)
 								]),
 							_List_fromArray(
 								[
