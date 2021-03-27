@@ -2,6 +2,7 @@ module View.History exposing (list, modal, supportsModal)
 
 import Bulma.Classes as Bulma
 import Card
+import Dict
 import Faction
 import Html exposing (Html, button, div, h3, hr, li, ol, text, ul)
 import Html.Attributes exposing (class)
@@ -25,8 +26,41 @@ modal config msg =
                 modalTitle =
                     "Bidding phase"
 
+                groupedByFaction =
+                    let
+                        join n existing =
+                            case existing of
+                                Nothing ->
+                                    Just [ n ]
+
+                                Just old ->
+                                    Just (n :: old)
+                    in
+                    List.foldl
+                        (\elem acc ->
+                            Dict.update
+                                (Faction.toString <| Tuple.second elem)
+                                (join (Tuple.first elem))
+                                acc
+                        )
+                        Dict.empty
+                        assignments
+
+                viewBid bid =
+                    li [] [ Card.html config [] bid ]
+
+                viewFactionAssignment factionAssignments =
+                    let
+                        ( faction, wonBids ) =
+                            factionAssignments
+                    in
+                    li []
+                        [ text faction
+                        , ul [] (List.map viewBid wonBids)
+                        ]
+
                 body =
-                    div [] [ ul [] <| List.map viewAssignment assignments ]
+                    div [ class Bulma.content ] [ ul [] <| List.map viewFactionAssignment (Dict.toList groupedByFaction) ]
 
                 closeButton =
                     button
