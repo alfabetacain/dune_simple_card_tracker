@@ -3,7 +3,7 @@ module View.History exposing (list, modal, supportsModal)
 import Bulma.Classes as Bulma
 import Card
 import Faction
-import Html exposing (Html, button, div, li, ol, text, ul)
+import Html exposing (Html, button, div, h3, hr, li, ol, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Types exposing (..)
@@ -116,10 +116,10 @@ viewGameMsg config msg =
                 Card.toString card
 
         item children =
-            Just <| li [] children
+            Just <| div [ class Bulma.box ] children
 
         interactiveItem onClickMsg txt =
-            Just <| li [ onClick onClickMsg, class "is-clickable" ] [ text txt ]
+            Just <| div [ class Bulma.box, onClick onClickMsg, class "is-clickable" ] [ text txt ]
     in
     case msg of
         AddCard card faction ->
@@ -179,10 +179,16 @@ viewGameMsg config msg =
 
 list : Config -> List GameMsg -> Html Msg
 list config history =
-    div [ class Bulma.tile, class Bulma.isAncestor ]
-        [ div [ class Bulma.tile, class Bulma.isParent ]
-            [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered, class Bulma.content ]
-                [ ol [] <| List.filterMap (viewGameMsg config) history
+    div []
+        [ hr [] []
+        , div [ class Bulma.section, class Bulma.isCentered ]
+            [ h3 [ class Bulma.title, class Bulma.isCentered ] [ text "History" ]
+            , div [ class Bulma.tile, class Bulma.isAncestor ]
+                [ div [ class Bulma.tile, class Bulma.isParent ]
+                    [ div [ class Bulma.tile, class Bulma.isChild, class Bulma.hasTextCentered, class Bulma.content ]
+                        [ div [ class Bulma.columns, class Bulma.isCentered ] [ div [ class Bulma.column, class Bulma.isNarrow ] (List.filterMap (viewGameMsg config) history) ]
+                        ]
+                    ]
                 ]
             ]
         ]
