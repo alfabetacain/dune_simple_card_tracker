@@ -20,8 +20,12 @@ jobs:
           elm-version: 0.19.1
       - name: Build (Elm)
         run: elm make src/Main.elm --output=dist/main.js
+      - name: install npm dependencies
+        run: npm install
+      - name: test
+        run: ./node_modules/elm-test/bin/elm-test
       - name: Build (CSS)
-        run: npm install && npm run css-build
+        run: npm run css-build
       - name: Deploy
         if: success()
         uses: JamesIves/github-pages-deploy-action@3.6.2

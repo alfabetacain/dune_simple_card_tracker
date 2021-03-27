@@ -7,12 +7,13 @@
   "devDependencies": {
     "bulma": "^0.9.1",
     "chromedriver": "^86.0.0",
+    "elm-test": "^0.19.1-revision6",
     "nightwatch": "^1.5.1",
     "node-sass": "^5.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-		"css-build": "node-sass --omit-source-map-url sass/mystyles.scss dist/mystyles.css"
+    "css-build": "node-sass --omit-source-map-url sass/mystyles.scss dist/mystyles.css"
   },
   "repository": {
     "type": "git",

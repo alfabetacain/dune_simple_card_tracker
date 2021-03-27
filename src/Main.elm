@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (createPlayer, initConfig, main, removeFirst, updateGame)
 
 import Array exposing (Array)
 import AssocList as ADict
