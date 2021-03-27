@@ -9739,15 +9739,44 @@ var $author$project$View$modal = F5(
 						]))
 				]));
 	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
 var $author$project$View$History$modal = F2(
 	function (config, msg) {
 		switch (msg.$) {
 			case 'AssignBiddingPhaseCards':
 				var assignments = msg.a;
+				var viewBid = function (bid) {
+					return A2(
+						$elm$html$Html$li,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A3($author$project$Card$html, config, _List_Nil, bid)
+							]));
+				};
+				var viewFactionAssignment = function (factionAssignments) {
+					var _v3 = factionAssignments;
+					var faction = _v3.a;
+					var wonBids = _v3.b;
+					return A2(
+						$elm$html$Html$li,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(faction),
+								A2(
+								$elm$html$Html$ul,
+								_List_Nil,
+								A2($elm$core$List$map, viewBid, wonBids))
+							]));
+				};
 				var viewAssignment = function (tuple) {
-					var _v1 = tuple;
-					var card = _v1.a;
-					var faction = _v1.b;
+					var _v2 = tuple;
+					var card = _v2.a;
+					var faction = _v2.b;
 					return A2(
 						$elm$html$Html$li,
 						_List_Nil,
@@ -9759,6 +9788,32 @@ var $author$project$View$History$modal = F2(
 							]));
 				};
 				var modalTitle = 'Bidding phase';
+				var groupedByFaction = function () {
+					var join = F2(
+						function (n, existing) {
+							if (existing.$ === 'Nothing') {
+								return $elm$core$Maybe$Just(
+									_List_fromArray(
+										[n]));
+							} else {
+								var old = existing.a;
+								return $elm$core$Maybe$Just(
+									A2($elm$core$List$cons, n, old));
+							}
+						});
+					return A3(
+						$elm$core$List$foldl,
+						F2(
+							function (elem, acc) {
+								return A3(
+									$elm$core$Dict$update,
+									$author$project$Faction$toString(elem.b),
+									join(elem.a),
+									acc);
+							}),
+						$elm$core$Dict$empty,
+						assignments);
+				}();
 				var closeButton = A2(
 					$elm$html$Html$button,
 					_List_fromArray(
@@ -9774,13 +9829,19 @@ var $author$project$View$History$modal = F2(
 						]));
 				var body = A2(
 					$elm$html$Html$div,
-					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$content)
+						]),
 					_List_fromArray(
 						[
 							A2(
 							$elm$html$Html$ul,
 							_List_Nil,
-							A2($elm$core$List$map, viewAssignment, assignments))
+							A2(
+								$elm$core$List$map,
+								viewFactionAssignment,
+								$elm$core$Dict$toList(groupedByFaction)))
 						]));
 				return A5(
 					$author$project$View$modal,
@@ -9882,10 +9943,6 @@ var $ahstro$elm_bulma_classes$Bulma$Classes$field = 'field';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isGrouped = 'is-grouped';
 var $ahstro$elm_bulma_classes$Bulma$Classes$label = 'label';
 var $elm$html$Html$label = _VirtualDom_node('label');
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $elm$html$Html$Attributes$classList = function (classes) {
 	return $elm$html$Html$Attributes$class(
 		A2(
