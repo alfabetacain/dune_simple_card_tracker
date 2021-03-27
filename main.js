@@ -8626,6 +8626,8 @@ var $elm$core$List$concatMap = F2(
 	});
 var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
 var $elm$html$Html$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
+var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
+var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
 		var _v0 = f(mx);
@@ -8644,14 +8646,20 @@ var $elm$core$List$filterMap = F2(
 			_List_Nil,
 			xs);
 	});
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
+var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $ahstro$elm_bulma_classes$Bulma$Classes$isAncestor = 'is-ancestor';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isCentered = 'is-centered';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isChild = 'is-child';
+var $ahstro$elm_bulma_classes$Bulma$Classes$isNarrow = 'is-narrow';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isParent = 'is-parent';
-var $elm$html$Html$ol = _VirtualDom_node('ol');
+var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $ahstro$elm_bulma_classes$Bulma$Classes$tile = 'tile';
+var $ahstro$elm_bulma_classes$Bulma$Classes$title = 'title';
 var $author$project$Types$ViewGameMsg = function (a) {
 	return {$: 'ViewGameMsg', a: a};
 };
+var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
 var $author$project$Card$defenses = _List_fromArray(
 	[$author$project$Card$defensePoison, $author$project$Card$defenseProjectile]);
 var $ahstro$elm_bulma_classes$Bulma$Classes$isBlack = 'is-black';
@@ -8700,7 +8708,6 @@ var $author$project$Card$html = F3(
 					$elm$html$Html$text(name)
 				]));
 	});
-var $elm$html$Html$li = _VirtualDom_node('li');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -8722,15 +8729,22 @@ var $author$project$View$History$viewGameMsg = F2(
 	function (config, msg) {
 		var item = function (children) {
 			return $elm$core$Maybe$Just(
-				A2($elm$html$Html$li, _List_Nil, children));
+				A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$box)
+						]),
+					children));
 		};
 		var interactiveItem = F2(
 			function (onClickMsg, txt) {
 				return $elm$core$Maybe$Just(
 					A2(
-						$elm$html$Html$li,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
+								$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$box),
 								$elm$html$Html$Events$onClick(onClickMsg),
 								$elm$html$Html$Attributes$class('is-clickable')
 							]),
@@ -8832,45 +8846,86 @@ var $author$project$View$History$list = F2(
 	function (config, history) {
 		return A2(
 			$elm$html$Html$div,
+			_List_Nil,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
-					$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isAncestor)
-				]),
-			_List_fromArray(
-				[
+					A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
-							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isParent)
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$section),
+							$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isCentered)
 						]),
 					_List_fromArray(
 						[
+							A2(
+							$elm$html$Html$h3,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$title),
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isCentered)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('History')
+								])),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
 								[
 									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isChild),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
-									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$content)
+									$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isAncestor)
 								]),
 							_List_fromArray(
 								[
 									A2(
-									$elm$html$Html$ol,
-									_List_Nil,
-									A2(
-										$elm$core$List$filterMap,
-										$author$project$View$History$viewGameMsg(config),
-										history))
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
+											$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isParent)
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$div,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$tile),
+													$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isChild),
+													$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$hasTextCentered),
+													$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$content)
+												]),
+											_List_fromArray(
+												[
+													A2(
+													$elm$html$Html$div,
+													_List_fromArray(
+														[
+															$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$columns),
+															$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isCentered)
+														]),
+													_List_fromArray(
+														[
+															A2(
+															$elm$html$Html$div,
+															_List_fromArray(
+																[
+																	$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$column),
+																	$elm$html$Html$Attributes$class($ahstro$elm_bulma_classes$Bulma$Classes$isNarrow)
+																]),
+															A2(
+																$elm$core$List$filterMap,
+																$author$project$View$History$viewGameMsg(config),
+																history))
+														]))
+												]))
+										]))
 								]))
 						]))
 				]));
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$section = 'section';
 var $elm$html$Html$section = _VirtualDom_node('section');
 var $author$project$Types$Undo = {$: 'Undo'};
 var $ahstro$elm_bulma_classes$Bulma$Classes$button = 'button';
@@ -9499,6 +9554,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
 			]);
 	});
+var $elm$html$Html$li = _VirtualDom_node('li');
 var $author$project$Main$viewDeckCard = F3(
 	function (counts, config, card) {
 		var limit = $author$project$Card$cardLimit(card);
@@ -10185,8 +10241,6 @@ var $author$project$Modal$Bidding$view = F2(
 			_List_fromArray(
 				[assignBidsButton]));
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$column = 'column';
-var $ahstro$elm_bulma_classes$Bulma$Classes$columns = 'columns';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextLeft = 'has-text-left';
 var $ahstro$elm_bulma_classes$Bulma$Classes$hasTextRight = 'has-text-right';
 var $ahstro$elm_bulma_classes$Bulma$Classes$isOneFifth = 'is-one-fifth';
@@ -10753,7 +10807,6 @@ var $author$project$Main$viewModal = F4(
 				return A2($author$project$Modal$HarkonnenCardSwap$view, factions, model);
 		}
 	});
-var $ahstro$elm_bulma_classes$Bulma$Classes$box = 'box';
 var $elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
